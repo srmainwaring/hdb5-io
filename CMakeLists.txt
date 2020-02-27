@@ -65,7 +65,7 @@ include(Add_MathUtils)
 #=============================================================================
 # Adding the HDB5_IO project sources
 #=============================================================================
-#add_subdirectory(src)
+add_subdirectory(src)
 
 #=============================================================================
 # Adding tests
@@ -73,7 +73,6 @@ include(Add_MathUtils)
 if (${HDB5IO_build_tests})
     enable_testing()
     include(Add_googletest)
-
     add_subdirectory(tests)
 endif ()
 

@@ -101,6 +101,8 @@ ENV/
 # Nemoh results exemples
 frydom/tests/hydrodynamics/data_nemoh
 Kochin.*.dat
+*.hdb5
+*.h5
 
 # C++ compiled files
 *.o
