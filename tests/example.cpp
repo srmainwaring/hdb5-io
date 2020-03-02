@@ -18,18 +18,28 @@ int main() {
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
     // Define the size of our dataset: 2x6
-    std::vector<size_t> dims(2);
-    dims[0] = 2;
-    dims[1] = 6;
+//    std::vector<size_t> dims(2);
+//    dims[0] = 2;
+//    dims[1] = 6;
+//
+//    // Create the dataset
+//    DataSet dataset = file.createDataSet<double>(DATASET_NAME, DataSpace(dims));
+//
+//    double data[2][6] = {{1.1,   2.2,   3.3,   4.4,   5.5,   6.6},
+//                         {11.11, 12.12, 13.13, 14.14, 15.15, 16.16}};
+//
+//    // write it
+//    dataset.write(data);
 
-    // Create the dataset
-    DataSet dataset = file.createDataSet<double>(DATASET_NAME, DataSpace(dims));
+//    Eigen::Vector3d vec_in{5.0, 6.0, 7.0};
+//    std::vector<Eigen::Vector3d> vec_in{{5.0, 6.0, 7.0},{7.0, 8.0, 9.0}};
 
-    double data[2][6] = {{1.1,   2.2,   3.3,   4.4,   5.5,   6.6},
-                         {11.11, 12.12, 13.13, 14.14, 15.15, 16.16}};
+    Eigen::Vector3d vec_in{5.0, 6.0, 7.0};
 
-    // write it
-    dataset.write(data);
+    std::cout<<vec_in<<std::endl;
+
+    file.createDataSet("Eigen", vec_in).write(vec_in);
+
 
   } catch (Exception &err) {
     // catch and print any HDF5 error

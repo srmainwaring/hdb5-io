@@ -26,6 +26,8 @@ namespace HDB5_io {
 
    public:
 
+    Discretization1D() = default;
+
     /// Constructor with specified parameters
     /// \param xmin Min abscissa
     /// \param xmax Max abscissa

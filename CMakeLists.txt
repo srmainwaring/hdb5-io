@@ -58,9 +58,16 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/URL.conf.cmake)
 #    DownloadData()
 #endif ()
 
-include(Add_HighFive)
-include(Add_googletest)
 include(Add_MathUtils)
+include(Add_HDF5)
+
+
+get_target_property(INC eigen INTERFACE_INCLUDE_DIRECTORIES)
+message(STATUS "Found eigen : ${INC}")
+
+set(Eigen3_DIR ${INC})
+
+include(Add_HighFive)
 
 #=============================================================================
 # Adding the HDB5_IO project sources

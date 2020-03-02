@@ -11,6 +11,14 @@ namespace HDB5_io {
   // Setters
   //
 
+  void Body::SetForceMask(mathutils::Vector6d<int> mask) {
+    m_forceMask.SetMask(mask);
+  }
+
+  void Body::SetMotionMask(mathutils::Vector6d<int> mask) {
+    m_motionMask.SetMask(mask);
+  }
+
   void Body::SetDiffraction(unsigned int iangle, const Eigen::MatrixXcd &diffractionMatrix) {
 //    assert(iangle < GetNbWaveDirections());
 //    assert(diffractionMatrix.rows() == 6);
@@ -100,6 +108,47 @@ namespace HDB5_io {
 
   mathutils::Matrix66<double> Body::GetSelfInfiniteAddedMass() {
     return m_infiniteAddedMass[this];
+  }
+
+  void Body::AllocateAll(unsigned int Nfrequencies, unsigned int nDirections) {
+
+    // This subroutine allocates the arrays for the hdb.
+
+    auto nbForce = GetForceMask().GetNbDOF();
+
+    // --> Allocating arrays for excitations
+
+//    auto nbWaveDir = GetNbWaveDirections();
+    m_diffraction.reserve((unsigned long) nDirections);
+    m_froudeKrylov.reserve((unsigned long) nDirections);
+    m_excitation.reserve((unsigned long) nDirections);
+
+//    auto nbFreq = GetNbFrequencies();
+    for (int i = 0; i < nDirections; ++i) {
+      Eigen::MatrixXcd mat(nbForce, Nfrequencies);
+      m_diffraction.push_back(mat);
+      m_froudeKrylov.push_back(mat);
+      m_excitation.push_back(mat);
+    }
+
+//    /// --> Allocating arrays for radiation
+//    auto nbBodies = GetNbBodies();
+//    m_radiationMask.reserve(nbBodies);
+//
+//    auto nbTime = GetNbTimeSamples();
+//    for (unsigned int ibody = 0; ibody < nbBodies; ++ibody) {
+//
+//      auto body = m_HDB->GetBody(ibody);
+//      auto nbMotion = GetMotionMask().GetNbDOF();
+//
+//      Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> mask(nbForce, nbMotion);
+//      mask.setConstant(true);
+//      m_radiationMask.push_back(mask);
+//
+//    }
+
+
+
   }
 
 }

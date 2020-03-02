@@ -10,6 +10,9 @@
 #include "Discretization1D.h"
 #include "Body.h"
 
+#include "MathUtils/Vector3d.h"
+#include "highfive/H5Group.hpp"
+
 namespace HDB5_io {
 
   // Forward declarations
@@ -58,10 +61,9 @@ namespace HDB5_io {
 
     Body *GetBody(int id) const { return m_bodies[id].get(); }
 
-    Body *NewBody() {
-      auto body = std::make_unique<Body>();
-      m_bodies.push_back(body);
-      return body.get();
+    Body *NewBody(unsigned int id, const std::string& name) {
+      m_bodies.push_back(std::make_unique<Body>(id, name));
+      return (m_bodies.back()).get();
     }
 
     void SetFrequencyDiscretization(double wmin, double wmax, unsigned int nw) { m_frequencyDiscretization = Discretization1D(wmin, wmax, nw);}
@@ -95,6 +97,15 @@ namespace HDB5_io {
     Discretization1D m_frequencyDiscretization;       ///< Wave frequency discretization
     Discretization1D m_waveDirectionDiscretization;   ///< Wave direction discretization
     Discretization1D m_timeDiscretization;            ///< Time samples
+
+
+    void Import_HDF5_v3(const std::string &HDF5_file);
+
+//    void ReadExcitation(HighFive::Group* group, Body* body);
+
+    void ReadExcitation(const HighFive::File &HDF5_file, const std::string &path, Body* body);
+
+    void ReadRadiation(const HighFive::File &HDF5_file, const std::string &path, Body* body);
 
   };
 

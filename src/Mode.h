@@ -5,6 +5,8 @@
 #ifndef HDB5_IO_MODE_H
 #define HDB5_IO_MODE_H
 
+#include "MathUtils/Vector3d.h"
+
 namespace HDB5_io {
   /**
    * \class Mode
@@ -20,8 +22,8 @@ namespace HDB5_io {
 
    private:
     TYPE m_type;
-    Direction m_direction;
-    Position m_position;
+    mathutils::Vector3d<double> m_direction;
+    mathutils::Vector3d<double> m_position;
     bool m_active = true;
 
    public:
@@ -33,13 +35,13 @@ namespace HDB5_io {
 
     TYPE GetType() const { return m_type; }
 
-    void SetDirection(Direction &direction) { m_direction = direction; }
+    void SetDirection(mathutils::Vector3d<double> &direction) { m_direction = direction; }
 
-    Direction GetDirection() const { return m_direction; }
+    mathutils::Vector3d<double> GetDirection() const { return m_direction; }
 
-    void SetPointPosition(Position &position) { m_position = position; }
+    void SetPointPosition(mathutils::Vector3d<double> &position) { m_position = position; }
 
-    Position GetPointPosition() const { return m_position; }
+    mathutils::Vector3d<double> GetPointPosition() const { return m_position; }
 
     void Activate() { m_active = true; }
 

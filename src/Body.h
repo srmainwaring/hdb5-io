@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <memory>
 
-#include "Mode.h"
+//#include "Mode.h"
 #include "Mask.h"
 
 namespace HDB5_io {
@@ -39,6 +39,14 @@ namespace HDB5_io {
     /// Define the position of body stored in BEM body database
     /// \param position Position of the body
     void SetPosition(const mathutils::Vector3d<double>& position) { m_position = position; }
+
+    /// Define the mask on the force components
+    /// \param mask Mask on the force components
+    void SetForceMask(mathutils::Vector6d<int> mask);
+
+    /// Define the mask on the DOF of the body
+    /// \param mask Mask on the DOF of the body
+    void SetMotionMask(mathutils::Vector6d<int> mask);
 
     /// Set the complex matrix of the diffraction coefficient
     /// \param iangle Corresponding wave direction
@@ -88,6 +96,16 @@ namespace HDB5_io {
     // Getters
     //
 
+    /// Return the mask value applied on a specific motion mode
+    /// \param imotion Index of motion
+    /// \return Mask on the motion mode
+    Mask GetMotionMask() const { return m_motionMask; }
+
+    /// Return the mask value applied on a specific motion mode
+    /// \param iforce Index of force
+    /// \return Mask on the force mode
+    Mask GetForceMask() const { return m_forceMask; }
+
     Eigen::MatrixXcd GetDiffraction(unsigned int iangle) const;
 
     Eigen::VectorXcd GetDiffraction(unsigned int iangle, unsigned int iforce) const;
@@ -114,6 +132,8 @@ namespace HDB5_io {
 
 //    std::shared_ptr<FrWaveDriftPolarData> GetWaveDrift() const;
 
+    void AllocateAll(unsigned int Nfrequencies, unsigned int nDirections);
+
 
    private:
     unsigned int m_id;                             ///< ID of the BEM Body
@@ -123,8 +143,8 @@ namespace HDB5_io {
     Mask m_forceMask;                              ///< Mask applied on the force
     Mask m_motionMask;                             ///< Mask applied on the DOF
 
-    std::vector<Mode> m_forceModes;                ///< List of activated force modes
-    std::vector<Mode> m_motionModes;               ///< List of activated motion modes
+//    std::vector<Mode> m_forceModes;                ///< List of activated force modes
+//    std::vector<Mode> m_motionModes;               ///< List of activated motion modes
 
 //    Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> m_excitationMask;   ///<
     std::vector<Eigen::MatrixXcd> m_excitation;    ///< Complex coefficient of the excitation force
@@ -135,8 +155,8 @@ namespace HDB5_io {
 
     std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> m_radiationMask;   ///< Radiation mask
     std::unordered_map<Body *, mathutils::Matrix66<double>> m_infiniteAddedMass;    ///< Infinite added mass for each body
-//    std::unordered_map<Body *, std::vector<std::shared_ptr<mathutils::Interp1d<double, mathutils::Vector6d<double>>> >> m_interpK; ///< Impulse response function interpolator
-//    std::unordered_map<Body *, std::vector<std::shared_ptr<mathutils::Interp1d<double, mathutils::Vector6d<double>>> >> m_interpKu; ///< Impulse response function speed dependent interpolator
+    std::unordered_map<Body *, std::vector<std::shared_ptr<mathutils::Interp1d<double, mathutils::Vector6d<double>>> >> m_interpK; ///< Impulse response function interpolator
+    std::unordered_map<Body *, std::vector<std::shared_ptr<mathutils::Interp1d<double, mathutils::Vector6d<double>>> >> m_interpKu; ///< Impulse response function speed dependent interpolator
 
 //    std::vector<std::vector<mathutils::Interp1dLinear<double, std::complex<double>>>> m_waveDirInterpolators;   ///<
 

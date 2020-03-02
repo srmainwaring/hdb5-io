@@ -5,6 +5,9 @@
 #ifndef HDB5_IO_MASK_H
 #define HDB5_IO_MASK_H
 
+#include "vector"
+
+#include "MathUtils/MathUtils.h"
 
 namespace HDB5_io {
 
@@ -39,7 +42,7 @@ namespace HDB5_io {
 
     /// Return the number of activated DOF in the mask
     /// \return Number of activated DOF
-    unsigned int GetNbMode() const { return m_nbDOF; }
+    unsigned int GetNbDOF() const { return m_nbDOF; }
 
     /// Return the list of activated DOF
     /// \return List of activated DOF
