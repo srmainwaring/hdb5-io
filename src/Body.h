@@ -69,7 +69,12 @@ namespace HDB5_io {
     /// Set the infinite added mass of the BEM body with respect to the motion of another BEM body
     /// \param BodyMotion BEM body to which the motion is considered
     /// \param CMInf Infinite added mass matrix
-    void SetInfiniteAddedMass(Body *BodyMotion, const Eigen::MatrixXd &CMInf);
+    void SetInfiniteAddedMass(Body *BodyMotion, const mathutils::Matrix66<double> &CMInf);
+
+    /// Set the radiation mask of the BEM body with respect to the motion of another BEM body
+    /// \param BodyMotion BEM body to which the motion is considered
+    /// \param mask radiation mask of the BEM body with respect to the motion of another BEM body
+    void SetRadiationMask(Body *BodyMotion, const mathutils::Matrix66<bool> &mask);
 
     /// Set the impulse response function of the BEM body with respect to the motion of another BEM body
     /// \param BodyMotionBEM body to which the motion is considered
@@ -132,7 +137,7 @@ namespace HDB5_io {
 
 //    std::shared_ptr<FrWaveDriftPolarData> GetWaveDrift() const;
 
-    void AllocateAll(unsigned int Nfrequencies, unsigned int nDirections);
+    void AllocateAll(unsigned int nFrequencies, unsigned int nDirections);
 
 
    private:
@@ -153,7 +158,7 @@ namespace HDB5_io {
 
     mathutils::Matrix33<double> m_hydrostaticStiffnessMatrix;   ///< Hydrostatic matrix
 
-    std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> m_radiationMask;   ///< Radiation mask
+    std::unordered_map<Body *, mathutils::Matrix66<bool>> m_radiationMask;        ///< Radiation mask
     std::unordered_map<Body *, mathutils::Matrix66<double>> m_infiniteAddedMass;    ///< Infinite added mass for each body
     std::unordered_map<Body *, std::vector<std::shared_ptr<mathutils::Interp1d<double, mathutils::Vector6d<double>>> >> m_interpK; ///< Impulse response function interpolator
     std::unordered_map<Body *, std::vector<std::shared_ptr<mathutils::Interp1d<double, mathutils::Vector6d<double>>> >> m_interpKu; ///< Impulse response function speed dependent interpolator

@@ -51,10 +51,12 @@ namespace HDB5_io {
     }
   }
 
-  void Body::SetInfiniteAddedMass(Body *BodyMotion, const Eigen::MatrixXd &CMInf) {
-    assert(CMInf.rows() == 6);
-    assert(CMInf.cols() == 6);
+  void Body::SetInfiniteAddedMass(Body *BodyMotion, const mathutils::Matrix66<double> &CMInf) {
     m_infiniteAddedMass[BodyMotion] = CMInf;
+  }
+
+  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const mathutils::Matrix66<bool> &mask){
+    m_radiationMask[BodyMotion] = mask;
   }
 
   void Body::SetStiffnessMatrix(const mathutils::Matrix33<double> &hydrostaticStiffnessMatrix) {
@@ -110,7 +112,7 @@ namespace HDB5_io {
     return m_infiniteAddedMass[this];
   }
 
-  void Body::AllocateAll(unsigned int Nfrequencies, unsigned int nDirections) {
+  void Body::AllocateAll(unsigned int nFrequencies, unsigned int nDirections) {
 
     // This subroutine allocates the arrays for the hdb.
 
@@ -125,7 +127,7 @@ namespace HDB5_io {
 
 //    auto nbFreq = GetNbFrequencies();
     for (int i = 0; i < nDirections; ++i) {
-      Eigen::MatrixXcd mat(nbForce, Nfrequencies);
+      Eigen::MatrixXcd mat(nbForce, nFrequencies);
       m_diffraction.push_back(mat);
       m_froudeKrylov.push_back(mat);
       m_excitation.push_back(mat);

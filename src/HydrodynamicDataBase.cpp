@@ -156,6 +156,7 @@ namespace HDB5_io {
       auto imagCoeffs = H5Easy::load<Eigen::MatrixXd>(HDF5_file, diffractionWaveDirPath + "/ImagCoeffs");
       auto Dcoeffs = realCoeffs  + MU_JJ * imagCoeffs;
 
+      // TODO :: ON NE CONDENSE PLUS !!!
       Eigen::MatrixXcd DiffractionCoeffs;
       if (imagCoeffs.rows() != forceMask.GetNbDOF()) {
         // Condense the matrix by removing the lines corresponding to the masked DOFs
@@ -170,6 +171,7 @@ namespace HDB5_io {
       imagCoeffs = H5Easy::load<Eigen::MatrixXd>(HDF5_file, froudeKrylovWaveDirPath + "/ImagCoeffs");
       auto FKcoeffs = realCoeffs  + MU_JJ * imagCoeffs;
 
+      // TODO :: ON NE CONDENSE PLUS !!!
       Eigen::MatrixXcd froudeKrylovCoeffs;
       if (imagCoeffs.rows() != forceMask.GetNbDOF()) {
         // Condense the matrix by removing the lines corresponding to the masked DOFs
@@ -202,8 +204,33 @@ namespace HDB5_io {
       auto infiniteAddedMass = H5Easy::load<Eigen::MatrixXd>(HDF5_file, bodyMotionPath + "/InfiniteAddedMass");
       body->SetInfiniteAddedMass(bodyMotion, infiniteAddedMass);
 
+      // Reading the radiation mask matrix for the body.
+      // TODO :: changer en booleen
+      auto radiationMask = H5Easy::load<Eigen::MatrixXi>(HDF5_file, bodyMotionPath + "/RadiationMask");
+//      body->SetRadiationMask(bodyMotion, radiationMask);
 
+      // Reading the impulse response functions.
+      auto IRFPath = bodyMotionPath + "/ImpulseResponseFunctionK";
 
+      std::vector<Eigen::MatrixXd> impulseResponseFunctionsK;
+
+      Mask motionMask;
+      Eigen::MatrixXd IRFCoeffs;
+
+      for (unsigned int imotion = 0; imotion < 6; ++imotion) {
+        auto IRF = H5Easy::load<Eigen::MatrixXd>(HDF5_file, IRFPath + "/DOF" + std::to_string(imotion));
+        motionMask.SetMask(radiationMask.row(imotion));
+        if (IRF.rows() != motionMask.GetNbDOF()) {
+          // Condense the matrix by removing the lines corresponding to the masked DOFs
+          //TODO:: passer en fonction de MathUtils ?
+          IRFCoeffs = Eigen::VectorXi::Map(motionMask.GetListDOF().data(), motionMask.GetNbDOF()).replicate(1,IRF.cols()).unaryExpr(IRF);
+        } else{
+          IRFCoeffs = IRF;
+        }
+        impulseResponseFunctionsK.push_back(IRFCoeffs);
+      }
+      // TODO :: a implementer
+//      body->SetImpulseResponseFunctionK(bodyMotion, impulseResponseFunctionsK);
     }
 
 
