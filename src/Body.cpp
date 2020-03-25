@@ -3,6 +3,7 @@
 //
 
 #include "Body.h"
+#include "HydrodynamicDataBase.h"
 
 namespace HDB5_io {
 
@@ -20,23 +21,23 @@ namespace HDB5_io {
   }
 
   void Body::SetDiffraction(unsigned int iangle, const Eigen::MatrixXcd &diffractionMatrix) {
-//    assert(iangle < GetNbWaveDirections());
-//    assert(diffractionMatrix.rows() == 6);
-//    assert(diffractionMatrix.cols() == GetNbFrequencies());
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().GetNbSample());
+    assert(diffractionMatrix.rows() == 6);
+    assert(diffractionMatrix.cols() == m_HDB->GetFrequencyDiscretization().GetNbSample());
     m_diffraction[iangle] = diffractionMatrix;
   }
 
   void Body::SetFroudeKrylov(unsigned int iangle, const Eigen::MatrixXcd &froudeKrylovMatrix) {
-//    assert(iangle < GetNbWaveDirections());
-//    assert(froudeKrylovMatrix.rows() == 6);
-//    assert(froudeKrylovMatrix.cols() == GetNbFrequencies());
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().GetNbSample());
+    assert(froudeKrylovMatrix.rows() == 6);
+    assert(froudeKrylovMatrix.cols() == m_HDB->GetFrequencyDiscretization().GetNbSample());
     m_froudeKrylov[iangle] = froudeKrylovMatrix;
   }
 
   void Body::SetExcitation(unsigned int iangle, const Eigen::MatrixXcd &excitationMatrix) {
-//    assert(iangle < GetNbWaveDirections());
-//    assert(excitationMatrix.rows() == 6);
-//    assert(excitationMatrix.cols() == GetNbFrequencies());
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().GetNbSample());
+    assert(excitationMatrix.rows() == 6);
+    assert(excitationMatrix.cols() == m_HDB->GetFrequencyDiscretization().GetNbSample());
     m_excitation[iangle] = excitationMatrix;
   }
 
@@ -55,8 +56,59 @@ namespace HDB5_io {
     m_infiniteAddedMass[BodyMotion] = CMInf;
   }
 
-  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const mathutils::Matrix66<bool> &mask){
-    m_radiationMask[BodyMotion] = mask;
+//  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const mathutils::Matrix66<bool> &mask){
+//    m_radiationMask[BodyMotion] = mask;
+//  }
+
+  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const mathutils::Matrix66<int> &mask){
+
+    assert(mask.maxCoeff()<=1 and mask.minCoeff()>=0);
+
+    for (unsigned int i = 0; i<6; i++) {
+      for (unsigned int j = 0; j<6; j++){
+        m_radiationMask[BodyMotion](i,j) = mask(i, j) == 1;
+      }
+    }
+  }
+
+  void Body::SetImpulseResponseFunctionK(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listIRF) {
+    for (auto &IRF: listIRF) {
+      assert(IRF.rows() == 6);
+      assert(IRF.cols() == m_HDB->GetTimeDiscretization().GetNbSample());
+
+      auto vtime = std::make_shared<std::vector<double>>(m_HDB->GetTimeDiscretization().GetVector());
+
+      auto vdata = std::make_shared<std::vector<mathutils::Vector6d<double>>>();
+      for (unsigned int j = 0; j < IRF.cols(); ++j) {
+        vdata->push_back(IRF.col(j));
+      }
+
+      auto interp = std::make_shared<mathutils::Interp1dLinear<double, mathutils::Vector6d<double>>>();
+      interp->Initialize(vtime, vdata);
+
+      m_interpK[BodyMotion].push_back(interp);
+    }
+
+  }
+
+  void Body::SetImpulseResponseFunctionKu(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listIRF) {
+    for (auto &IRF: listIRF) {
+      assert(IRF.rows() == 6);
+      assert(IRF.cols() == m_HDB->GetTimeDiscretization().GetNbSample());
+
+      auto vtime = std::make_shared<std::vector<double>>(m_HDB->GetTimeDiscretization().GetVector());
+
+      auto vdata = std::make_shared<std::vector<mathutils::Vector6d<double>>>();
+      for (unsigned int j = 0; j < IRF.cols(); ++j) {
+        vdata->push_back(IRF.col(j));
+      }
+
+      auto interp = std::make_shared<mathutils::Interp1dLinear<double, mathutils::Vector6d<double>>>();
+      interp->Initialize(vtime, vdata);
+
+      m_interpKu[BodyMotion].push_back(interp);
+    }
+
   }
 
   void Body::SetStiffnessMatrix(const mathutils::Matrix33<double> &hydrostaticStiffnessMatrix) {
@@ -133,21 +185,8 @@ namespace HDB5_io {
       m_excitation.push_back(mat);
     }
 
-//    /// --> Allocating arrays for radiation
-//    auto nbBodies = GetNbBodies();
-//    m_radiationMask.reserve(nbBodies);
-//
-//    auto nbTime = GetNbTimeSamples();
-//    for (unsigned int ibody = 0; ibody < nbBodies; ++ibody) {
-//
-//      auto body = m_HDB->GetBody(ibody);
-//      auto nbMotion = GetMotionMask().GetNbDOF();
-//
-//      Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> mask(nbForce, nbMotion);
-//      mask.setConstant(true);
-//      m_radiationMask.push_back(mask);
-//
-//    }
+    /// --> Allocating arrays for radiation
+    m_radiationMask.reserve(m_HDB->GetNbBodies());
 
 
 

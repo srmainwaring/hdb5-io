@@ -18,11 +18,14 @@
 
 namespace HDB5_io {
 
+  // Forward declaration
+  class HydrodynamicDataBase;
+
   class Body {
 
    public:
 
-    Body(unsigned int id, const std::string& name) : m_id(id), m_name(name) {};
+    Body(unsigned int id, const std::string& name, HydrodynamicDataBase *hdb) : m_id(id), m_name(name), m_HDB(hdb) {};
 
     /// Return the name of the BEM body database
     /// \return Name of the BEM body
@@ -74,7 +77,8 @@ namespace HDB5_io {
     /// Set the radiation mask of the BEM body with respect to the motion of another BEM body
     /// \param BodyMotion BEM body to which the motion is considered
     /// \param mask radiation mask of the BEM body with respect to the motion of another BEM body
-    void SetRadiationMask(Body *BodyMotion, const mathutils::Matrix66<bool> &mask);
+//    void SetRadiationMask(Body *BodyMotion, const mathutils::Matrix66<bool> &mask);
+    void SetRadiationMask(Body *BodyMotion, const mathutils::Matrix66<int> &mask);
 
     /// Set the impulse response function of the BEM body with respect to the motion of another BEM body
     /// \param BodyMotionBEM body to which the motion is considered
@@ -141,6 +145,7 @@ namespace HDB5_io {
 
 
    private:
+    HydrodynamicDataBase *m_HDB;       ///< HDB from which BEM data are extracted
     unsigned int m_id;                             ///< ID of the BEM Body
     std::string m_name;                            ///< Name of the body
     mathutils::Vector3d<double> m_position;        ///< Position of the body from HDB

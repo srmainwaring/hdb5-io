@@ -105,7 +105,15 @@ namespace HDB5_io {
 
 
     for (auto &body : m_bodies) {
-      ReadExcitation(file, "Bodies/Body_" + std::to_string(body->GetID()) , body.get());
+
+      ReadExcitation(Diffraction, file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Excitation/Diffraction",
+                     body.get());
+      ReadExcitation(Froude_Krylov, file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Excitation/FroudeKrylov",
+                     body.get());
+
+      body->ComputeExcitation();
+
+      ReadRadiation(file, "Bodies/Body_" + std::to_string(body->GetID()), body.get());
     }
 
   }
@@ -138,50 +146,42 @@ namespace HDB5_io {
 //
 //  }
 
-  void HydrodynamicDataBase::ReadExcitation(const HighFive::File &HDF5_file, const std::string &path, Body* body) {
-
+  void HydrodynamicDataBase::ReadExcitation(excitationType type, const HighFive::File &HDF5_file,
+                                            const std::string &path, Body *body){
     auto forceMask = body->GetForceMask();
-
-    auto diffractionPath = path + "/Excitation/Diffraction";
-    auto froudeKrylovPath = path + "/Excitation/FroudeKrylov/";
 
     for (unsigned int iwaveDir = 0; iwaveDir < m_waveDirectionDiscretization.GetNbSample(); ++iwaveDir) {
 
-      auto diffractionWaveDirPath = diffractionPath + "/Angle_" + std::to_string(iwaveDir);
+      auto WaveDirPath = path + "/Angle_" + std::to_string(iwaveDir);
 
-      auto angle = H5Easy::load<double>(HDF5_file, diffractionWaveDirPath + "/Angle");
-      assert(abs(m_waveDirectionDiscretization.GetVector()[iwaveDir] - angle) < 1E-5);
+//      auto angle = H5Easy::load<double>(HDF5_file, WaveDirPath + "/Angle");
+//      assert(abs(m_waveDirectionDiscretization.GetVector()[iwaveDir] - angle) < 1E-5);
 
-      auto realCoeffs = H5Easy::load<Eigen::MatrixXd>(HDF5_file, diffractionWaveDirPath + "/RealCoeffs");
-      auto imagCoeffs = H5Easy::load<Eigen::MatrixXd>(HDF5_file, diffractionWaveDirPath + "/ImagCoeffs");
+      auto realCoeffs = H5Easy::load<Eigen::MatrixXd>(HDF5_file, WaveDirPath + "/RealCoeffs");
+      auto imagCoeffs = H5Easy::load<Eigen::MatrixXd>(HDF5_file, WaveDirPath + "/ImagCoeffs");
       auto Dcoeffs = realCoeffs  + MU_JJ * imagCoeffs;
 
-      // TODO :: ON NE CONDENSE PLUS !!!
-      Eigen::MatrixXcd DiffractionCoeffs;
-      if (imagCoeffs.rows() != forceMask.GetNbDOF()) {
-        // Condense the matrix by removing the lines corresponding to the masked DOFs
-        DiffractionCoeffs = Eigen::VectorXi::Map(forceMask.GetListDOF().data(), forceMask.GetNbDOF()).replicate(1,Dcoeffs.cols()).unaryExpr(Dcoeffs);
+      Eigen::MatrixXcd ExcitationCoeffs;
+      if (imagCoeffs.rows() != 6) {
+        assert(imagCoeffs.rows() == forceMask.GetNbDOF());
+        ExcitationCoeffs.setZero();
+        for (int i = 0; i<forceMask.GetNbDOF(); i++) {
+          ExcitationCoeffs.row(forceMask.GetListDOF()[i]) = Dcoeffs.row(i);
+        }
+//        // Condense the matrix by removing the lines corresponding to the masked DOFs
+//        ExcitationCoeffs = Eigen::VectorXi::Map(forceMask.GetListDOF().data(), forceMask.GetNbDOF()).replicate(1,Dcoeffs.cols()).unaryExpr(Dcoeffs);
       } else{
-        DiffractionCoeffs = Dcoeffs;
+        ExcitationCoeffs = Dcoeffs;
       }
-      body->SetDiffraction(iwaveDir, DiffractionCoeffs);
 
-      auto froudeKrylovWaveDirPath = froudeKrylovPath + "/Angle_" + std::to_string(iwaveDir);
-      realCoeffs = H5Easy::load<Eigen::MatrixXd>(HDF5_file, froudeKrylovWaveDirPath + "/RealCoeffs");
-      imagCoeffs = H5Easy::load<Eigen::MatrixXd>(HDF5_file, froudeKrylovWaveDirPath + "/ImagCoeffs");
-      auto FKcoeffs = realCoeffs  + MU_JJ * imagCoeffs;
-
-      // TODO :: ON NE CONDENSE PLUS !!!
-      Eigen::MatrixXcd froudeKrylovCoeffs;
-      if (imagCoeffs.rows() != forceMask.GetNbDOF()) {
-        // Condense the matrix by removing the lines corresponding to the masked DOFs
-        froudeKrylovCoeffs = Eigen::VectorXi::Map(forceMask.GetListDOF().data(), forceMask.GetNbDOF()).replicate(1,FKcoeffs.cols()).unaryExpr(FKcoeffs);
-      } else{
-        froudeKrylovCoeffs = FKcoeffs;
+      switch (type) {
+        case Diffraction :
+          body->SetDiffraction(iwaveDir, ExcitationCoeffs);
+          break;
+        case Froude_Krylov :
+          body->SetFroudeKrylov(iwaveDir, ExcitationCoeffs);
+          break;
       }
-      body->SetFroudeKrylov(iwaveDir, froudeKrylovCoeffs);
-
-      body->SetExcitation(iwaveDir, DiffractionCoeffs + froudeKrylovCoeffs);
 
     }
 
@@ -189,50 +189,58 @@ namespace HDB5_io {
 
   void HydrodynamicDataBase::ReadRadiation(const HighFive::File &HDF5_file, const std::string &path, Body* body) {
 
-    auto radiationPath = path + "/Radiation";
-
-    auto motionMaskMatrix = body->GetMotionMask().GetMatrix();
-
-    auto nbTimeSamples = m_timeDiscretization.GetNbSample();
-
     for (unsigned int ibodyMotion = 0; ibodyMotion < m_nbody; ++ibodyMotion) {
 
       auto bodyMotion = this->GetBody(ibodyMotion);
-      auto bodyMotionPath = radiationPath + "/BodyMotion_" + std::to_string(ibodyMotion);
+      auto bodyMotionPath = path + "/Radiation/BodyMotion_" + std::to_string(ibodyMotion);
 
       // Reading the infinite added mass matrix for the body.
       auto infiniteAddedMass = H5Easy::load<Eigen::MatrixXd>(HDF5_file, bodyMotionPath + "/InfiniteAddedMass");
       body->SetInfiniteAddedMass(bodyMotion, infiniteAddedMass);
 
       // Reading the radiation mask matrix for the body.
-      // TODO :: changer en booleen
       auto radiationMask = H5Easy::load<Eigen::MatrixXi>(HDF5_file, bodyMotionPath + "/RadiationMask");
-//      body->SetRadiationMask(bodyMotion, radiationMask);
+      body->SetRadiationMask(bodyMotion, radiationMask);
 
       // Reading the impulse response functions.
-      auto IRFPath = bodyMotionPath + "/ImpulseResponseFunctionK";
+      auto impulseResponseFunctionsK = ReadIRF(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK", radiationMask);
+      body->SetImpulseResponseFunctionK(bodyMotion, impulseResponseFunctionsK);
 
-      std::vector<Eigen::MatrixXd> impulseResponseFunctionsK;
+      impulseResponseFunctionsK = ReadIRF(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU", radiationMask);
+      body->SetImpulseResponseFunctionKu(bodyMotion, impulseResponseFunctionsK);
 
-      Mask motionMask;
-      Eigen::MatrixXd IRFCoeffs;
-
-      for (unsigned int imotion = 0; imotion < 6; ++imotion) {
-        auto IRF = H5Easy::load<Eigen::MatrixXd>(HDF5_file, IRFPath + "/DOF" + std::to_string(imotion));
-        motionMask.SetMask(radiationMask.row(imotion));
-        if (IRF.rows() != motionMask.GetNbDOF()) {
-          // Condense the matrix by removing the lines corresponding to the masked DOFs
-          //TODO:: passer en fonction de MathUtils ?
-          IRFCoeffs = Eigen::VectorXi::Map(motionMask.GetListDOF().data(), motionMask.GetNbDOF()).replicate(1,IRF.cols()).unaryExpr(IRF);
-        } else{
-          IRFCoeffs = IRF;
-        }
-        impulseResponseFunctionsK.push_back(IRFCoeffs);
-      }
-      // TODO :: a implementer
-//      body->SetImpulseResponseFunctionK(bodyMotion, impulseResponseFunctionsK);
     }
 
+  }
+
+  std::vector<Eigen::MatrixXd> HydrodynamicDataBase::ReadIRF(const HighFive::File &HDF5_file, const std::string &path, Eigen::MatrixXi radiationMask) {
+
+    std::vector<Eigen::MatrixXd> impulseResponseFunctionsK;
+
+    Mask motionMask;
+    Eigen::MatrixXd IRFCoeffs;
+
+    for (unsigned int imotion = 0; imotion < 6; ++imotion) {
+      auto IRF = H5Easy::load<Eigen::MatrixXd>(HDF5_file, path + "/DOF_" + std::to_string(imotion));
+      motionMask.SetMask(radiationMask.row(imotion));
+      if (IRF.rows() != 6) {
+        assert(IRF.rows() == motionMask.GetNbDOF());
+        IRFCoeffs.setZero();
+        for (int i = 0; i<motionMask.GetNbDOF(); i++) {
+          IRFCoeffs.row(motionMask.GetListDOF()[i]) = IRF.row(i);
+        }
+//          // Condense the matrix by removing the lines corresponding to the masked DOFs
+//          //TODO:: passer en fonction de MathUtils ?
+//          IRFCoeffs = Eigen::VectorXi::Map(motionMask.GetListDOF().data(), motionMask.GetNbDOF()).replicate(1,IRF.cols()).unaryExpr(IRF);
+      } else{
+        IRFCoeffs = IRF;
+      }
+      impulseResponseFunctionsK.push_back(IRFCoeffs);
+    }
+
+    return impulseResponseFunctionsK;
 
   }
+
+
 } // namespace HDB5_io

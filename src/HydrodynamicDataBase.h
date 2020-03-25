@@ -62,9 +62,11 @@ namespace HDB5_io {
     Body *GetBody(int id) const { return m_bodies[id].get(); }
 
     Body *NewBody(unsigned int id, const std::string& name) {
-      m_bodies.push_back(std::make_unique<Body>(id, name));
+      m_bodies.push_back(std::make_unique<Body>(id, name, this));
       return (m_bodies.back()).get();
     }
+
+    int GetNbBodies() const { return m_nbody; }
 
     void SetFrequencyDiscretization(double wmin, double wmax, unsigned int nw) { m_frequencyDiscretization = Discretization1D(wmin, wmax, nw);}
 
@@ -101,11 +103,13 @@ namespace HDB5_io {
 
     void Import_HDF5_v3(const std::string &HDF5_file);
 
-//    void ReadExcitation(HighFive::Group* group, Body* body);
+    enum excitationType {Diffraction, Froude_Krylov};
 
-    void ReadExcitation(const HighFive::File &HDF5_file, const std::string &path, Body* body);
+    void ReadExcitation(excitationType type, const HighFive::File &HDF5_file, const std::string &path, Body *body);
 
     void ReadRadiation(const HighFive::File &HDF5_file, const std::string &path, Body* body);
+
+    std::vector<Eigen::MatrixXd> ReadIRF(const HighFive::File &HDF5_file, const std::string &path, Eigen::MatrixXi radiationMask);
 
   };
 
