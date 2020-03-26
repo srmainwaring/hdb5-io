@@ -105,6 +105,8 @@ namespace HDB5_io {
     // Getters
     //
 
+    mathutils::Vector3d<double> GetPosition() const { return m_position;}
+
     /// Return the mask value applied on a specific motion mode
     /// \param imotion Index of motion
     /// \return Mask on the motion mode
@@ -128,6 +130,8 @@ namespace HDB5_io {
     Eigen::VectorXcd GetExcitation(unsigned int iangle, unsigned int iforce) const;
 
     mathutils::Matrix66<double> GetInfiniteAddedMass(Body *BodyMotion) const;
+
+    mathutils::Matrix66<bool> GetRadiationMask(Body *BodyMotion) const;
 
     mathutils::Matrix66<double> GetSelfInfiniteAddedMass();
 

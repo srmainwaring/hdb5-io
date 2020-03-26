@@ -16,7 +16,7 @@ namespace HDB5_io {
 
   void HydrodynamicDataBase::Import_HDF5(const std::string &HDF5_file) {
 
-  using namespace HighFive;
+    using namespace HighFive;
 
     File file(HDF5_file, File::ReadOnly);
 
@@ -113,7 +113,7 @@ namespace HDB5_io {
 
       body->ComputeExcitation();
 
-      ReadRadiation(file, "Bodies/Body_" + std::to_string(body->GetID()), body.get());
+      ReadRadiation(file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Radiation", body.get());
     }
 
   }
@@ -147,7 +147,7 @@ namespace HDB5_io {
 //  }
 
   void HydrodynamicDataBase::ReadExcitation(excitationType type, const HighFive::File &HDF5_file,
-                                            const std::string &path, Body *body){
+                                            const std::string &path, Body *body) {
     auto forceMask = body->GetForceMask();
 
     for (unsigned int iwaveDir = 0; iwaveDir < m_waveDirectionDiscretization.GetNbSample(); ++iwaveDir) {
@@ -159,40 +159,42 @@ namespace HDB5_io {
 
       auto realCoeffs = H5Easy::load<Eigen::MatrixXd>(HDF5_file, WaveDirPath + "/RealCoeffs");
       auto imagCoeffs = H5Easy::load<Eigen::MatrixXd>(HDF5_file, WaveDirPath + "/ImagCoeffs");
-      auto Dcoeffs = realCoeffs  + MU_JJ * imagCoeffs;
+      auto Dcoeffs = realCoeffs + MU_JJ * imagCoeffs;
 
       Eigen::MatrixXcd ExcitationCoeffs;
       if (imagCoeffs.rows() != 6) {
         assert(imagCoeffs.rows() == forceMask.GetNbDOF());
         ExcitationCoeffs.setZero();
-        for (int i = 0; i<forceMask.GetNbDOF(); i++) {
+        for (int i = 0; i < forceMask.GetNbDOF(); i++) {
           ExcitationCoeffs.row(forceMask.GetListDOF()[i]) = Dcoeffs.row(i);
         }
 //        // Condense the matrix by removing the lines corresponding to the masked DOFs
 //        ExcitationCoeffs = Eigen::VectorXi::Map(forceMask.GetListDOF().data(), forceMask.GetNbDOF()).replicate(1,Dcoeffs.cols()).unaryExpr(Dcoeffs);
-      } else{
+      } else {
         ExcitationCoeffs = Dcoeffs;
       }
 
       switch (type) {
-        case Diffraction :
+        case Diffraction : {
           body->SetDiffraction(iwaveDir, ExcitationCoeffs);
           break;
-        case Froude_Krylov :
+        }
+        case Froude_Krylov : {
           body->SetFroudeKrylov(iwaveDir, ExcitationCoeffs);
           break;
+        }
       }
 
     }
 
   }
 
-  void HydrodynamicDataBase::ReadRadiation(const HighFive::File &HDF5_file, const std::string &path, Body* body) {
+  void HydrodynamicDataBase::ReadRadiation(const HighFive::File &HDF5_file, const std::string &path, Body *body) {
 
     for (unsigned int ibodyMotion = 0; ibodyMotion < m_nbody; ++ibodyMotion) {
 
       auto bodyMotion = this->GetBody(ibodyMotion);
-      auto bodyMotionPath = path + "/Radiation/BodyMotion_" + std::to_string(ibodyMotion);
+      auto bodyMotionPath = path + "/BodyMotion_" + std::to_string(ibodyMotion);
 
       // Reading the infinite added mass matrix for the body.
       auto infiniteAddedMass = H5Easy::load<Eigen::MatrixXd>(HDF5_file, bodyMotionPath + "/InfiniteAddedMass");
@@ -209,11 +211,22 @@ namespace HDB5_io {
       impulseResponseFunctionsK = ReadIRF(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU", radiationMask);
       body->SetImpulseResponseFunctionKu(bodyMotion, impulseResponseFunctionsK);
 
+      auto addedMass = ReadIRF(HDF5_file, bodyMotionPath + "/AddedMass", radiationMask);
+      body->SetAddedMass(bodyMotion, addedMass);
+
+      auto radiationDamping = ReadIRF(HDF5_file, bodyMotionPath + "/RadiationDamping", radiationMask);
+      body->SetRadiationDamping(bodyMotion, radiationDamping);
+
+//      TODO :read added mass and damping coeffs
+
+
+
     }
 
   }
 
-  std::vector<Eigen::MatrixXd> HydrodynamicDataBase::ReadIRF(const HighFive::File &HDF5_file, const std::string &path, Eigen::MatrixXi radiationMask) {
+  std::vector<Eigen::MatrixXd> HydrodynamicDataBase::ReadIRF(const HighFive::File &HDF5_file, const std::string &path,
+                                                             Eigen::MatrixXi radiationMask) {
 
     std::vector<Eigen::MatrixXd> impulseResponseFunctionsK;
 
@@ -226,19 +239,254 @@ namespace HDB5_io {
       if (IRF.rows() != 6) {
         assert(IRF.rows() == motionMask.GetNbDOF());
         IRFCoeffs.setZero();
-        for (int i = 0; i<motionMask.GetNbDOF(); i++) {
+        for (int i = 0; i < motionMask.GetNbDOF(); i++) {
           IRFCoeffs.row(motionMask.GetListDOF()[i]) = IRF.row(i);
         }
 //          // Condense the matrix by removing the lines corresponding to the masked DOFs
 //          //TODO:: passer en fonction de MathUtils ?
 //          IRFCoeffs = Eigen::VectorXi::Map(motionMask.GetListDOF().data(), motionMask.GetNbDOF()).replicate(1,IRF.cols()).unaryExpr(IRF);
-      } else{
+      } else {
         IRFCoeffs = IRF;
       }
       impulseResponseFunctionsK.push_back(IRFCoeffs);
     }
 
     return impulseResponseFunctionsK;
+
+  }
+
+  void HydrodynamicDataBase::Export_HDF5(const std::string &HDF5_file) {
+
+    using namespace HighFive;
+
+    File file(HDF5_file, File::ReadWrite | File::Create | File::Truncate);
+
+    DataSet dataSet = file.createDataSet<std::string>("CreationDate", DataSpace::From(m_creationDate));
+    dataSet.write(m_creationDate);
+    dataSet.createAttribute<std::string>("Description", "Date of the creation of this database.");
+
+    dataSet = file.createDataSet<double>("Version", DataSpace::From(m_version));
+    dataSet.write(m_version);
+    dataSet.createAttribute<std::string>("Description", "Version of the hdb5 output file.");
+
+    dataSet = file.createDataSet<std::string>("Solver", DataSpace::From(m_solver));
+    dataSet.write(m_solver);
+    dataSet.createAttribute<std::string>("Description",
+                                         "Hydrodynamic solver used for computing the hydrodynamic database.");
+
+    dataSet = file.createDataSet<int>("NbBody", DataSpace::From(m_nbody));
+    dataSet.write(m_nbody);
+    dataSet.createAttribute<std::string>("Description", "Number of hydrodynamic bodies.");
+
+    dataSet = file.createDataSet<double>("NormalizationLength", DataSpace::From(m_normalizationLength));
+    dataSet.write(m_normalizationLength);
+    dataSet.createAttribute<std::string>("Description", "Normalization length.");
+    dataSet.createAttribute<std::string>("Unit", "m");
+
+    dataSet = file.createDataSet<double>("GravityAcc", DataSpace::From(m_gravityAcceleration));
+    dataSet.write(m_gravityAcceleration);
+    dataSet.createAttribute<std::string>("Description", "Gravity acceleration.");
+    dataSet.createAttribute<std::string>("Unit", "m/s**2");
+
+    dataSet = file.createDataSet<double>("WaterDensity", DataSpace::From(m_waterDensity));
+    dataSet.write(m_waterDensity);
+    dataSet.createAttribute<std::string>("Description", "Water Density.");
+    dataSet.createAttribute<std::string>("Unit", "kg/m**3");
+
+    dataSet = file.createDataSet<double>("WaterDepth", DataSpace::From(m_waterDepth));
+    dataSet.write(m_waterDepth);
+    dataSet.createAttribute<std::string>("Description",
+                                         "Water depth: 0 for infinite depth and positive for finite depth.");
+    dataSet.createAttribute<std::string>("Unit", "m");
+
+    auto discretizations = file.createGroup("Discretizations");
+
+    auto frequency = discretizations.createGroup("Frequency");
+    dataSet = frequency.createDataSet<double>("MaxFrequency", DataSpace::From(m_frequencyDiscretization.GetMax()));
+    dataSet.write(m_frequencyDiscretization.GetMax());
+    dataSet.createAttribute<std::string>("Description", "Maximum frequency.");
+    dataSet.createAttribute<std::string>("Unit", "rad/s");
+
+    dataSet = frequency.createDataSet<double>("MinFrequency", DataSpace::From(m_frequencyDiscretization.GetMin()));
+    dataSet.write(m_frequencyDiscretization.GetMin());
+    dataSet.createAttribute<std::string>("Description", "Minimum frequency.");
+    dataSet.createAttribute<std::string>("Unit", "rad/s");
+
+    dataSet = frequency.createDataSet<int>("NbFrequency", DataSpace::From(m_frequencyDiscretization.GetNbSample()));
+    dataSet.write(m_frequencyDiscretization.GetNbSample());
+    dataSet.createAttribute<std::string>("Description", "Number of frequencies");
+
+
+    auto waveDirections = discretizations.createGroup("WaveDirections");
+    dataSet = frequency.createDataSet<double>("MaxAngle", DataSpace::From(m_waveDirectionDiscretization.GetMax()));
+    dataSet.write(m_waveDirectionDiscretization.GetMax());
+    dataSet.createAttribute<std::string>("Description", "Maximum wave direction.");
+    dataSet.createAttribute<std::string>("Unit", "deg");
+
+    dataSet = frequency.createDataSet<double>("MinAngle", DataSpace::From(m_waveDirectionDiscretization.GetMin()));
+    dataSet.write(m_waveDirectionDiscretization.GetMin());
+    dataSet.createAttribute<std::string>("Description", "Minimum wave direction.");
+    dataSet.createAttribute<std::string>("Unit", "deg");
+
+    dataSet = frequency.createDataSet<int>("NbWaveDirections",
+                                           DataSpace::From(m_waveDirectionDiscretization.GetNbSample()));
+    dataSet.write(m_waveDirectionDiscretization.GetNbSample());
+    dataSet.createAttribute<std::string>("Description", "Number of wave directions.");
+
+
+    auto time = discretizations.createGroup("Time");
+    dataSet = frequency.createDataSet<double>("FinalTime", DataSpace::From(m_timeDiscretization.GetMax()));
+    dataSet.write(m_timeDiscretization.GetMax());
+    dataSet.createAttribute<std::string>("Description",
+                                         "Final time for the evaluation of the impulse response functions.");
+    dataSet.createAttribute<std::string>("Unit", "s");
+
+    dataSet = frequency.createDataSet<double>("TimeStep", DataSpace::From(m_timeDiscretization.GetStep()));
+    dataSet.write(m_timeDiscretization.GetStep());
+    dataSet.createAttribute<std::string>("Description", "Time step.");
+    dataSet.createAttribute<std::string>("Unit", "s");
+
+    dataSet = frequency.createDataSet<int>("NbTimeSample", DataSpace::From(m_timeDiscretization.GetNbSample()));
+    dataSet.write(m_timeDiscretization.GetNbSample());
+    dataSet.createAttribute<std::string>("Description", "Number of time samples.");
+
+
+    auto bodies = file.createGroup("Bodies");
+
+    for (unsigned int i = 0; i < m_nbody; i++) {
+      auto bodyGroup = bodies.createGroup("Body_" + std::to_string(i));
+
+      auto body = GetBody(i);
+
+      dataSet = bodyGroup.createDataSet<unsigned int>("ID", DataSpace::From(i));
+      dataSet.write(i);
+      dataSet.createAttribute<std::string>("Description", "Body index");
+
+      dataSet = bodyGroup.createDataSet<std::string>("BodyName", DataSpace::From(body->GetName()));
+      dataSet.write(body->GetName());
+      dataSet.createAttribute<std::string>("Description", "Body name");
+//      dataSet = bodyGroup.createDataSet<double>("BodyPosition", DataSpace::From(static_cast<Eigen::Vector3d>(body->GetPosition())));
+//      dataSet.write(body->GetPosition());
+//      dataSet.createAttribute<std::string>("Description", "Center of gravity of the body in the absolute frame");
+
+      H5Easy::dump(file, "Bodies/Body_" + std::to_string(i) + "/BodyPosition",
+                   static_cast<Eigen::Vector3d> (body->GetPosition()));
+      bodyGroup.getDataSet("BodyPosition").createAttribute<std::string>("Description",
+                                                                        "Center of gravity of the body in the absolute frame");
+
+      bodyGroup.createGroup("Mask");
+      H5Easy::dump(file, "Bodies/Body_" + std::to_string(i) + "/Mask/ForceMask",
+                   static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetForceMask().GetMask()));
+      H5Easy::dump(file, "Bodies/Body_" + std::to_string(i) + "/Mask/MotionMask",
+                   static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetMotionMask().GetMask()));
+
+      WriteExcitation(excitationType::Diffraction, file,
+                      "Bodies/Body_" + std::to_string(i) + "/Excitation/Diffraction", body);
+      WriteExcitation(excitationType::Froude_Krylov, file,
+                      "Bodies/Body_" + std::to_string(i) + "/Excitation/FroudeKrylov", body);
+
+      WriteRadiation(file, "Bodies/Body_" + std::to_string(i) + "/Radiation", body);
+
+    }
+
+
+  }
+
+  void HydrodynamicDataBase::WriteExcitation(excitationType type, HighFive::File &HDF5_file,
+                                             const std::string &path, Body *body) {
+
+    for (unsigned int iwaveDir = 0; iwaveDir < m_waveDirectionDiscretization.GetNbSample(); ++iwaveDir) {
+
+      auto anglePath = path + "/Angle_" + std::to_string(iwaveDir);
+
+      Eigen::MatrixXcd coeff;
+      switch (type) {
+        case Diffraction : {
+          coeff = body->GetDiffraction(iwaveDir);
+          break;
+        }
+        case Froude_Krylov : {
+          coeff = body->GetFroudeKrylov(iwaveDir);
+          break;
+        }
+      }
+      auto angleGroup = HDF5_file.createGroup(anglePath);
+      H5Easy::dump(HDF5_file, anglePath + "/Angle", m_waveDirectionDiscretization.GetVector()[iwaveDir]);
+      angleGroup.getDataSet("Angle").createAttribute<std::string>("Description", "Wave direction.");
+      angleGroup.getDataSet("Angle").createAttribute<std::string>("Unit", "deg");
+
+      H5Easy::dump(HDF5_file, anglePath + "/RealCoeffs", static_cast<Eigen::MatrixXd>(coeff.real()));
+      angleGroup.getDataSet("RealCoeffs").createAttribute<std::string>("Description",
+                                                                       "Real part of the Froude-Krylov loads on body " +
+                                                                       std::to_string(body->GetID()) +
+                                                                       " for a wave direction of " + std::to_string(
+                                                                           m_waveDirectionDiscretization.GetVector()[iwaveDir]) +
+                                                                       " deg.");
+      angleGroup.getDataSet("RealCoeffs").createAttribute<std::string>("Unit", "N/m");
+
+      H5Easy::dump(HDF5_file, anglePath + "/ImagCoeffs", static_cast<Eigen::MatrixXd>(coeff.imag()));
+      angleGroup.getDataSet("ImagCoeffs").createAttribute<std::string>("Description",
+                                                                       "Imaginary part of the Froude-Krylov loads on body " +
+                                                                       std::to_string(body->GetID()) +
+                                                                       " for a wave direction of " + std::to_string(
+                                                                           m_waveDirectionDiscretization.GetVector()[iwaveDir]) +
+                                                                       " deg.");
+      angleGroup.getDataSet("ImagCoeffs").createAttribute<std::string>("Unit", "N/m");
+
+
+    }
+
+  }
+
+  void HydrodynamicDataBase::WriteRadiation(HighFive::File &HDF5_file, const std::string &path, Body *body) {
+
+    for (unsigned int ibodyMotion = 0; ibodyMotion < m_nbody; ++ibodyMotion) {
+
+      auto bodyMotion = this->GetBody(ibodyMotion);
+      auto bodyMotionPath = path + "/BodyMotion_" + std::to_string(ibodyMotion);
+      auto bodyMotionGroup = HDF5_file.createGroup(bodyMotionPath);
+      bodyMotionGroup.createAttribute("Description", "Hydrodynamic coefficients for motion of body " +
+                                                     std::to_string(bodyMotion->GetID()) +
+                                                     " that radiates waves and  generate force on body " +
+                                                     std::to_string(body->GetID()) + ".");
+
+      // Writing the infinite added mass matrix for the body.
+      H5Easy::dump(HDF5_file, bodyMotionPath + "/InfiniteAddedMass",
+                   static_cast<Eigen::MatrixXd>(body->GetInfiniteAddedMass(bodyMotion)));
+      auto InfiniteAddedMass = bodyMotionGroup.getDataSet("InfiniteAddedMass");
+      InfiniteAddedMass.createAttribute("Description",
+                                        "Infinite added mass matrix that modifies the apparent mass of body " +
+                                        std::to_string(bodyMotion->GetID()) +
+                                        " from acceleration of body  " +
+                                        std::to_string(body->GetID()) + ".");
+
+      // Writing the radiation mask matrix for the body.
+      H5Easy::dump(HDF5_file, bodyMotionPath + "/RadiationMask",
+                   static_cast<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>(body->GetRadiationMask(
+                       bodyMotion)));
+      auto RadiationMask = bodyMotionGroup.getDataSet("RadiationMask");
+      RadiationMask.createAttribute("Description", "Radiation mask of body " +
+                                                   std::to_string(bodyMotion->GetID()) +
+                                                   " from acceleration of body  " +
+                                                   std::to_string(body->GetID()) + ".");
+
+      // Writing the impulse response functions.
+//      auto impulseResponseFunctionsK = ReadIRF(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK", radiationMask);
+//      body->SetImpulseResponseFunctionK(bodyMotion, impulseResponseFunctionsK);
+//
+//      impulseResponseFunctionsK = ReadIRF(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU", radiationMask);
+//      body->SetImpulseResponseFunctionKu(bodyMotion, impulseResponseFunctionsK);
+
+
+      // Writing the added mass matrix for the body.
+      auto AddedMassGroup = bodyMotionGroup.createGroup("AddedMass");
+      AddedMassGroup.createAttribute("Description", "Added mass coefficients for acceleration of body " +
+                                                    std::to_string(bodyMotion->GetID()) +
+                                                    " that radiates waves and  generate force on body " +
+                                                    std::to_string(body->GetID()) + ".");
+
+    }
+
 
   }
 

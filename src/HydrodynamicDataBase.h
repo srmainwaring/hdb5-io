@@ -107,7 +107,11 @@ namespace HDB5_io {
 
     void ReadExcitation(excitationType type, const HighFive::File &HDF5_file, const std::string &path, Body *body);
 
+    void WriteExcitation(excitationType type, HighFive::File &HDF5_file, const std::string &path, Body *body);
+
     void ReadRadiation(const HighFive::File &HDF5_file, const std::string &path, Body* body);
+
+    void WriteRadiation(HighFive::File &HDF5_file, const std::string &path, Body* body);
 
     std::vector<Eigen::MatrixXd> ReadIRF(const HighFive::File &HDF5_file, const std::string &path, Eigen::MatrixXi radiationMask);
 

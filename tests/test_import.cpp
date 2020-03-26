@@ -12,5 +12,7 @@ int main() {
 
   HDB.Import_HDF5("/home/lletourn/Documents/DEV/hdb5-io/test.hdb5");
 
+  HDB.Export_HDF5("out.hdb5");
+
   return 0;
 }

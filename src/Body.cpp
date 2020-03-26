@@ -160,6 +160,10 @@ namespace HDB5_io {
     return m_infiniteAddedMass.at(BodyMotion);
   }
 
+  mathutils::Matrix66<bool> Body::GetRadiationMask(Body *BodyMotion) const {
+    return m_radiationMask.at(BodyMotion);
+  }
+
   mathutils::Matrix66<double> Body::GetSelfInfiniteAddedMass() {
     return m_infiniteAddedMass[this];
   }
