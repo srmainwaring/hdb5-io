@@ -113,7 +113,8 @@ namespace HDB5_io {
 
     void WriteRadiation(HighFive::File &HDF5_file, const std::string &path, Body* body);
 
-    std::vector<Eigen::MatrixXd> ReadIRF(const HighFive::File &HDF5_file, const std::string &path, Eigen::MatrixXi radiationMask);
+    std::vector<Eigen::MatrixXd> ReadComponents(const HighFive::File &HDF5_file, const std::string &path,
+                                                Eigen::MatrixXi radiationMask);
 
   };
 

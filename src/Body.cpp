@@ -60,13 +60,13 @@ namespace HDB5_io {
 //    m_radiationMask[BodyMotion] = mask;
 //  }
 
-  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const mathutils::Matrix66<int> &mask){
+  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const mathutils::Matrix66<int> &mask) {
 
-    assert(mask.maxCoeff()<=1 and mask.minCoeff()>=0);
+    assert(mask.maxCoeff() <= 1 and mask.minCoeff() >= 0);
 
-    for (unsigned int i = 0; i<6; i++) {
-      for (unsigned int j = 0; j<6; j++){
-        m_radiationMask[BodyMotion](i,j) = mask(i, j) == 1;
+    for (unsigned int i = 0; i < 6; i++) {
+      for (unsigned int j = 0; j < 6; j++) {
+        m_radiationMask[BodyMotion](i, j) = mask(i, j) == 1;
       }
     }
   }
@@ -107,6 +107,46 @@ namespace HDB5_io {
       interp->Initialize(vtime, vdata);
 
       m_interpKu[BodyMotion].push_back(interp);
+    }
+
+  }
+
+  void Body::SetAddedMass(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listAddedMass) {
+    for (auto &addedMass: listAddedMass) {
+      assert(addedMass.rows() == 6);
+      assert(addedMass.cols() == m_HDB->GetFrequencyDiscretization().GetNbSample());
+
+      auto frequencies = std::make_shared<std::vector<double>>(m_HDB->GetFrequencyDiscretization().GetVector());
+
+      auto vdata = std::make_shared<std::vector<mathutils::Vector6d<double>>>();
+      for (unsigned int j = 0; j < addedMass.cols(); ++j) {
+        vdata->push_back(addedMass.col(j));
+      }
+
+      auto interp = std::make_shared<mathutils::Interp1dLinear<double, mathutils::Vector6d<double>>>();
+      interp->Initialize(frequencies, vdata);
+
+      m_addedMass[BodyMotion].push_back(interp);
+    }
+
+  }
+
+  void Body::SetRadiationDamping(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listRadiationDamping) {
+    for (auto &radiationDamping: listRadiationDamping) {
+      assert(radiationDamping.rows() == 6);
+      assert(radiationDamping.cols() == m_HDB->GetFrequencyDiscretization().GetNbSample());
+
+      auto frequencies = std::make_shared<std::vector<double>>(m_HDB->GetFrequencyDiscretization().GetVector());
+
+      auto vdata = std::make_shared<std::vector<mathutils::Vector6d<double>>>();
+      for (unsigned int j = 0; j < radiationDamping.cols(); ++j) {
+        vdata->push_back(radiationDamping.col(j));
+      }
+
+      auto interp = std::make_shared<mathutils::Interp1dLinear<double, mathutils::Vector6d<double>>>();
+      interp->Initialize(frequencies, vdata);
+
+      m_radiationDamping[BodyMotion].push_back(interp);
     }
 
   }
@@ -168,6 +208,39 @@ namespace HDB5_io {
     return m_infiniteAddedMass[this];
   }
 
+  mathutils::Interp1d<double, mathutils::Vector6d<double>> *
+  Body::GetIRFInterpolatorK(Body *BodyMotion, unsigned int idof) {
+    assert(idof < 6);
+    return m_interpK[BodyMotion][idof].get();
+  };
+
+  mathutils::Interp1d<double, mathutils::Vector6d<double>> *
+  Body::GetIRFInterpolatorKu(Body *BodyMotion, unsigned int idof) {
+    assert(idof < 6);
+    return m_interpKu[BodyMotion][idof].get();
+  };
+
+  mathutils::Interp1d<double, mathutils::Vector6d<double>> *
+  Body::GetAddedMassInterpolator(Body *BodyMotion, unsigned int idof) {
+    assert(idof < 6);
+    return m_addedMass[BodyMotion][idof].get();
+  };
+
+  mathutils::Interp1d<double, mathutils::Vector6d<double>> *
+  Body::GetRadiationDampingInterpolator(Body *BodyMotion, unsigned int idof) {
+    assert(idof < 6);
+    return m_radiationDamping[BodyMotion][idof].get();
+  };
+
+  Eigen::MatrixXd Body::GetMatrixComponentFromIterator(mathutils::Interp1d<double, mathutils::Vector6d<double>>* interpolator, Discretization1D frequencies) {
+    Eigen::MatrixXd addedMasses(6, frequencies.GetNbSample());
+    for (unsigned int i=0; i<frequencies.GetNbSample(); i++) {
+      addedMasses.col(i) = interpolator->Eval(frequencies.GetVector()[i]);
+    }
+    return addedMasses;
+  }
+
+
   void Body::AllocateAll(unsigned int nFrequencies, unsigned int nDirections) {
 
     // This subroutine allocates the arrays for the hdb.
@@ -191,7 +264,6 @@ namespace HDB5_io {
 
     /// --> Allocating arrays for radiation
     m_radiationMask.reserve(m_HDB->GetNbBodies());
-
 
 
   }

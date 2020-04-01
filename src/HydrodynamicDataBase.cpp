@@ -205,28 +205,28 @@ namespace HDB5_io {
       body->SetRadiationMask(bodyMotion, radiationMask);
 
       // Reading the impulse response functions.
-      auto impulseResponseFunctionsK = ReadIRF(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK", radiationMask);
+      auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK",
+                                                      radiationMask);
       body->SetImpulseResponseFunctionK(bodyMotion, impulseResponseFunctionsK);
 
-      impulseResponseFunctionsK = ReadIRF(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU", radiationMask);
+      impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU",
+                                                 radiationMask);
       body->SetImpulseResponseFunctionKu(bodyMotion, impulseResponseFunctionsK);
 
-      auto addedMass = ReadIRF(HDF5_file, bodyMotionPath + "/AddedMass", radiationMask);
+      // Reading the added mass and radiation damping coefficients
+      auto addedMass = ReadComponents(HDF5_file, bodyMotionPath + "/AddedMass", radiationMask);
       body->SetAddedMass(bodyMotion, addedMass);
 
-      auto radiationDamping = ReadIRF(HDF5_file, bodyMotionPath + "/RadiationDamping", radiationMask);
+      auto radiationDamping = ReadComponents(HDF5_file, bodyMotionPath + "/RadiationDamping", radiationMask);
       body->SetRadiationDamping(bodyMotion, radiationDamping);
-
-//      TODO :read added mass and damping coeffs
-
-
 
     }
 
   }
 
-  std::vector<Eigen::MatrixXd> HydrodynamicDataBase::ReadIRF(const HighFive::File &HDF5_file, const std::string &path,
-                                                             Eigen::MatrixXi radiationMask) {
+  std::vector<Eigen::MatrixXd> HydrodynamicDataBase::ReadComponents(const HighFive::File &HDF5_file,
+                                                                    const std::string &path,
+                                                                    Eigen::MatrixXi radiationMask) {
 
     std::vector<Eigen::MatrixXd> impulseResponseFunctionsK;
 
@@ -440,6 +440,8 @@ namespace HDB5_io {
 
   void HydrodynamicDataBase::WriteRadiation(HighFive::File &HDF5_file, const std::string &path, Body *body) {
 
+    auto frequencies = GetFrequencyDiscretization().GetVector();
+
     for (unsigned int ibodyMotion = 0; ibodyMotion < m_nbody; ++ibodyMotion) {
 
       auto bodyMotion = this->GetBody(ibodyMotion);
@@ -471,10 +473,10 @@ namespace HDB5_io {
                                                    std::to_string(body->GetID()) + ".");
 
       // Writing the impulse response functions.
-//      auto impulseResponseFunctionsK = ReadIRF(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK", radiationMask);
+//      auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK", radiationMask);
 //      body->SetImpulseResponseFunctionK(bodyMotion, impulseResponseFunctionsK);
 //
-//      impulseResponseFunctionsK = ReadIRF(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU", radiationMask);
+//      impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU", radiationMask);
 //      body->SetImpulseResponseFunctionKu(bodyMotion, impulseResponseFunctionsK);
 
 
@@ -484,6 +486,66 @@ namespace HDB5_io {
                                                     std::to_string(bodyMotion->GetID()) +
                                                     " that radiates waves and  generate force on body " +
                                                     std::to_string(body->GetID()) + ".");
+      for (unsigned int i = 0; i<6; i++) {
+        H5Easy::dump(HDF5_file, bodyMotionPath + "/AddedMass/DOF_" + std::to_string(i),
+                     body->GetMatrixComponentFromIterator(body->GetAddedMassInterpolator(bodyMotion, i),
+                                                          GetFrequencyDiscretization()));
+        auto DOF = AddedMassGroup.getDataSet("DOF_" + std::to_string(i));
+        DOF.createAttribute("Description", "Added mass coefficients for an acceleration of body " +
+                                           std::to_string(bodyMotion->GetID()) +
+                                           " and force on body " +
+                                           std::to_string(body->GetID()) + ".");
+        //TODO : complete units, depending on DOF, bodyMotion, etc.
+        DOF.createAttribute("Unit", "");
+      }
+
+      // Writing the radiation damping matrix for the body.
+      auto RadiationDampingGroup = bodyMotionGroup.createGroup("RadiationDamping");
+      RadiationDampingGroup.createAttribute("Description", "Damping coefficients for velocity of body " +
+                                                           std::to_string(bodyMotion->GetID()) +
+                                                           " that radiates waves and generates forces on body " +
+                                                           std::to_string(body->GetID()) + ".");
+      for (unsigned int i = 0; i<6; i++) {
+        H5Easy::dump(HDF5_file, bodyMotionPath + "/RadiationDamping/DOF_" + std::to_string(i),
+                     body->GetMatrixComponentFromIterator(body->GetRadiationDampingInterpolator(bodyMotion, i),
+                                                          GetFrequencyDiscretization()));
+        auto DOF = RadiationDampingGroup.getDataSet("DOF_" + std::to_string(i));
+        DOF.createAttribute("Description", "Wave damping coefficients for an acceleration of body " +
+                                           std::to_string(bodyMotion->GetID()) +
+                                           " and force on body " +
+                                           std::to_string(body->GetID()) + ".");
+        //TODO : complete units, depending on DOF, bodyMotion, etc.
+        DOF.createAttribute("Unit", "");
+      }
+
+      // Writing the impulse response function K for the body.
+      auto KGroup = bodyMotionGroup.createGroup("ImpulseResponseFunctionK");
+      KGroup.createAttribute("Description", "Impulse response functions K due to the velocity of body " +
+                                            std::to_string(bodyMotion->GetID()) +
+                                            " that radiates waves and generates forces on body " +
+                                            std::to_string(body->GetID()) + ".");
+      for (unsigned int i = 0; i<6; i++) {
+        H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK/DOF_" + std::to_string(i),
+                     body->GetMatrixComponentFromIterator(body->GetIRFInterpolatorK(bodyMotion, i),
+                                                          GetTimeDiscretization()));
+        auto DOF = KGroup.getDataSet("DOF_" + std::to_string(i));
+        DOF.createAttribute("Description", "Impulse response functions K");
+      }
+
+      // Writing the impulse response function KU for the body.
+      auto KUGroup = bodyMotionGroup.createGroup("ImpulseResponseFunctionKU");
+      KUGroup.createAttribute("Description", "Impulse response functions KU due to the velocity of body " +
+                                            std::to_string(bodyMotion->GetID()) +
+                                            " that radiates waves and generates forces on body " +
+                                            std::to_string(body->GetID()) + ".");
+      for (unsigned int i = 0; i<6; i++) {
+        H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU/DOF_" + std::to_string(i),
+                     body->GetMatrixComponentFromIterator(body->GetIRFInterpolatorKu(bodyMotion, i),
+                                                          GetTimeDiscretization()));
+        auto DOF = KUGroup.getDataSet("DOF_" + std::to_string(i));
+        DOF.createAttribute("Description", "Impulse response functions KU");
+      }
+
 
     }
 

@@ -20,6 +20,7 @@ namespace HDB5_io {
 
   // Forward declaration
   class HydrodynamicDataBase;
+  class Discretization1D;
 
   class Body {
 
@@ -90,6 +91,16 @@ namespace HDB5_io {
     /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
     void SetImpulseResponseFunctionKu(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listIRF);
 
+    /// Set the impulse response function of the BEM body with respect to the motion of another BEM body
+    /// \param BodyMotionBEM body to which the motion is considered
+    /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
+    void SetAddedMass(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listAddedMass);
+
+    /// Set the impulse response function (steady-speed dependent) of the BEM body with respect to the motion of another BEM body
+    /// \param BodyMotion BEM body to which the motion is considered
+    /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
+    void SetRadiationDamping(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listRadiationDamping);
+
     /// Set the hydrostatic stiffness Matrix
     /// \param hydrostaticStiffnessMatrix Hydrostatic stiffness matrix
     void SetStiffnessMatrix(const mathutils::Matrix33<double> &hydrostaticStiffnessMatrix);
@@ -135,11 +146,15 @@ namespace HDB5_io {
 
     mathutils::Matrix66<double> GetSelfInfiniteAddedMass();
 
-//    mathutils::Interp1d<double, mathutils::Vector6d<double>> *
-//    GetIRFInterpolatorK(FrBEMBody *BodyMotion, unsigned int idof);
-//
-//    mathutils::Interp1d<double, mathutils::Vector6d<double>> *
-//    GetIRFInterpolatorKu(FrBEMBody *BodyMotion, unsigned int idof);
+    mathutils::Interp1d<double, mathutils::Vector6d<double>> *GetIRFInterpolatorK(Body *BodyMotion, unsigned int idof);
+
+    mathutils::Interp1d<double, mathutils::Vector6d<double>> *GetIRFInterpolatorKu(Body *BodyMotion, unsigned int idof);
+
+    mathutils::Interp1d<double, mathutils::Vector6d<double>> *GetAddedMassInterpolator(Body *BodyMotion, unsigned int idof);
+
+    mathutils::Interp1d<double, mathutils::Vector6d<double>> *GetRadiationDampingInterpolator(Body *BodyMotion, unsigned int idof);
+
+    Eigen::MatrixXd GetMatrixComponentFromIterator(mathutils::Interp1d<double, mathutils::Vector6d<double>> *interpolator, Discretization1D frequencies);
 
     mathutils::Matrix33<double> GetHydrostaticStiffnessMatrix() const { return m_hydrostaticStiffnessMatrix; }
 
@@ -172,6 +187,8 @@ namespace HDB5_io {
     std::unordered_map<Body *, std::vector<std::shared_ptr<mathutils::Interp1d<double, mathutils::Vector6d<double>>> >> m_interpK; ///< Impulse response function interpolator
     std::unordered_map<Body *, std::vector<std::shared_ptr<mathutils::Interp1d<double, mathutils::Vector6d<double>>> >> m_interpKu; ///< Impulse response function speed dependent interpolator
 
+    std::unordered_map<Body *, std::vector<std::shared_ptr<mathutils::Interp1d<double, mathutils::Vector6d<double>>> >> m_addedMass; ///< added mass interpolator
+    std::unordered_map<Body *, std::vector<std::shared_ptr<mathutils::Interp1d<double, mathutils::Vector6d<double>>> >> m_radiationDamping; ///< radiation damping interpolator
 //    std::vector<std::vector<mathutils::Interp1dLinear<double, std::complex<double>>>> m_waveDirInterpolators;   ///<
 
 //    std::shared_ptr<FrWaveDriftPolarData> m_waveDrift;  ///< List of wave drift coefficients
