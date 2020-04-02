@@ -15,3 +15,7 @@ set(highfive_TAG master)
 # GoogleTest
 set(googletest_URL https://github.com/google/googletest.git)
 set(googletest_TAG release-1.8.1)
+
+# MeshOui
+set(meshoui_URL git@d-ice.gitlab.host:common/hydro/meshoui.git)
+set(meshoui_TAG feature/LL_HDB5IO_integration)

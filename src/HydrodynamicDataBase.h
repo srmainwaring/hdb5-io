@@ -116,6 +116,8 @@ namespace HDB5_io {
     std::vector<Eigen::MatrixXd> ReadComponents(const HighFive::File &HDF5_file, const std::string &path,
                                                 Eigen::MatrixXi radiationMask);
 
+    void ReadMesh(HighFive::File &HDF5_file, const std::string &path, Body* body);
+
   };
 
 } // namespace HDB5_io

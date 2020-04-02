@@ -16,6 +16,8 @@
 //#include "Mode.h"
 #include "Mask.h"
 
+#include "meshoui/mesh.h"
+
 namespace HDB5_io {
 
   // Forward declaration
@@ -26,7 +28,7 @@ namespace HDB5_io {
 
    public:
 
-    Body(unsigned int id, const std::string& name, HydrodynamicDataBase *hdb) : m_id(id), m_name(name), m_HDB(hdb) {};
+    Body(unsigned int id, const std::string& name, HydrodynamicDataBase *hdb);
 
     /// Return the name of the BEM body database
     /// \return Name of the BEM body
@@ -109,6 +111,8 @@ namespace HDB5_io {
     /// \param hydrostaticStiffnessMatrix Hydrostatic stiffness matrix
     void SetStiffnessMatrix(const mathutils::Matrix66<double> &hydrostaticStiffnessMatrix);
 
+    void LoadMesh(const std::vector<mathutils::Vector3d<double>> &vertices, const std::vector<Eigen::VectorXi>& faces);
+
 //    /// Set the wave drift coefficient database
 //    void SetWaveDrift();
 
@@ -127,6 +131,8 @@ namespace HDB5_io {
     /// \param iforce Index of force
     /// \return Mask on the force mode
     Mask GetForceMask() const { return m_forceMask; }
+
+    meshoui::Mesh* GetMesh() const { return m_mesh.get(); }
 
     Eigen::MatrixXcd GetDiffraction(unsigned int iangle) const;
 
@@ -171,6 +177,8 @@ namespace HDB5_io {
 
     Mask m_forceMask;                              ///< Mask applied on the force
     Mask m_motionMask;                             ///< Mask applied on the DOF
+
+    std::shared_ptr<meshoui::Mesh> m_mesh;
 
 //    std::vector<Mode> m_forceModes;                ///< List of activated force modes
 //    std::vector<Mode> m_motionModes;               ///< List of activated motion modes

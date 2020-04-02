@@ -101,6 +101,8 @@ namespace HDB5_io {
       body->SetMotionMask(mask);
 
       body->AllocateAll(m_frequencyDiscretization.GetNbSample(), m_waveDirectionDiscretization.GetNbSample());
+
+      ReadMesh(file, "Bodies/Body_" + std::to_string(i) + "/Mesh", body);
     }
 
 
@@ -253,6 +255,29 @@ namespace HDB5_io {
 
     return impulseResponseFunctionsK;
 
+  }
+
+  void HydrodynamicDataBase::ReadMesh(HighFive::File &HDF5_file, const std::string &path, Body* body) {
+    auto nbVertices = H5Easy::load<int>(HDF5_file, path + "/NbVertices");
+    auto nbFace = H5Easy::load<int>(HDF5_file, path + "/NbFaces");
+
+    auto vertices_hdb = H5Easy::load<Eigen::MatrixXd>(HDF5_file, path + "/Vertices");
+    auto faces_hdb = H5Easy::load<Eigen::MatrixXi>(HDF5_file, path + "/Faces");
+
+    std::vector<mathutils::Vector3d<double>> vertices;
+    std::vector<Eigen::VectorXi> faces;
+
+    for (unsigned int i=0; i<nbVertices; i++) {
+      mathutils::Vector3d<double> vertex = vertices_hdb.row(i);
+      vertices.emplace_back(vertex);
+    }
+
+    for (unsigned int i=0; i<nbVertices; i++) {
+      Eigen::VectorXi face = faces_hdb.row(i);
+      faces.emplace_back(face);
+    }
+
+    body->LoadMesh(vertices, faces);
   }
 
   void HydrodynamicDataBase::Export_HDF5(const std::string &HDF5_file) {

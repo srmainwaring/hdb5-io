@@ -7,6 +7,9 @@
 
 namespace HDB5_io {
 
+  Body::Body(unsigned int id, const std::string &name, HydrodynamicDataBase *hdb) : m_id(id), m_name(name), m_HDB(hdb) {
+    m_mesh = std::make_shared<meshoui::Mesh>();
+  }
 
   //
   // Setters
@@ -159,6 +162,10 @@ namespace HDB5_io {
     m_hydrostaticStiffnessMatrix = hydrostaticStiffnessMatrix.block<3, 3>(2, 2);
   }
 
+  void Body::LoadMesh(const std::vector<mathutils::Vector3d<double>> &vertices, const std::vector<Eigen::VectorXi>& faces) {
+    m_mesh->Load(vertices, faces);
+  }
+
   //
   // Getters
   //
@@ -267,5 +274,4 @@ namespace HDB5_io {
 
 
   }
-
 }

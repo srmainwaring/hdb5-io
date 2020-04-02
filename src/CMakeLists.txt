@@ -16,6 +16,8 @@ target_link_libraries(hdb5io PUBLIC
         HDF5
         eigen
         highfive
+        meshoui
+        ${VTK_LIBRARIES}
         )
 
 target_include_directories(hdb5io PUBLIC ${CMAKE_CURRENT_LIST_DIR})
