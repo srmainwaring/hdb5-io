@@ -5,7 +5,6 @@ set(HDB5IO_SRC_FILES
         Body.cpp
         Discretization1D.cpp
         Mask.cpp
-        meshContainer.cpp
         )
 
 
@@ -16,9 +15,14 @@ target_link_libraries(hdb5io PUBLIC
         MathUtils::MathUtils
         HDF5
         eigen
-        highfive
+        HighFive
         meshoui
-        ${VTK_LIBRARIES}
+#        ${VTK_LIBRARIES}
         )
+
+if (HDB5IO_USE_VTK)
+    target_link_libraries(hdb5io PUBLIC ${VTK_LIBRARIES})
+endif()
+
 
 target_include_directories(hdb5io PUBLIC ${CMAKE_CURRENT_LIST_DIR}/..)

@@ -18,6 +18,10 @@
 
 #include "meshoui/mesh.h"
 
+#ifdef H5_USE_VTK
+#include "meshoui/vtkmesh.h"
+#endif
+
 namespace HDB5_io {
 
   // Forward declaration
@@ -132,11 +136,13 @@ namespace HDB5_io {
     /// \return Mask on the force mode
     Mask GetForceMask() const { return m_forceMask; }
 
-    meshoui::Mesh* GetMesh() const { return m_mesh.get(); }
+//    meshoui::Mesh* GetMesh() const { return m_mesh.get(); }
 
     void BoxMesh();
 
+#ifdef H5_USE_VTK
     void VisualizeMesh() const;
+#endif
 
     Eigen::MatrixXcd GetDiffraction(unsigned int iangle) const;
 

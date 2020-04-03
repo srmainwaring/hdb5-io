@@ -10,8 +10,5 @@
 
 add_executable(test_import test_import.cpp)
 target_link_libraries(test_import hdb5io
-        ${VTK_LIBRARIES}
+#        ${VTK_LIBRARIES}
         )
-
-add_executable(test_meshoui test_meshoui.cpp)
-target_link_libraries(test_meshoui hdb5io)

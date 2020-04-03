@@ -10,6 +10,5 @@
 #include "Discretization1D.h"
 #include "Mask.h"
 #include "Mode.h"
-#include "meshContainer.h"
 
 #endif //HDB5_IO_HDB5_IO_H

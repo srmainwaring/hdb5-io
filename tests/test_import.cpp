@@ -13,11 +13,12 @@ int main() {
 
   HydrodynamicDataBase HDB;
 
-  auto body = HDB.NewBody(0, "truc");
-  body->BoxMesh();
-  body->VisualizeMesh();
+//  auto body = HDB.NewBody(0, "truc");
+//  body->BoxMesh();
+//  body->VisualizeMesh();
 
-//  HDB.Import_HDF5("/home/lletourn/Documents/DEV/hdb5-io/test.hdb5");
+  HDB.Import_HDF5("/home/lletourn/Documents/DEV/hdb5-io/test.hdb5");
+
 //  HDB.GetBody(0)->VisualizeMesh();
 
 

@@ -4,7 +4,7 @@
 
 #include "Body.h"
 #include "HydrodynamicDataBase.h"
-#include "meshoui/vtkmesh.h"
+
 
 namespace HDB5_io {
 
@@ -304,6 +304,7 @@ namespace HDB5_io {
     m_mesh->Load(vertices, faces);
   }
 
+#ifdef H5_USE_VTK
   void Body::VisualizeMesh() const {
     // Creation of a VTK mesh.
     meshoui::VTKMesh vtkmesh = meshoui::VTKMesh(*m_mesh);
@@ -311,6 +312,6 @@ namespace HDB5_io {
     // Visualization.
     vtkmesh.Visualize();
   }
-
+#endif
 
 }
