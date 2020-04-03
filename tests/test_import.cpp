@@ -19,8 +19,9 @@ int main() {
 
   HDB.Import_HDF5("/home/lletourn/Documents/DEV/hdb5-io/test.hdb5");
 
-//  HDB.GetBody(0)->VisualizeMesh();
-
+#ifdef H5_USE_VTK
+  HDB.GetBody(0)->VisualizeMesh();
+#endif
 
 //  auto mesh = HDB.GetBody(0)->GetMesh();
 //  // VTKMesh.
