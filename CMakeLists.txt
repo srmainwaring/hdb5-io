@@ -1,6 +1,6 @@
 #=============================================================================
 #
-# CMake configuration file for the FRyDoM project
+# CMake configuration file for the HDB5_IO project
 #
 #=============================================================================
 
@@ -52,14 +52,12 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/URL.conf.cmake)
 
-
-#if (${frydom_download_demo_data})
-#    include(${CMAKE_CURRENT_SOURCE_DIR}/data/DownloadData.cmake)
-#    DownloadData()
-#endif ()
-
 include(Add_MathUtils)
 include(Add_HDF5)
+include(Add_meshoui)
+
+find_package(VTK 6.0 REQUIRED NO_MODULE)
+include(${VTK_USE_FILE})
 
 
 get_target_property(INC eigen INTERFACE_INCLUDE_DIRECTORIES)
@@ -72,7 +70,7 @@ include(Add_HighFive)
 #=============================================================================
 # Adding the HDB5_IO project sources
 #=============================================================================
-add_subdirectory(src)
+add_subdirectory(src/hdb5_io)
 
 #=============================================================================
 # Adding tests
@@ -87,7 +85,7 @@ endif ()
 #=============================================================================
 # Adding tools
 #=============================================================================
-#if (${frydom_build_tools})
+#if (${HDB5IO_build_tools})
 #    include(add_cxxopts)
 #    add_subdirectory(tools)
 #endif ()

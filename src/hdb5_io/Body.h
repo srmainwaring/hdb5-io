@@ -134,6 +134,10 @@ namespace HDB5_io {
 
     meshoui::Mesh* GetMesh() const { return m_mesh.get(); }
 
+    void BoxMesh();
+
+    void VisualizeMesh() const;
+
     Eigen::MatrixXcd GetDiffraction(unsigned int iangle) const;
 
     Eigen::VectorXcd GetDiffraction(unsigned int iangle, unsigned int iforce) const;

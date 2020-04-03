@@ -5,12 +5,13 @@ set(HDB5IO_SRC_FILES
         Body.cpp
         Discretization1D.cpp
         Mask.cpp
+        meshContainer.cpp
         )
 
 
-add_library(hdb5io SHARED ${HDB5IO_SRC_FILES})
+add_library(hdb5io SHARED)
 
-#target_sources(hdb5io PRIVATE ${HDB5IO_SRC_FILES})
+target_sources(hdb5io PRIVATE ${HDB5IO_SRC_FILES})
 target_link_libraries(hdb5io PUBLIC
         MathUtils::MathUtils
         HDF5
@@ -20,4 +21,4 @@ target_link_libraries(hdb5io PUBLIC
         ${VTK_LIBRARIES}
         )
 
-target_include_directories(hdb5io PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(hdb5io PUBLIC ${CMAKE_CURRENT_LIST_DIR}/..)

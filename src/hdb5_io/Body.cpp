@@ -4,6 +4,7 @@
 
 #include "Body.h"
 #include "HydrodynamicDataBase.h"
+#include "meshoui/vtkmesh.h"
 
 namespace HDB5_io {
 
@@ -274,4 +275,42 @@ namespace HDB5_io {
 
 
   }
+
+  void Body::BoxMesh() {
+    // Build a box
+    std::vector<meshoui::Vector3d> vertices;
+    vertices.emplace_back(-1, -1,  1);
+    vertices.emplace_back(1, -1,  1);
+    vertices.emplace_back(1,  1,  1);
+    vertices.emplace_back(-1,  1,  1);
+    vertices.emplace_back(-1, -1, -1);
+    vertices.emplace_back(1, -1, -1);
+    vertices.emplace_back(1,  1, -1);
+    vertices.emplace_back(-1,  1, -1);
+    std::vector<Eigen::VectorXi> faces;
+    faces.emplace_back(Eigen::Vector3i(0,1,2));
+    faces.emplace_back(Eigen::Vector3i(2,3,0));
+    faces.emplace_back(Eigen::Vector3i(0,4,1));
+    faces.emplace_back(Eigen::Vector3i(1,4,5));
+    faces.emplace_back(Eigen::Vector3i(1,5,2));
+    faces.emplace_back(Eigen::Vector3i(2,5,6));
+    faces.emplace_back(Eigen::Vector3i(2,6,3));
+    faces.emplace_back(Eigen::Vector3i(3,6,7));
+    faces.emplace_back(Eigen::Vector3i(3,7,0));
+    faces.emplace_back(Eigen::Vector3i(0,7,4));
+    faces.emplace_back(Eigen::Vector3i(6,5,4));
+    faces.emplace_back(Eigen::Vector3i(7,6,4));
+    // Load it
+    m_mesh->Load(vertices, faces);
+  }
+
+  void Body::VisualizeMesh() const {
+    // Creation of a VTK mesh.
+    meshoui::VTKMesh vtkmesh = meshoui::VTKMesh(*m_mesh);
+
+    // Visualization.
+    vtkmesh.Visualize();
+  }
+
+
 }
