@@ -3,13 +3,18 @@
 //
 
 #include "Body.h"
+
+#ifdef H5_USE_VTK
+#include "meshoui/vtkmesh.h"
+#endif
+
 #include "HydrodynamicDataBase.h"
 
 
 namespace HDB5_io {
 
   Body::Body(unsigned int id, const std::string &name, HydrodynamicDataBase *hdb) : m_id(id), m_name(name), m_HDB(hdb) {
-    m_mesh = std::make_shared<meshoui::Mesh>();
+    m_mesh = std::make_shared<Mesh>();
   }
 
   //

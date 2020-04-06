@@ -11,6 +11,8 @@
 #include <highfive/H5File.hpp>
 #include <highfive/H5Easy.hpp>
 
+#include "Mesh.h"
+
 namespace HDB5_io {
 
 
@@ -259,7 +261,7 @@ namespace HDB5_io {
 
   void HydrodynamicDataBase::ReadMesh(HighFive::File &HDF5_file, const std::string &path, Body* body) {
     auto nbVertices = H5Easy::load<int>(HDF5_file, path + "/NbVertices");
-    auto nbFace = H5Easy::load<int>(HDF5_file, path + "/NbFaces");
+    auto nbFaces = H5Easy::load<int>(HDF5_file, path + "/NbFaces");
 
     auto vertices_hdb = H5Easy::load<Eigen::MatrixXd>(HDF5_file, path + "/Vertices");
     auto faces_hdb = H5Easy::load<Eigen::MatrixXi>(HDF5_file, path + "/Faces");
@@ -272,7 +274,7 @@ namespace HDB5_io {
       vertices.emplace_back(vertex);
     }
 
-    for (unsigned int i=0; i<nbVertices; i++) {
+    for (unsigned int i=0; i<nbFaces; i++) {
       Eigen::VectorXi face = faces_hdb.row(i);
       faces.emplace_back(face);
     }
@@ -404,6 +406,19 @@ namespace HDB5_io {
                    static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetForceMask().GetMask()));
       H5Easy::dump(file, "Bodies/Body_" + std::to_string(i) + "/Mask/MotionMask",
                    static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetMotionMask().GetMask()));
+
+      bodyGroup.createGroup("Mesh");
+      H5Easy::dump(file, "Bodies/Body_" + std::to_string(i) + "/Mesh/NbFaces",
+                   body->GetMesh()->n_faces());
+      H5Easy::dump(file, "Bodies/Body_" + std::to_string(i) + "/Mesh/Faces",
+                   body->GetMesh()->GetFaces());
+      H5Easy::dump(file, "Bodies/Body_" + std::to_string(i) + "/Mesh/NbVertices",
+                   body->GetMesh()->n_vertices());
+      H5Easy::dump(file, "Bodies/Body_" + std::to_string(i) + "/Mesh/Vertices",
+                   body->GetMesh()->GetVertices());
+
+
+      WriteMesh(file, "Bodies/Body_" + std::to_string(i) + "/Mesh", body);
 
       WriteExcitation(excitationType::Diffraction, file,
                       "Bodies/Body_" + std::to_string(i) + "/Excitation/Diffraction", body);
@@ -573,6 +588,13 @@ namespace HDB5_io {
 
 
     }
+
+
+  }
+
+  void HydrodynamicDataBase::WriteMesh(HighFive::File &HDF5_file, const std::string &path, Body *body) {
+
+
 
 
   }

@@ -118,6 +118,8 @@ namespace HDB5_io {
 
     void ReadMesh(HighFive::File &HDF5_file, const std::string &path, Body* body);
 
+    void WriteMesh(HighFive::File &HDF5_file, const std::string &path, Body* body);
+
   };
 
 } // namespace HDB5_io

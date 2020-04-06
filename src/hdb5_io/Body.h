@@ -15,12 +15,7 @@
 
 //#include "Mode.h"
 #include "Mask.h"
-
-#include "meshoui/mesh.h"
-
-#ifdef H5_USE_VTK
-#include "meshoui/vtkmesh.h"
-#endif
+#include "Mesh.h"
 
 namespace HDB5_io {
 
@@ -136,7 +131,7 @@ namespace HDB5_io {
     /// \return Mask on the force mode
     Mask GetForceMask() const { return m_forceMask; }
 
-//    meshoui::Mesh* GetMesh() const { return m_mesh.get(); }
+    Mesh* GetMesh() const { return m_mesh.get(); }
 
     void BoxMesh();
 
@@ -188,7 +183,7 @@ namespace HDB5_io {
     Mask m_forceMask;                              ///< Mask applied on the force
     Mask m_motionMask;                             ///< Mask applied on the DOF
 
-    std::shared_ptr<meshoui::Mesh> m_mesh;
+    std::shared_ptr<Mesh> m_mesh;
 
 //    std::vector<Mode> m_forceModes;                ///< List of activated force modes
 //    std::vector<Mode> m_motionModes;               ///< List of activated motion modes

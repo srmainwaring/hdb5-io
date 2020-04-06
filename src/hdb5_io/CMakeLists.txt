@@ -5,6 +5,7 @@ set(HDB5IO_SRC_FILES
         Body.cpp
         Discretization1D.cpp
         Mask.cpp
+        Mesh.cpp
         )
 
 

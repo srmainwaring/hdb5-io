@@ -28,13 +28,10 @@ project(HDB5_IO)
 #set(CMAKE_BUILD_TYPE Debug)
 
 # OPTIONS
-#set(USE_VTK ON CACHE BOOL "Enable VTK Support" FORCE)
-#mark_as_advanced(USE_VTK)
-#
-#message(STATUS "USE VTK : ${USE_VTK}" )
+set(USE_VTK ON CACHE BOOL "Enable VTK Support" FORCE)
+mark_as_advanced(USE_VTK)
 
-#option(HDB5IO_USE_VTK "Enable VTK Support" ${USE_VTK})
-option(HDB5IO_USE_VTK "Enable VTK Support" OFF)
+option(HDB5IO_USE_VTK "Enable VTK Support" ${USE_VTK})
 option(HDB5IO_build_tests "Activate build tests" ON)
 
 #-----------------------------------------------------------------------------
@@ -67,7 +64,6 @@ include(Add_meshoui)
 message(STATUS "USE VTK : ${HDB5IO_USE_VTK}" )
 
 if (HDB5IO_USE_VTK)
-    message(STATUT "++++++++++++++++++++++++++++ VTK ON")
     find_package(VTK 6.0 REQUIRED NO_MODULE)
     include(${VTK_USE_FILE})
     add_definitions(-DH5_USE_VTK)
