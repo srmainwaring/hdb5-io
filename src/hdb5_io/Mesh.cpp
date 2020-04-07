@@ -10,7 +10,7 @@ namespace HDB5_io {
 
   Eigen::MatrixXd Mesh::GetVertices() const {
 
-    Eigen::MatrixXd VertexMatrix(n_vertices(),3);
+    Eigen::MatrixXd VertexMatrix(n_vertices(), 3);
 
     unsigned int i = 0;
 
@@ -25,18 +25,18 @@ namespace HDB5_io {
 
   Eigen::MatrixXi Mesh::GetFaces() {
 
-    Eigen::MatrixXi VertexMatrix(n_faces(),3);
+    Eigen::MatrixXi VertexMatrix(n_faces(), 3);
 
     unsigned int i = 0;
 
-    for (const auto& face : faces()) {
+    for (const auto &face : faces()) {
 
       Eigen::Vector3i connectivity;
       int id = 0;
       auto fv_it = fv_iter(face);
       for (; fv_it.is_valid(); fv_it++) {
         connectivity[id] = (*fv_it).idx();
-        id ++;
+        id++;
       }
       VertexMatrix.row(i) = connectivity;
       i++;

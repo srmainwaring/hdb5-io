@@ -9,7 +9,6 @@
 #include "Body.h"
 #include "Discretization1D.h"
 #include "Mask.h"
-#include "Mode.h"
 #include "Mesh.h"
 
 #endif //HDB5_IO_HDB5_IO_H

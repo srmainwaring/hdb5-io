@@ -5,7 +5,9 @@
 #include "Body.h"
 
 #ifdef H5_USE_VTK
+
 #include "meshoui/vtkmesh.h"
+
 #endif
 
 #include "HydrodynamicDataBase.h"
@@ -15,11 +17,17 @@ namespace HDB5_io {
 
   Body::Body(unsigned int id, const std::string &name, HydrodynamicDataBase *hdb) : m_id(id), m_name(name), m_HDB(hdb) {
     m_mesh = std::make_shared<Mesh>();
+    AllocateAll(m_HDB->GetFrequencyDiscretization().GetNbSample(),
+                m_HDB->GetWaveDirectionDiscretization().GetNbSample());
   }
 
   //
   // Setters
   //
+
+  void Body::SetPosition(const mathutils::Vector3d<double> &position) {
+    m_position = position;
+  }
 
   void Body::SetForceMask(mathutils::Vector6d<int> mask) {
     m_forceMask.SetMask(mask);
@@ -55,7 +63,6 @@ namespace HDB5_io {
     /// This subroutine computes the excitation loads from the diffraction loads and the Froude-Krylov loads.
 
     assert(m_diffraction.size() == m_froudeKrylov.size());
-//    for (unsigned int iangle = 0; iangle < GetNbWaveDirections(); ++iangle) {
     for (unsigned int iangle = 0; iangle < m_diffraction.size(); ++iangle) {
       m_excitation[iangle] = m_diffraction[iangle] + m_froudeKrylov[iangle];
     }
@@ -168,13 +175,34 @@ namespace HDB5_io {
     m_hydrostaticStiffnessMatrix = hydrostaticStiffnessMatrix.block<3, 3>(2, 2);
   }
 
-  void Body::LoadMesh(const std::vector<mathutils::Vector3d<double>> &vertices, const std::vector<Eigen::VectorXi>& faces) {
+  void
+  Body::LoadMesh(const std::vector<mathutils::Vector3d<double>> &vertices, const std::vector<Eigen::VectorXi> &faces) {
     m_mesh->Load(vertices, faces);
   }
 
   //
   // Getters
   //
+
+  mathutils::Vector3d<double> Body::GetPosition() const {
+    return m_position;
+  }
+
+  Mask Body::GetMotionMask() const {
+    return m_motionMask;
+  }
+
+  Mask Body::GetForceMask() const {
+    return m_forceMask;
+  }
+
+  Mesh *Body::GetMesh() const {
+    return m_mesh.get();
+  }
+
+  mathutils::Matrix33<double> Body::GetHydrostaticStiffnessMatrix() const {
+    return m_hydrostaticStiffnessMatrix;
+  }
 
   Eigen::MatrixXcd Body::GetDiffraction(const unsigned int iangle) const {
 //    assert(iangle < this->GetNbWaveDirections());
@@ -245,9 +273,11 @@ namespace HDB5_io {
     return m_radiationDamping[BodyMotion][idof].get();
   };
 
-  Eigen::MatrixXd Body::GetMatrixComponentFromIterator(mathutils::Interp1d<double, mathutils::Vector6d<double>>* interpolator, Discretization1D frequencies) {
+  Eigen::MatrixXd
+  Body::GetMatrixComponentFromIterator(mathutils::Interp1d<double, mathutils::Vector6d<double>> *interpolator,
+                                       Discretization1D frequencies) {
     Eigen::MatrixXd addedMasses(6, frequencies.GetNbSample());
-    for (unsigned int i=0; i<frequencies.GetNbSample(); i++) {
+    for (unsigned int i = 0; i < frequencies.GetNbSample(); i++) {
       addedMasses.col(i) = interpolator->Eval(frequencies.GetVector()[i]);
     }
     return addedMasses;
@@ -258,10 +288,6 @@ namespace HDB5_io {
 
     // This subroutine allocates the arrays for the hdb.
 
-    auto nbForce = GetForceMask().GetNbDOF();
-
-    // --> Allocating arrays for excitations
-
 //    auto nbWaveDir = GetNbWaveDirections();
     m_diffraction.reserve((unsigned long) nDirections);
     m_froudeKrylov.reserve((unsigned long) nDirections);
@@ -269,7 +295,7 @@ namespace HDB5_io {
 
 //    auto nbFreq = GetNbFrequencies();
     for (int i = 0; i < nDirections; ++i) {
-      Eigen::MatrixXcd mat(nbForce, nFrequencies);
+      Eigen::MatrixXcd mat(6, nFrequencies);
       m_diffraction.push_back(mat);
       m_froudeKrylov.push_back(mat);
       m_excitation.push_back(mat);
@@ -281,35 +307,8 @@ namespace HDB5_io {
 
   }
 
-  void Body::BoxMesh() {
-    // Build a box
-    std::vector<meshoui::Vector3d> vertices;
-    vertices.emplace_back(-1, -1,  1);
-    vertices.emplace_back(1, -1,  1);
-    vertices.emplace_back(1,  1,  1);
-    vertices.emplace_back(-1,  1,  1);
-    vertices.emplace_back(-1, -1, -1);
-    vertices.emplace_back(1, -1, -1);
-    vertices.emplace_back(1,  1, -1);
-    vertices.emplace_back(-1,  1, -1);
-    std::vector<Eigen::VectorXi> faces;
-    faces.emplace_back(Eigen::Vector3i(0,1,2));
-    faces.emplace_back(Eigen::Vector3i(2,3,0));
-    faces.emplace_back(Eigen::Vector3i(0,4,1));
-    faces.emplace_back(Eigen::Vector3i(1,4,5));
-    faces.emplace_back(Eigen::Vector3i(1,5,2));
-    faces.emplace_back(Eigen::Vector3i(2,5,6));
-    faces.emplace_back(Eigen::Vector3i(2,6,3));
-    faces.emplace_back(Eigen::Vector3i(3,6,7));
-    faces.emplace_back(Eigen::Vector3i(3,7,0));
-    faces.emplace_back(Eigen::Vector3i(0,7,4));
-    faces.emplace_back(Eigen::Vector3i(6,5,4));
-    faces.emplace_back(Eigen::Vector3i(7,6,4));
-    // Load it
-    m_mesh->Load(vertices, faces);
-  }
-
 #ifdef H5_USE_VTK
+
   void Body::VisualizeMesh() const {
     // Creation of a VTK mesh.
     meshoui::VTKMesh vtkmesh = meshoui::VTKMesh(*m_mesh);
@@ -317,6 +316,7 @@ namespace HDB5_io {
     // Visualization.
     vtkmesh.Visualize();
   }
+
 #endif
 
 }

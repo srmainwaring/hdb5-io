@@ -6,25 +6,112 @@
 
 #include "HydrodynamicDataBase.h"
 
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
 #include <highfive/H5File.hpp>
 #include <highfive/H5Easy.hpp>
 
-#include "Mesh.h"
-
 namespace HDB5_io {
+
+  void HydrodynamicDataBase::SetCreationDate(std::string date) {
+    m_creationDate = date;
+  }
+
+  std::string HydrodynamicDataBase::GetCreationDate() const {
+    return m_creationDate;
+  }
+
+  void HydrodynamicDataBase::SetSolver(std::string solver) {
+    m_solver = solver;
+  }
+
+  std::string HydrodynamicDataBase::GetSolver() const {
+    return m_solver;
+  }
+
+  void HydrodynamicDataBase::SetVersion(double version) {
+    m_version = version;
+  }
+
+  double HydrodynamicDataBase::GetVersion() const {
+    return m_version;
+  }
+
+  void HydrodynamicDataBase::SetGravityAcceleration(double g) {
+    m_gravityAcceleration = g;
+  }
+
+  double HydrodynamicDataBase::GetGravityAcceleration() const {
+    return m_gravityAcceleration;
+  }
+
+  void HydrodynamicDataBase::SetWaterDensity(double rho) {
+    m_waterDensity = rho;
+  }
+
+  double HydrodynamicDataBase::GetWaterDensity() const {
+    return m_waterDensity;
+  }
+
+  void HydrodynamicDataBase::SetWaterDepth(double h) {
+    m_waterDepth = h;
+  }
+
+  double HydrodynamicDataBase::GetWaterDepth() const {
+    return m_waterDepth;
+  }
+
+  void HydrodynamicDataBase::SetNormalizationLength(double L) {
+    m_normalizationLength = L;
+  }
+
+  double HydrodynamicDataBase::GetNormalizationLength() const {
+    return m_normalizationLength;
+  }
+
+  Body *HydrodynamicDataBase::GetBody(int id) const {
+    return m_bodies[id].get();
+  }
+
+  Body *HydrodynamicDataBase::NewBody(unsigned int id, const std::string &name) {
+    m_bodies.push_back(std::make_unique<Body>(id, name, this));
+    return (m_bodies.back()).get();
+  }
+
+  int HydrodynamicDataBase::GetNbBodies() const {
+    return m_nbody;
+  }
+
+  void HydrodynamicDataBase::SetFrequencyDiscretization(double wmin, double wmax, unsigned int nw) {
+    m_frequencyDiscretization = Discretization1D(wmin, wmax, nw);
+  }
+
+  void HydrodynamicDataBase::SetWaveDirectionDiscretization(double tmin, double tmax, unsigned int nt) {
+    m_waveDirectionDiscretization = Discretization1D(tmin, tmax, nt);
+  }
+
+  void HydrodynamicDataBase::SetTimeDiscretization(double tmin, double tmax, unsigned int nt) {
+    m_timeDiscretization = Discretization1D(tmin, tmax, nt);
+  }
+
+  Discretization1D HydrodynamicDataBase::GetFrequencyDiscretization() const {
+    return m_frequencyDiscretization;
+  }
+
+  Discretization1D HydrodynamicDataBase::GetWaveDirectionDiscretization() const {
+    return m_waveDirectionDiscretization;
+  }
+
+  Discretization1D HydrodynamicDataBase::GetTimeDiscretization() const {
+    return m_timeDiscretization;
+  }
 
 
   void HydrodynamicDataBase::Import_HDF5(const std::string &HDF5_file) {
 
-    using namespace HighFive;
-
-    File file(HDF5_file, File::ReadOnly);
+    HighFive::File file(HDF5_file, HighFive::File::ReadOnly);
 
     try {
       file.getDataSet("Version").read(m_version);
-    } catch (Exception &err) {
+    } catch (HighFive::Exception &err) {
       std::cerr << err.what() << std::endl;
       m_version = 1.0;
     }
@@ -35,9 +122,7 @@ namespace HDB5_io {
 
   void HydrodynamicDataBase::Import_HDF5_v3(const std::string &HDF5_file) {
 
-    using namespace HighFive;
-
-    File file(HDF5_file, File::ReadOnly);
+    HighFive::File file(HDF5_file, HighFive::File::ReadOnly);
 
     file.getDataSet("CreationDate").read(m_creationDate);
     file.getDataSet("Solver").read(m_solver);
@@ -102,8 +187,6 @@ namespace HDB5_io {
       mask = H5Easy::load<Eigen::Matrix<int, 6, 1>>(file, "Bodies/Body_" + std::to_string(i) + "/Mask/MotionMask");
       body->SetMotionMask(mask);
 
-      body->AllocateAll(m_frequencyDiscretization.GetNbSample(), m_waveDirectionDiscretization.GetNbSample());
-
       ReadMesh(file, "Bodies/Body_" + std::to_string(i) + "/Mesh", body);
     }
 
@@ -119,11 +202,6 @@ namespace HDB5_io {
 
       ReadRadiation(file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Radiation", body.get());
     }
-
-  }
-
-
-  HydrodynamicDataBase::HydrodynamicDataBase() {
 
   }
 
@@ -259,7 +337,7 @@ namespace HDB5_io {
 
   }
 
-  void HydrodynamicDataBase::ReadMesh(HighFive::File &HDF5_file, const std::string &path, Body* body) {
+  void HydrodynamicDataBase::ReadMesh(HighFive::File &HDF5_file, const std::string &path, Body *body) {
     auto nbVertices = H5Easy::load<int>(HDF5_file, path + "/NbVertices");
     auto nbFaces = H5Easy::load<int>(HDF5_file, path + "/NbFaces");
 
@@ -269,12 +347,12 @@ namespace HDB5_io {
     std::vector<mathutils::Vector3d<double>> vertices;
     std::vector<Eigen::VectorXi> faces;
 
-    for (unsigned int i=0; i<nbVertices; i++) {
+    for (unsigned int i = 0; i < nbVertices; i++) {
       mathutils::Vector3d<double> vertex = vertices_hdb.row(i);
       vertices.emplace_back(vertex);
     }
 
-    for (unsigned int i=0; i<nbFaces; i++) {
+    for (unsigned int i = 0; i < nbFaces; i++) {
       Eigen::VectorXi face = faces_hdb.row(i);
       faces.emplace_back(face);
     }
@@ -526,7 +604,7 @@ namespace HDB5_io {
                                                     std::to_string(bodyMotion->GetID()) +
                                                     " that radiates waves and  generate force on body " +
                                                     std::to_string(body->GetID()) + ".");
-      for (unsigned int i = 0; i<6; i++) {
+      for (unsigned int i = 0; i < 6; i++) {
         H5Easy::dump(HDF5_file, bodyMotionPath + "/AddedMass/DOF_" + std::to_string(i),
                      body->GetMatrixComponentFromIterator(body->GetAddedMassInterpolator(bodyMotion, i),
                                                           GetFrequencyDiscretization()));
@@ -545,7 +623,7 @@ namespace HDB5_io {
                                                            std::to_string(bodyMotion->GetID()) +
                                                            " that radiates waves and generates forces on body " +
                                                            std::to_string(body->GetID()) + ".");
-      for (unsigned int i = 0; i<6; i++) {
+      for (unsigned int i = 0; i < 6; i++) {
         H5Easy::dump(HDF5_file, bodyMotionPath + "/RadiationDamping/DOF_" + std::to_string(i),
                      body->GetMatrixComponentFromIterator(body->GetRadiationDampingInterpolator(bodyMotion, i),
                                                           GetFrequencyDiscretization()));
@@ -564,7 +642,7 @@ namespace HDB5_io {
                                             std::to_string(bodyMotion->GetID()) +
                                             " that radiates waves and generates forces on body " +
                                             std::to_string(body->GetID()) + ".");
-      for (unsigned int i = 0; i<6; i++) {
+      for (unsigned int i = 0; i < 6; i++) {
         H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK/DOF_" + std::to_string(i),
                      body->GetMatrixComponentFromIterator(body->GetIRFInterpolatorK(bodyMotion, i),
                                                           GetTimeDiscretization()));
@@ -575,10 +653,10 @@ namespace HDB5_io {
       // Writing the impulse response function KU for the body.
       auto KUGroup = bodyMotionGroup.createGroup("ImpulseResponseFunctionKU");
       KUGroup.createAttribute("Description", "Impulse response functions KU due to the velocity of body " +
-                                            std::to_string(bodyMotion->GetID()) +
-                                            " that radiates waves and generates forces on body " +
-                                            std::to_string(body->GetID()) + ".");
-      for (unsigned int i = 0; i<6; i++) {
+                                             std::to_string(bodyMotion->GetID()) +
+                                             " that radiates waves and generates forces on body " +
+                                             std::to_string(body->GetID()) + ".");
+      for (unsigned int i = 0; i < 6; i++) {
         H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU/DOF_" + std::to_string(i),
                      body->GetMatrixComponentFromIterator(body->GetIRFInterpolatorKu(bodyMotion, i),
                                                           GetTimeDiscretization()));
@@ -588,13 +666,6 @@ namespace HDB5_io {
 
 
     }
-
-
-  }
-
-  void HydrodynamicDataBase::WriteMesh(HighFive::File &HDF5_file, const std::string &path, Body *body) {
-
-
 
 
   }

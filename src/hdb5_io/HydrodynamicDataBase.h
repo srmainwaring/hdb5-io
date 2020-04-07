@@ -17,71 +17,79 @@ namespace HDB5_io {
 
   // Forward declarations
 
-
+  /**
+  * \class HydrodynamicDataBase
+  * \brief Class for storing a hydrodynamic database. Can import and export database from HDF5 data format file.
+  * All components are stored, even null DOF components, resulting in 6 DOF vectors and 6x6 matrices.
+  */
   class HydrodynamicDataBase {
 
    public:
 
-    HydrodynamicDataBase();
-
+    /// Import a hydrodynamic database from a HDF5 format file
+    /// \param HDF5_file file containing the hydrodynamic database
     void Import_HDF5(const std::string &HDF5_file);
 
+    /// Export the hydrodynamic database to a HDF5 format file
+    /// \param HDF5_file file to export the hydrodynamic database
     void Export_HDF5(const std::string &HDF5_file);
 
 
     // Accessors
 
-    void SetCreationDate(std::string date) { m_creationDate = date; }
+    void SetCreationDate(std::string date);
 
-    std::string GetCreationDate() const { return m_creationDate; }
+    std::string GetCreationDate() const;
 
-    void SetSolver(std::string solver) { m_solver = solver; }
+    void SetSolver(std::string solver);
 
-    std::string GetSolver() const { return m_solver; }
+    std::string GetSolver() const;
 
-    void SetVersion(double version) { m_version = version; }
+    void SetVersion(double version);
 
-    double GetVersion() const { return m_version; }
+    double GetVersion() const;
 
-    void SetGravityAcceleration(double g) { m_gravityAcceleration = g; }
+    void SetGravityAcceleration(double g);
 
-    double GetGravityAcceleration() const { return m_gravityAcceleration; }
+    double GetGravityAcceleration() const;
 
-    void SetWaterDensity(double rho) { m_waterDensity = rho; }
+    void SetWaterDensity(double rho);
 
-    double GetWaterDensity() const { return m_waterDensity; }
+    double GetWaterDensity() const;
 
-    void SetWaterDepth(double h) { m_waterDepth = h; }
+    void SetWaterDepth(double h);
 
-    double GetWaterDepth() const { return m_waterDepth; }
+    double GetWaterDepth() const;
 
-    void SetNormalizationLength(double L) { m_normalizationLength = L; }
+    void SetNormalizationLength(double L);
 
-    double GetNormalizationLength() const { return m_normalizationLength; }
+    double GetNormalizationLength() const;
 
-    Body *GetBody(int id) const { return m_bodies[id].get(); }
+    Body *GetBody(int id) const;
 
-    Body *NewBody(unsigned int id, const std::string& name) {
-      m_bodies.push_back(std::make_unique<Body>(id, name, this));
-      return (m_bodies.back()).get();
-    }
+    Body *NewBody(unsigned int id, const std::string &name);
 
-    int GetNbBodies() const { return m_nbody; }
+    int GetNbBodies() const;
 
-    void SetFrequencyDiscretization(double wmin, double wmax, unsigned int nw) { m_frequencyDiscretization = Discretization1D(wmin, wmax, nw);}
+    void SetFrequencyDiscretization(double wmin, double wmax,
+                                    unsigned int nw);
 
-    void SetWaveDirectionDiscretization(double tmin, double tmax, unsigned int nt) { m_waveDirectionDiscretization = Discretization1D(tmin, tmax, nt);}
+    void SetWaveDirectionDiscretization(double tmin, double tmax, unsigned int nt);
 
-    void SetTimeDiscretization(double tmin, double tmax, unsigned int nt) { m_timeDiscretization = Discretization1D(tmin, tmax, nt);}
+    void SetTimeDiscretization(double tmin, double tmax, unsigned int nt);
 
-    Discretization1D GetFrequencyDiscretization() const { return m_frequencyDiscretization; }
+    Discretization1D GetFrequencyDiscretization() const;
 
-    Discretization1D GetWaveDirectionDiscretization() const { return m_waveDirectionDiscretization; }
+    Discretization1D GetWaveDirectionDiscretization() const;
 
-    Discretization1D GetTimeDiscretization() const { return m_timeDiscretization; }
+    Discretization1D GetTimeDiscretization() const;
 
 
    private:
+
+    enum excitationType {
+      Diffraction, Froude_Krylov
+    };
 
     std::string m_creationDate;       ///< Creation date of the HDB
     std::string m_solver;             ///< Solver which computed the hydrodynamic data base (NEMOH/HELIOS)
@@ -93,32 +101,55 @@ namespace HDB5_io {
     double m_normalizationLength;     ///< Normalization length coming from the HDB
 
     int m_nbody;                      ///< Number of bodies in interaction considered in the HDB
-
     std::vector<std::unique_ptr<Body>> m_bodies;      ///< List of BEM body database
 
     Discretization1D m_frequencyDiscretization;       ///< Wave frequency discretization
     Discretization1D m_waveDirectionDiscretization;   ///< Wave direction discretization
     Discretization1D m_timeDiscretization;            ///< Time samples
 
-
+    /// Import a hydrodynamic database from a HDF5 file in version 3.xx
+    /// \param HDF5_file file containing the hydrodynamic database in version 3.xx
     void Import_HDF5_v3(const std::string &HDF5_file);
 
-    enum excitationType {Diffraction, Froude_Krylov};
-
+    /// Read the excitation components
+    /// \param type excitation type (Diffraction or Froude_Krylov
+    /// \param HDF5_file file containing the hydrodynamic database
+    /// \param path path to the components in the file
+    /// \param body body to which store the components
     void ReadExcitation(excitationType type, const HighFive::File &HDF5_file, const std::string &path, Body *body);
 
+    /// Write the excitation components
+    /// \param type excitation type (Diffraction or Froude_Krylov
+    /// \param HDF5_file file to export the hydrodynamic database
+    /// \param path path to the components in the file
+    /// \param body body containing the components
     void WriteExcitation(excitationType type, HighFive::File &HDF5_file, const std::string &path, Body *body);
 
-    void ReadRadiation(const HighFive::File &HDF5_file, const std::string &path, Body* body);
+    /// Read the radiation components
+    /// \param HDF5_file file containing the hydrodynamic database
+    /// \param path path to the components in the file
+    /// \param body body to which store the components
+    void ReadRadiation(const HighFive::File &HDF5_file, const std::string &path, Body *body);
 
-    void WriteRadiation(HighFive::File &HDF5_file, const std::string &path, Body* body);
+    /// Write the radiation components
+    /// \param HDF5_file file to export the hydrodynamic database
+    /// \param path path to the components in the file
+    /// \param body body containing the components
+    void WriteRadiation(HighFive::File &HDF5_file, const std::string &path, Body *body);
 
+    /// Read the components (added mass/damping r / impulse response functions)
+    /// \param HDF5_file file containing the hydrodynamic database
+    /// \param path path to the components in the file
+    /// \param radiationMask radiation mask
+    /// \return matrix containing the components
     std::vector<Eigen::MatrixXd> ReadComponents(const HighFive::File &HDF5_file, const std::string &path,
                                                 Eigen::MatrixXi radiationMask);
 
-    void ReadMesh(HighFive::File &HDF5_file, const std::string &path, Body* body);
-
-    void WriteMesh(HighFive::File &HDF5_file, const std::string &path, Body* body);
+    /// Read the mesh contained in the HDF5 file
+    /// \param HDF5_file file containing the mesh
+    /// \param path path to the mesh in the file
+    /// \param body body to which store the mesh
+    void ReadMesh(HighFive::File &HDF5_file, const std::string &path, Body *body);
 
   };
 

@@ -11,6 +11,10 @@
 
 namespace HDB5_io {
 
+   /**
+   * \class Mask
+   * \brief Class for the force and motions masks
+   */
   class Mask {
 
    private:

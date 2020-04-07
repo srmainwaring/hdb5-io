@@ -18,12 +18,11 @@ target_link_libraries(hdb5io PUBLIC
         eigen
         HighFive
         meshoui
-#        ${VTK_LIBRARIES}
         )
 
 if (HDB5IO_USE_VTK)
     target_link_libraries(hdb5io PUBLIC ${VTK_LIBRARIES})
-endif()
+endif ()
 
 
 target_include_directories(hdb5io PUBLIC ${CMAKE_CURRENT_LIST_DIR}/..)
