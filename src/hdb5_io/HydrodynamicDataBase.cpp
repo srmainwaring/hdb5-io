@@ -495,9 +495,6 @@ namespace HDB5_io {
       H5Easy::dump(file, "Bodies/Body_" + std::to_string(i) + "/Mesh/Vertices",
                    body->GetMesh()->GetVertices());
 
-
-      WriteMesh(file, "Bodies/Body_" + std::to_string(i) + "/Mesh", body);
-
       WriteExcitation(excitationType::Diffraction, file,
                       "Bodies/Body_" + std::to_string(i) + "/Excitation/Diffraction", body);
       WriteExcitation(excitationType::Froude_Krylov, file,
