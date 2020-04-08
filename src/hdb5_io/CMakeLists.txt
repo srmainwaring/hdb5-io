@@ -6,6 +6,7 @@ set(HDB5IO_SRC_FILES
         Discretization1D.cpp
         Mask.cpp
         Mesh.cpp
+        WaveDrift.cpp
         )
 
 

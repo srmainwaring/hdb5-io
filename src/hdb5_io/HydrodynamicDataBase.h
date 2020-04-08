@@ -9,6 +9,7 @@
 #include <memory>
 #include "Discretization1D.h"
 #include "Body.h"
+#include "WaveDrift.h"
 
 #include "MathUtils/Vector3d.h"
 #include "highfive/H5Group.hpp"
@@ -71,8 +72,7 @@ namespace HDB5_io {
 
     int GetNbBodies() const;
 
-    void SetFrequencyDiscretization(double wmin, double wmax,
-                                    unsigned int nw);
+    void SetFrequencyDiscretization(double wmin, double wmax, unsigned int nw);
 
     void SetWaveDirectionDiscretization(double tmin, double tmax, unsigned int nt);
 
@@ -107,9 +107,11 @@ namespace HDB5_io {
     Discretization1D m_waveDirectionDiscretization;   ///< Wave direction discretization
     Discretization1D m_timeDiscretization;            ///< Time samples
 
+    WaveDrift m_waveDrift;            ///< wave drift components
+
     /// Import a hydrodynamic database from a HDF5 file in version 3.xx
     /// \param HDF5_file file containing the hydrodynamic database in version 3.xx
-    void Import_HDF5_v3(const std::string &HDF5_file);
+    void Import_HDF5_v2(const std::string &HDF5_file);
 
     /// Read the excitation components
     /// \param type excitation type (Diffraction or Froude_Krylov
@@ -150,6 +152,8 @@ namespace HDB5_io {
     /// \param path path to the mesh in the file
     /// \param body body to which store the mesh
     void ReadMesh(HighFive::File &HDF5_file, const std::string &path, Body *body);
+
+    void ReadWaveDrift(HighFive::File &HDF5_file, const std::string &path);
 
   };
 

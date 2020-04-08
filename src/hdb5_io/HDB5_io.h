@@ -10,5 +10,6 @@
 #include "Discretization1D.h"
 #include "Mask.h"
 #include "Mesh.h"
+#include "WaveDrift.h"
 
 #endif //HDB5_IO_HDB5_IO_H

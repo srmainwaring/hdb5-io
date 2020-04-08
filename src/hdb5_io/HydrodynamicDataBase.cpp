@@ -116,11 +116,11 @@ namespace HDB5_io {
       m_version = 1.0;
     }
 
-    Import_HDF5_v3(HDF5_file);
+    Import_HDF5_v2(HDF5_file);
 
   }
 
-  void HydrodynamicDataBase::Import_HDF5_v3(const std::string &HDF5_file) {
+  void HydrodynamicDataBase::Import_HDF5_v2(const std::string &HDF5_file) {
 
     HighFive::File file(HDF5_file, HighFive::File::ReadOnly);
 
@@ -202,6 +202,13 @@ namespace HDB5_io {
 
       ReadRadiation(file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Radiation", body.get());
     }
+
+//    try {
+//      file.getGroup("WaveDrift");
+//      ReadWaveDrift(file, "WaveDrift");
+//    } catch (HighFive::Exception &err) {
+//      std::cerr << err.what() << std::endl;
+//    }
 
   }
 
@@ -360,6 +367,28 @@ namespace HDB5_io {
     body->LoadMesh(vertices, faces);
   }
 
+  void HydrodynamicDataBase::ReadWaveDrift(HighFive::File &HDF5_file, const std::string &path) {
+
+    auto frequency = H5Easy::load<Eigen::VectorXd>(HDF5_file, path + "/freq");
+    auto waveDirection = GetWaveDirectionDiscretization().GetVectorN();
+//    TODO: assert on freq
+
+    auto sym_X = H5Easy::load<int>(HDF5_file, path + "/sym_x");
+    auto sym_Y = H5Easy::load<int>(HDF5_file, path + "/sym_y");
+
+    m_waveDrift.SetSymmetries(sym_X==1, sym_Y==1);
+
+    Eigen::MatrixXd surge(frequency.size(), waveDirection.size());
+
+    for (unsigned int i=0; i<m_waveDirectionDiscretization.GetNbSample(); i++) {
+      auto data = H5Easy::load<Eigen::VectorXd>(HDF5_file, path + "/surge/heading_" + std::to_string(i) + "/data");
+      surge.row(i) = data;
+    }
+//    m_waveDrift.SetSurge();
+
+
+  }
+
   void HydrodynamicDataBase::Export_HDF5(const std::string &HDF5_file) {
 
     using namespace HighFive;
@@ -405,56 +434,12 @@ namespace HDB5_io {
     dataSet.createAttribute<std::string>("Unit", "m");
 
     auto discretizations = file.createGroup("Discretizations");
-
-    auto frequency = discretizations.createGroup("Frequency");
-    dataSet = frequency.createDataSet<double>("MaxFrequency", DataSpace::From(m_frequencyDiscretization.GetMax()));
-    dataSet.write(m_frequencyDiscretization.GetMax());
-    dataSet.createAttribute<std::string>("Description", "Maximum frequency.");
-    dataSet.createAttribute<std::string>("Unit", "rad/s");
-
-    dataSet = frequency.createDataSet<double>("MinFrequency", DataSpace::From(m_frequencyDiscretization.GetMin()));
-    dataSet.write(m_frequencyDiscretization.GetMin());
-    dataSet.createAttribute<std::string>("Description", "Minimum frequency.");
-    dataSet.createAttribute<std::string>("Unit", "rad/s");
-
-    dataSet = frequency.createDataSet<int>("NbFrequency", DataSpace::From(m_frequencyDiscretization.GetNbSample()));
-    dataSet.write(m_frequencyDiscretization.GetNbSample());
-    dataSet.createAttribute<std::string>("Description", "Number of frequencies");
-
-
-    auto waveDirections = discretizations.createGroup("WaveDirections");
-    dataSet = frequency.createDataSet<double>("MaxAngle", DataSpace::From(m_waveDirectionDiscretization.GetMax()));
-    dataSet.write(m_waveDirectionDiscretization.GetMax());
-    dataSet.createAttribute<std::string>("Description", "Maximum wave direction.");
-    dataSet.createAttribute<std::string>("Unit", "deg");
-
-    dataSet = frequency.createDataSet<double>("MinAngle", DataSpace::From(m_waveDirectionDiscretization.GetMin()));
-    dataSet.write(m_waveDirectionDiscretization.GetMin());
-    dataSet.createAttribute<std::string>("Description", "Minimum wave direction.");
-    dataSet.createAttribute<std::string>("Unit", "deg");
-
-    dataSet = frequency.createDataSet<int>("NbWaveDirections",
-                                           DataSpace::From(m_waveDirectionDiscretization.GetNbSample()));
-    dataSet.write(m_waveDirectionDiscretization.GetNbSample());
-    dataSet.createAttribute<std::string>("Description", "Number of wave directions.");
-
-
-    auto time = discretizations.createGroup("Time");
-    dataSet = frequency.createDataSet<double>("FinalTime", DataSpace::From(m_timeDiscretization.GetMax()));
-    dataSet.write(m_timeDiscretization.GetMax());
-    dataSet.createAttribute<std::string>("Description",
-                                         "Final time for the evaluation of the impulse response functions.");
-    dataSet.createAttribute<std::string>("Unit", "s");
-
-    dataSet = frequency.createDataSet<double>("TimeStep", DataSpace::From(m_timeDiscretization.GetStep()));
-    dataSet.write(m_timeDiscretization.GetStep());
-    dataSet.createAttribute<std::string>("Description", "Time step.");
-    dataSet.createAttribute<std::string>("Unit", "s");
-
-    dataSet = frequency.createDataSet<int>("NbTimeSample", DataSpace::From(m_timeDiscretization.GetNbSample()));
-    dataSet.write(m_timeDiscretization.GetNbSample());
-    dataSet.createAttribute<std::string>("Description", "Number of time samples.");
-
+    H5Easy::dump(file, "Discretizations/Frequency",
+                 static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (GetFrequencyDiscretization().GetVectorN()));
+    H5Easy::dump(file, "Discretizations/WaveDirection",
+                 static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (GetWaveDirectionDiscretization().GetVectorN()));
+    H5Easy::dump(file, "Discretizations/Time",
+                 static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (GetTimeDiscretization().GetVectorN()));
 
     auto bodies = file.createGroup("Bodies");
 

@@ -6,6 +6,7 @@
 #define HDB5_IO_DISCRETIZATION1D_H
 
 #include <vector>
+#include "MathUtils/VectorN.h"
 
 namespace HDB5_io {
 
@@ -53,6 +54,10 @@ namespace HDB5_io {
     /// Return the discrete vector
     /// \return
     std::vector<double> GetVector() const;
+
+    /// Return the discrete vector
+    /// \return
+    mathutils::VectorN<double> GetVectorN() const;
 
     /// Define the step the discretization vector
     /// \param delta Step value

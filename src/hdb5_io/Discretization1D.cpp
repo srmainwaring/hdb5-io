@@ -2,6 +2,7 @@
 // Created by lletourn on 26/02/20.
 //
 
+#include <Eigen/Dense>
 #include "Discretization1D.h"
 #include "MathUtils/VectorGeneration.h"
 
@@ -13,6 +14,12 @@ namespace HDB5_io {
 
   std::vector<double> Discretization1D::GetVector() const {
     return mathutils::linspace<double>(m_xmin, m_xmax, m_nx);
+  }
+
+  mathutils::VectorN<double> Discretization1D::GetVectorN() const {
+    mathutils::VectorN<double> vectorN;
+    vectorN.setLinSpaced(m_nx+1, m_xmin, m_xmax);
+    return vectorN;
   }
 
   void Discretization1D::SetStep(double delta) {
