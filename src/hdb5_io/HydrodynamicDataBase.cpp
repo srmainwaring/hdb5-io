@@ -296,18 +296,18 @@ namespace HDB5_io {
       // Reading the impulse response functions.
       auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK",
                                                       radiationMask);
-      body->SetImpulseResponseFunctionK(bodyMotion, impulseResponseFunctionsK);
+      body->SetHDBInterpolator(Body::interpolatedData::IRF_K, bodyMotion, impulseResponseFunctionsK);
 
       impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU",
                                                  radiationMask);
-      body->SetImpulseResponseFunctionKu(bodyMotion, impulseResponseFunctionsK);
+      body->SetHDBInterpolator(Body::interpolatedData::IRF_KU, bodyMotion, impulseResponseFunctionsK);
 
       // Reading the added mass and radiation damping coefficients
       auto addedMass = ReadComponents(HDF5_file, bodyMotionPath + "/AddedMass", radiationMask);
-      body->SetAddedMass(bodyMotion, addedMass);
+      body->SetHDBInterpolator(Body::interpolatedData::ADDED_MASS, bodyMotion, addedMass);
 
       auto radiationDamping = ReadComponents(HDF5_file, bodyMotionPath + "/RadiationDamping", radiationMask);
-      body->SetRadiationDamping(bodyMotion, radiationDamping);
+      body->SetHDBInterpolator(Body::interpolatedData::RADIATION_DAMPING, bodyMotion, radiationDamping);
 
     }
 
@@ -376,11 +376,11 @@ namespace HDB5_io {
     auto sym_X = H5Easy::load<int>(HDF5_file, path + "/sym_x");
     auto sym_Y = H5Easy::load<int>(HDF5_file, path + "/sym_y");
 
-    m_waveDrift.SetSymmetries(sym_X==1, sym_Y==1);
+    m_waveDrift.SetSymmetries(sym_X == 1, sym_Y == 1);
 
     Eigen::MatrixXd surge(frequency.size(), waveDirection.size());
 
-    for (unsigned int i=0; i<m_waveDirectionDiscretization.GetNbSample(); i++) {
+    for (unsigned int i = 0; i < m_waveDirectionDiscretization.GetNbSample(); i++) {
       auto data = H5Easy::load<Eigen::VectorXd>(HDF5_file, path + "/surge/heading_" + std::to_string(i) + "/data");
       surge.row(i) = data;
     }
@@ -588,8 +588,8 @@ namespace HDB5_io {
                                                     std::to_string(body->GetID()) + ".");
       for (unsigned int i = 0; i < 6; i++) {
         H5Easy::dump(HDF5_file, bodyMotionPath + "/AddedMass/DOF_" + std::to_string(i),
-                     body->GetMatrixComponentFromIterator(body->GetAddedMassInterpolator(bodyMotion, i),
-                                                          GetFrequencyDiscretization()));
+                     body->GetHDBInterpolatedData(Body::interpolatedData::ADDED_MASS, bodyMotion, i,
+                                                  GetFrequencyDiscretization()));
         auto DOF = AddedMassGroup.getDataSet("DOF_" + std::to_string(i));
         DOF.createAttribute("Description", "Added mass coefficients for an acceleration of body " +
                                            std::to_string(bodyMotion->GetID()) +
@@ -607,8 +607,10 @@ namespace HDB5_io {
                                                            std::to_string(body->GetID()) + ".");
       for (unsigned int i = 0; i < 6; i++) {
         H5Easy::dump(HDF5_file, bodyMotionPath + "/RadiationDamping/DOF_" + std::to_string(i),
-                     body->GetMatrixComponentFromIterator(body->GetRadiationDampingInterpolator(bodyMotion, i),
-                                                          GetFrequencyDiscretization()));
+                     body->GetHDBInterpolatedData(Body::interpolatedData::RADIATION_DAMPING, bodyMotion, i,
+                                                  GetFrequencyDiscretization()));
+//                     body->GetMatrixComponentFromIterator(body->GetRadiationDampingInterpolator(bodyMotion, i),
+//                                                          GetFrequencyDiscretization()));
         auto DOF = RadiationDampingGroup.getDataSet("DOF_" + std::to_string(i));
         DOF.createAttribute("Description", "Wave damping coefficients for an acceleration of body " +
                                            std::to_string(bodyMotion->GetID()) +
@@ -626,8 +628,8 @@ namespace HDB5_io {
                                             std::to_string(body->GetID()) + ".");
       for (unsigned int i = 0; i < 6; i++) {
         H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK/DOF_" + std::to_string(i),
-                     body->GetMatrixComponentFromIterator(body->GetIRFInterpolatorK(bodyMotion, i),
-                                                          GetTimeDiscretization()));
+                     body->GetHDBInterpolatedData(Body::interpolatedData::IRF_K, bodyMotion, i,
+                                                  GetTimeDiscretization()));
         auto DOF = KGroup.getDataSet("DOF_" + std::to_string(i));
         DOF.createAttribute("Description", "Impulse response functions K");
       }
@@ -640,8 +642,8 @@ namespace HDB5_io {
                                              std::to_string(body->GetID()) + ".");
       for (unsigned int i = 0; i < 6; i++) {
         H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU/DOF_" + std::to_string(i),
-                     body->GetMatrixComponentFromIterator(body->GetIRFInterpolatorKu(bodyMotion, i),
-                                                          GetTimeDiscretization()));
+                     body->GetHDBInterpolatedData(Body::interpolatedData::IRF_KU, bodyMotion, i,
+                                                  GetTimeDiscretization()));
         auto DOF = KUGroup.getDataSet("DOF_" + std::to_string(i));
         DOF.createAttribute("Description", "Impulse response functions KU");
       }

@@ -92,25 +92,32 @@ namespace HDB5_io {
 //    void SetRadiationMask(Body *BodyMotion, const mathutils::Matrix66<bool> &mask);
     void SetRadiationMask(Body *BodyMotion, const mathutils::Matrix66<int> &mask);
 
-    /// Set the impulse response function of the BEM body with respect to the motion of another BEM body
-    /// \param BodyMotionBEM body to which the motion is considered
-    /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
-    void SetImpulseResponseFunctionK(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listIRF);
 
-    /// Set the impulse response function (steady-speed dependent) of the BEM body with respect to the motion of another BEM body
-    /// \param BodyMotion BEM body to which the motion is considered
-    /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
-    void SetImpulseResponseFunctionKu(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listIRF);
+    enum interpolatedData {
+      IRF_K, IRF_KU, ADDED_MASS, RADIATION_DAMPING
+    };
 
-    /// Set the impulse response function of the BEM body with respect to the motion of another BEM body
-    /// \param BodyMotionBEM body to which the motion is considered
-    /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
-    void SetAddedMass(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listAddedMass);
+    void SetHDBInterpolator(interpolatedData type, Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData);
 
-    /// Set the impulse response function (steady-speed dependent) of the BEM body with respect to the motion of another BEM body
-    /// \param BodyMotion BEM body to which the motion is considered
-    /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
-    void SetRadiationDamping(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listRadiationDamping);
+//    /// Set the impulse response function of the BEM body with respect to the motion of another BEM body
+//    /// \param BodyMotionBEM body to which the motion is considered
+//    /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
+//    void SetImpulseResponseFunctionK(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listIRF);
+//
+//    /// Set the impulse response function (steady-speed dependent) of the BEM body with respect to the motion of another BEM body
+//    /// \param BodyMotion BEM body to which the motion is considered
+//    /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
+//    void SetImpulseResponseFunctionKu(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listIRF);
+//
+//    /// Set the impulse response function of the BEM body with respect to the motion of another BEM body
+//    /// \param BodyMotionBEM body to which the motion is considered
+//    /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
+//    void SetAddedMass(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listAddedMass);
+//
+//    /// Set the impulse response function (steady-speed dependent) of the BEM body with respect to the motion of another BEM body
+//    /// \param BodyMotion BEM body to which the motion is considered
+//    /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
+//    void SetRadiationDamping(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listRadiationDamping);
 
     /// Set the hydrostatic stiffness Matrix
     /// \param hydrostaticStiffnessMatrix Hydrostatic stiffness matrix
@@ -208,44 +215,53 @@ namespace HDB5_io {
     /// \return 6x6 matrix added mass
     mathutils::Matrix66<double> GetSelfInfiniteAddedMass();
 
-    /// Get the interpolator for the impulse response function (IRF)
-    /// \param BodyMotion body which motion is at the origin of the IRF
-    /// \param idof index of the dof considered
-    /// \return interpolator of the IRF
-    mathutils::Interp1d<double, mathutils::Vector6d<double>> *GetIRFInterpolatorK(Body *BodyMotion, unsigned int idof);
+    typedef std::unordered_map<unsigned int, std::shared_ptr<mathutils::LookupTable1D<double, mathutils::Vector6d<double>>>> HDBinterpolator;
 
-    /// Get the interpolator for the impulse response function (IRF) with the advance speed corrections
-    /// \param BodyMotion body which motion is at the origin of the IRF
-    /// \param idof index of the dof considered
-    /// \return interpolator of the IRF
-    mathutils::Interp1d<double, mathutils::Vector6d<double>> *GetIRFInterpolatorKu(Body *BodyMotion, unsigned int idof);
+    HDBinterpolator *GetHDBInterpolator(interpolatedData type);
 
-    /// Get the added mass interpolator
-    /// \param BodyMotion body which motion create added mass on this body
-    /// \param idof index of the dof considered
-    /// \return interpolator of the added mass
-    mathutils::Interp1d<double, mathutils::Vector6d<double>> *
-    GetAddedMassInterpolator(Body *BodyMotion, unsigned int idof);
-
-    /// Get the radiation damping interpolator
-    /// \param BodyMotion body which motion create radiation damping on this body
-    /// \param idof index of the dof considered
-    /// \return interpolator of the radiation damping
-    mathutils::Interp1d<double, mathutils::Vector6d<double>> *
-    GetRadiationDampingInterpolator(Body *BodyMotion, unsigned int idof);
-
-    /// Get the components, for the given interpolator, corresponding to the frequencies
-    /// \param interpolator interpolator containing the data
-    /// \param frequencies frequencies to interpolate
-    /// \return matrix component
     Eigen::MatrixXd
-    GetMatrixComponentFromIterator(mathutils::Interp1d<double, mathutils::Vector6d<double>> *interpolator,
-                                   Discretization1D frequencies);
+    GetHDBInterpolatedData(interpolatedData type, Body *BodyMotion, unsigned int idof, Discretization1D frequencies);
+
+
+//    /// Get the interpolator for the impulse response function (IRF)
+//    /// \param BodyMotion body which motion is at the origin of the IRF
+//    /// \param idof index of the dof considered
+//    /// \return interpolator of the IRF
+//    mathutils::Interp1d<double, mathutils::Vector6d<double>> *GetIRFInterpolatorK(Body *BodyMotion, unsigned int idof);
+//
+//    /// Get the interpolator for the impulse response function (IRF) with the advance speed corrections
+//    /// \param BodyMotion body which motion is at the origin of the IRF
+//    /// \param idof index of the dof considered
+//    /// \return interpolator of the IRF
+//    mathutils::Interp1d<double, mathutils::Vector6d<double>> *GetIRFInterpolatorKu(Body *BodyMotion, unsigned int idof);
+//
+//    /// Get the added mass interpolator
+//    /// \param BodyMotion body which motion create added mass on this body
+//    /// \param idof index of the dof considered
+//    /// \return interpolator of the added mass
+//    mathutils::Interp1d<double, mathutils::Vector6d<double>> *
+//    GetAddedMassInterpolator(Body *BodyMotion, unsigned int idof);
+//
+//    /// Get the radiation damping interpolator
+//    /// \param BodyMotion body which motion create radiation damping on this body
+//    /// \param idof index of the dof considered
+//    /// \return interpolator of the radiation damping
+//    mathutils::Interp1d<double, mathutils::Vector6d<double>> *
+//    GetRadiationDampingInterpolator(Body *BodyMotion, unsigned int idof);
+//
+//    /// Get the components, for the given interpolator, corresponding to the frequencies
+//    /// \param interpolator interpolator containing the data
+//    /// \param frequencies frequencies to interpolate
+//    /// \return matrix component
+//    Eigen::MatrixXd
+//    GetMatrixComponentFromIterator(mathutils::Interp1d<double, mathutils::Vector6d<double>> *interpolator,
+//                                   Discretization1D frequencies);
 
 //    std::shared_ptr<FrWaveDriftPolarData> GetWaveDrift() const;
 
 
    private:
+
     HydrodynamicDataBase *m_HDB;                   ///< HDB from which BEM data are extracted
     unsigned int m_id;                             ///< ID of the BEM Body
     std::string m_name;                            ///< Name of the body
@@ -265,12 +281,11 @@ namespace HDB5_io {
     std::unordered_map<Body *, mathutils::Matrix66<bool>> m_radiationMask;          ///< Radiation mask
     std::unordered_map<Body *, mathutils::Matrix66<double>> m_infiniteAddedMass;    ///< Infinite added mass for each body
 
-    typedef std::unordered_map<Body *, std::vector<std::shared_ptr<mathutils::Interp1d<double, mathutils::Vector6d<double>>> >> HDBinterpolator;
-    HDBinterpolator m_interpK;                     ///< Impulse response function interpolator
-    HDBinterpolator m_interpKu;                    ///< Impulse response function speed dependent interpolator
+    std::shared_ptr<HDBinterpolator> m_interpK;                     ///< Impulse response function interpolator
+    std::shared_ptr<HDBinterpolator> m_interpKu;                    ///< Impulse response function speed dependent interpolator
 
-    HDBinterpolator m_addedMass;                   ///< added mass interpolator
-    HDBinterpolator m_radiationDamping;            ///< radiation damping interpolator
+    std::shared_ptr<HDBinterpolator> m_addedMass;                   ///< added mass interpolator
+    std::shared_ptr<HDBinterpolator> m_radiationDamping;            ///< radiation damping interpolator
 //    std::vector<std::vector<mathutils::Interp1dLinear<double, std::complex<double>>>> m_waveDirInterpolators;   ///<
 
 //    std::shared_ptr<FrWaveDriftPolarData> m_waveDrift;  ///< List of wave drift coefficients
