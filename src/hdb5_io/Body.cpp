@@ -21,8 +21,7 @@ namespace HDB5_io {
     m_interpKu = std::make_shared<HDBinterpolator>();
     m_addedMass = std::make_shared<HDBinterpolator>();
     m_radiationDamping = std::make_shared<HDBinterpolator>();
-    AllocateAll(m_HDB->GetFrequencyDiscretization().GetNbSample(),
-                m_HDB->GetWaveDirectionDiscretization().GetNbSample());
+    AllocateAll();
   }
 
   //
@@ -91,6 +90,14 @@ namespace HDB5_io {
     }
   }
 
+  void Body::SetRAO(unsigned int iangle, const Eigen::MatrixXcd &RAO) {
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().GetNbSample());
+    assert(RAO.rows() == 6);
+    assert(RAO.cols() == m_HDB->GetFrequencyDiscretization().GetNbSample());
+    m_RAO[iangle] = RAO;
+    m_isRAO = true;
+  }
+
   void Body::SetHDBInterpolator(interpolatedData type, Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData) {
 
     unsigned int idof = 0;
@@ -155,81 +162,6 @@ namespace HDB5_io {
     }
 
   }
-
-//  void Body::SetImpulseResponseFunctionK(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listIRF) {
-//    m_interpK.SetX(m_HDB->GetTimeDiscretization().GetVector());
-//    for (auto &IRF: listIRF) {
-//      assert(IRF.rows() == 6);
-//      assert(IRF.cols() == m_HDB->GetTimeDiscretization().GetNbSample());
-//
-//      std::vector<mathutils::Vector6d<double>> vdata;
-//      for (unsigned int j = 0; j < IRF.cols(); ++j) {
-//        vdata.emplace_back(IRF.col(j));
-//      }
-//      m_interpK.AddY(BodyMotion->GetName(), vdata);
-//    }
-//
-//  }
-//
-//  void Body::SetImpulseResponseFunctionKu(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listIRF) {
-//    for (auto &IRF: listIRF) {
-//      assert(IRF.rows() == 6);
-//      assert(IRF.cols() == m_HDB->GetTimeDiscretization().GetNbSample());
-//
-//      auto vtime = std::make_shared<std::vector<double>>(m_HDB->GetTimeDiscretization().GetVector());
-//
-//      auto vdata = std::make_shared<std::vector<mathutils::Vector6d<double>>>();
-//      for (unsigned int j = 0; j < IRF.cols(); ++j) {
-//        vdata->push_back(IRF.col(j));
-//      }
-//
-//      auto interp = std::make_shared<mathutils::Interp1dLinear<double, mathutils::Vector6d<double>>>();
-//      interp->Initialize(vtime, vdata);
-//
-//      m_interpKu[BodyMotion].push_back(interp);
-//    }
-//
-//  }
-//
-//  void Body::SetAddedMass(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listAddedMass) {
-//    for (auto &addedMass: listAddedMass) {
-//      assert(addedMass.rows() == 6);
-//      assert(addedMass.cols() == m_HDB->GetFrequencyDiscretization().GetNbSample());
-//
-//      auto frequencies = std::make_shared<std::vector<double>>(m_HDB->GetFrequencyDiscretization().GetVector());
-//
-//      auto vdata = std::make_shared<std::vector<mathutils::Vector6d<double>>>();
-//      for (unsigned int j = 0; j < addedMass.cols(); ++j) {
-//        vdata->push_back(addedMass.col(j));
-//      }
-//
-//      auto interp = std::make_shared<mathutils::Interp1dLinear<double, mathutils::Vector6d<double>>>();
-//      interp->Initialize(frequencies, vdata);
-//
-//      m_addedMass[BodyMotion].push_back(interp);
-//    }
-//
-//  }
-//
-//  void Body::SetRadiationDamping(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listRadiationDamping) {
-//    for (auto &radiationDamping: listRadiationDamping) {
-//      assert(radiationDamping.rows() == 6);
-//      assert(radiationDamping.cols() == m_HDB->GetFrequencyDiscretization().GetNbSample());
-//
-//      auto frequencies = std::make_shared<std::vector<double>>(m_HDB->GetFrequencyDiscretization().GetVector());
-//
-//      auto vdata = std::make_shared<std::vector<mathutils::Vector6d<double>>>();
-//      for (unsigned int j = 0; j < radiationDamping.cols(); ++j) {
-//        vdata->push_back(radiationDamping.col(j));
-//      }
-//
-//      auto interp = std::make_shared<mathutils::Interp1dLinear<double, mathutils::Vector6d<double>>>();
-//      interp->Initialize(frequencies, vdata);
-//
-//      m_radiationDamping[BodyMotion].push_back(interp);
-//    }
-//
-//  }
 
   void Body::SetStiffnessMatrix(const mathutils::Matrix33<double> &hydrostaticStiffnessMatrix) {
     m_hydrostaticStiffnessMatrix = hydrostaticStiffnessMatrix;
@@ -313,6 +245,17 @@ namespace HDB5_io {
     return m_infiniteAddedMass[this];
   }
 
+  Eigen::MatrixXcd Body::GetRAO(const unsigned int iangle) const {
+//    assert(iangle < this->GetNbWaveDirections());
+    return m_RAO[iangle];
+  }
+
+  Eigen::VectorXcd Body::GetRAO(const unsigned int iangle, const unsigned iforce) const {
+//    assert(iangle < this->GetNbWaveDirections());
+    assert(iforce < 6);
+    return m_RAO[iangle].row(iforce);
+  }
+
   Body::HDBinterpolator *Body::GetHDBInterpolator(interpolatedData type) {
     switch (type) {
       case IRF_K:
@@ -338,49 +281,17 @@ namespace HDB5_io {
 
   }
 
-//  mathutils::Interp1d<double, mathutils::Vector6d<double>> *
-//  Body::GetIRFInterpolatorK(Body *BodyMotion, unsigned int idof) {
-//    assert(idof < 6);
-//    return m_interpK[BodyMotion][idof].get();
-//  };
-//
-//  mathutils::Interp1d<double, mathutils::Vector6d<double>> *
-//  Body::GetIRFInterpolatorKu(Body *BodyMotion, unsigned int idof) {
-//    assert(idof < 6);
-//    return m_interpKu[BodyMotion][idof].get();
-//  };
-//
-//  mathutils::Interp1d<double, mathutils::Vector6d<double>> *
-//  Body::GetAddedMassInterpolator(Body *BodyMotion, unsigned int idof) {
-//    assert(idof < 6);
-//    return m_addedMass[BodyMotion][idof].get();
-//  };
-//
-//  mathutils::Interp1d<double, mathutils::Vector6d<double>> *
-//  Body::GetRadiationDampingInterpolator(Body *BodyMotion, unsigned int idof) {
-//    assert(idof < 6);
-//    return m_radiationDamping[BodyMotion][idof].get();
-//  };
-//
-//  Eigen::MatrixXd
-//  Body::GetMatrixComponentFromIterator(mathutils::Interp1d<double, mathutils::Vector6d<double>> *interpolator,
-//                                       Discretization1D frequencies) {
-//    Eigen::MatrixXd addedMasses(6, frequencies.GetNbSample());
-//    for (unsigned int i = 0; i < frequencies.GetNbSample(); i++) {
-//      addedMasses.col(i) = interpolator->Eval(frequencies.GetVector()[i]);
-//    }
-//    return addedMasses;
-//  }
 
-
-  void Body::AllocateAll(unsigned int nFrequencies, unsigned int nDirections) {
+  void Body::AllocateAll() {
 
     // This subroutine allocates the arrays for the hdb.
 
-//    auto nbWaveDir = GetNbWaveDirections();
+    auto nDirections = m_HDB->GetWaveDirectionDiscretization().GetNbSample();
+    auto nFrequencies = m_HDB->GetFrequencyDiscretization().GetNbSample();
     m_diffraction.reserve((unsigned long) nDirections);
     m_froudeKrylov.reserve((unsigned long) nDirections);
     m_excitation.reserve((unsigned long) nDirections);
+    m_RAO.reserve((unsigned long) nDirections);
 
 //    auto nbFreq = GetNbFrequencies();
     for (int i = 0; i < nDirections; ++i) {
@@ -392,7 +303,6 @@ namespace HDB5_io {
 
     /// --> Allocating arrays for radiation
     m_radiationMask.reserve(m_HDB->GetNbBodies());
-
 
   }
 

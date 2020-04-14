@@ -5,10 +5,7 @@
 #ifndef HDB5_IO_BODY_H
 #define HDB5_IO_BODY_H
 
-#include "MathUtils/Matrix.h"
-#include "MathUtils/Matrix33.h"
-#include "MathUtils/Matrix66.h"
-#include "MathUtils/Vector3d.h"
+#include "MathUtils/MathUtils.h"
 #include <vector>
 #include <unordered_map>
 #include <memory>
@@ -24,6 +21,8 @@ namespace HDB5_io {
 
   class Discretization1D;
 
+  class WaveDrift;
+
   /**
   * \class Body
   * \brief Class for storing the added mass, radiation damping, excitation components, mesh, hydrostatic stiffness, etc.
@@ -32,6 +31,8 @@ namespace HDB5_io {
   class Body {
 
    public:
+
+    typedef std::unordered_map<unsigned int, std::shared_ptr<mathutils::LookupTable1D<double, mathutils::Vector6d<double>>>> HDBinterpolator;
 
     /// Constructor for a body
     /// \param id index of the body in the HDB
@@ -92,32 +93,17 @@ namespace HDB5_io {
 //    void SetRadiationMask(Body *BodyMotion, const mathutils::Matrix66<bool> &mask);
     void SetRadiationMask(Body *BodyMotion, const mathutils::Matrix66<int> &mask);
 
+    /// Set the complex matrix of the response amplitude operator
+    /// \param iangle Corresponding wave direction
+    /// \param RAO Complex matrix of the response amplitude operator
+    void SetRAO(unsigned int iangle, const Eigen::MatrixXcd &RAO);
+
 
     enum interpolatedData {
       IRF_K, IRF_KU, ADDED_MASS, RADIATION_DAMPING
     };
 
     void SetHDBInterpolator(interpolatedData type, Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData);
-
-//    /// Set the impulse response function of the BEM body with respect to the motion of another BEM body
-//    /// \param BodyMotionBEM body to which the motion is considered
-//    /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
-//    void SetImpulseResponseFunctionK(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listIRF);
-//
-//    /// Set the impulse response function (steady-speed dependent) of the BEM body with respect to the motion of another BEM body
-//    /// \param BodyMotion BEM body to which the motion is considered
-//    /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
-//    void SetImpulseResponseFunctionKu(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listIRF);
-//
-//    /// Set the impulse response function of the BEM body with respect to the motion of another BEM body
-//    /// \param BodyMotionBEM body to which the motion is considered
-//    /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
-//    void SetAddedMass(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listAddedMass);
-//
-//    /// Set the impulse response function (steady-speed dependent) of the BEM body with respect to the motion of another BEM body
-//    /// \param BodyMotion BEM body to which the motion is considered
-//    /// \param listIRF List of impulse response function (size nforce x ntime) for each DOF
-//    void SetRadiationDamping(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listRadiationDamping);
 
     /// Set the hydrostatic stiffness Matrix
     /// \param hydrostaticStiffnessMatrix Hydrostatic stiffness matrix
@@ -131,9 +117,6 @@ namespace HDB5_io {
     /// \param vertices vertices container
     /// \param faces connectivity of all faces
     void LoadMesh(const std::vector<mathutils::Vector3d<double>> &vertices, const std::vector<Eigen::VectorXi> &faces);
-
-//    /// Set the wave drift coefficient database
-//    void SetWaveDrift();
 
     //
     // Getters
@@ -211,11 +194,24 @@ namespace HDB5_io {
     /// \return radiation mask
     mathutils::Matrix66<bool> GetRadiationMask(Body *BodyMotion) const;
 
+    bool HasRAO() const {
+      return m_isRAO;
+    }
+
+    /// Get the response amplitude operator for this body
+    /// \param iangle index of the angle
+    /// \return matrix containing the response amplitude operator for the given angle
+    Eigen::MatrixXcd GetRAO(unsigned int iangle) const;
+
+    /// Get the response amplitude operator for this body
+    /// \param iangle index of the angle
+    /// \param iforce index of the force dof
+    /// \return matrix containing the response amplitude operator for the given angle and dof
+    Eigen::VectorXcd GetRAO(unsigned int iangle, unsigned int iforce) const;
+
     /// Get the infinite added mass, resulting from a motion of this body
     /// \return 6x6 matrix added mass
     mathutils::Matrix66<double> GetSelfInfiniteAddedMass();
-
-    typedef std::unordered_map<unsigned int, std::shared_ptr<mathutils::LookupTable1D<double, mathutils::Vector6d<double>>>> HDBinterpolator;
 
     HDBinterpolator *GetHDBInterpolator(interpolatedData type);
 
@@ -223,41 +219,7 @@ namespace HDB5_io {
     GetHDBInterpolatedData(interpolatedData type, Body *BodyMotion, unsigned int idof, Discretization1D frequencies);
 
 
-//    /// Get the interpolator for the impulse response function (IRF)
-//    /// \param BodyMotion body which motion is at the origin of the IRF
-//    /// \param idof index of the dof considered
-//    /// \return interpolator of the IRF
-//    mathutils::Interp1d<double, mathutils::Vector6d<double>> *GetIRFInterpolatorK(Body *BodyMotion, unsigned int idof);
-//
-//    /// Get the interpolator for the impulse response function (IRF) with the advance speed corrections
-//    /// \param BodyMotion body which motion is at the origin of the IRF
-//    /// \param idof index of the dof considered
-//    /// \return interpolator of the IRF
-//    mathutils::Interp1d<double, mathutils::Vector6d<double>> *GetIRFInterpolatorKu(Body *BodyMotion, unsigned int idof);
-//
-//    /// Get the added mass interpolator
-//    /// \param BodyMotion body which motion create added mass on this body
-//    /// \param idof index of the dof considered
-//    /// \return interpolator of the added mass
-//    mathutils::Interp1d<double, mathutils::Vector6d<double>> *
-//    GetAddedMassInterpolator(Body *BodyMotion, unsigned int idof);
-//
-//    /// Get the radiation damping interpolator
-//    /// \param BodyMotion body which motion create radiation damping on this body
-//    /// \param idof index of the dof considered
-//    /// \return interpolator of the radiation damping
-//    mathutils::Interp1d<double, mathutils::Vector6d<double>> *
-//    GetRadiationDampingInterpolator(Body *BodyMotion, unsigned int idof);
-//
-//    /// Get the components, for the given interpolator, corresponding to the frequencies
-//    /// \param interpolator interpolator containing the data
-//    /// \param frequencies frequencies to interpolate
-//    /// \return matrix component
-//    Eigen::MatrixXd
-//    GetMatrixComponentFromIterator(mathutils::Interp1d<double, mathutils::Vector6d<double>> *interpolator,
-//                                   Discretization1D frequencies);
-
-//    std::shared_ptr<FrWaveDriftPolarData> GetWaveDrift() const;
+    std::shared_ptr<WaveDrift> GetWaveDrift() const;
 
 
    private:
@@ -276,6 +238,9 @@ namespace HDB5_io {
     std::vector<Eigen::MatrixXcd> m_froudeKrylov;  ///< Complex coefficient of the froude-krylov force
     std::vector<Eigen::MatrixXcd> m_diffraction;   ///< Complex coefficient of the diffraction force
 
+    bool m_isRAO = false;
+    std::vector<Eigen::MatrixXcd> m_RAO;           ///< response amplitude operators
+
     mathutils::Matrix33<double> m_hydrostaticStiffnessMatrix;   ///< Hydrostatic matrix
 
     std::unordered_map<Body *, mathutils::Matrix66<bool>> m_radiationMask;          ///< Radiation mask
@@ -288,12 +253,10 @@ namespace HDB5_io {
     std::shared_ptr<HDBinterpolator> m_radiationDamping;            ///< radiation damping interpolator
 //    std::vector<std::vector<mathutils::Interp1dLinear<double, std::complex<double>>>> m_waveDirInterpolators;   ///<
 
-//    std::shared_ptr<FrWaveDriftPolarData> m_waveDrift;  ///< List of wave drift coefficients
-
     /// Allocate the excitation containers
     /// \param nFrequencies number of frequencies
     /// \param nDirections number of wave directions
-    void AllocateAll(unsigned int nFrequencies, unsigned int nDirections);
+    void AllocateAll();
 
   };
 

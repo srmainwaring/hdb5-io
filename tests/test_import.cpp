@@ -13,7 +13,7 @@ int main() {
 
   HydrodynamicDataBase HDB;
 
-  HDB.Import_HDF5("/home/lletourn/Documents/DEV/hdb5-io/test.hdb5");
+  HDB.Import_HDF5("/home/lletourn/Documents/DEV/hdb5-io/Sphere_1484_faces_Kochin.hdb5");
 
 #ifdef H5_USE_VTK
   HDB.GetBody(0)->VisualizeMesh();

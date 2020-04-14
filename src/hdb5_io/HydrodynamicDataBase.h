@@ -18,6 +18,8 @@ namespace HDB5_io {
 
   // Forward declarations
 
+  class WaveDrift;
+
   /**
   * \class HydrodynamicDataBase
   * \brief Class for storing a hydrodynamic database. Can import and export database from HDF5 data format file.
@@ -84,6 +86,11 @@ namespace HDB5_io {
 
     Discretization1D GetTimeDiscretization() const;
 
+    /// Set the wave drift coefficient database
+    void SetWaveDrift(const std::string &name, const Eigen::MatrixXd &data);
+
+//    std::shared_ptr<WaveDrift> GetWaveDrift() const;
+
 
    private:
 
@@ -101,13 +108,13 @@ namespace HDB5_io {
     double m_normalizationLength;     ///< Normalization length coming from the HDB
 
     int m_nbody;                      ///< Number of bodies in interaction considered in the HDB
-    std::vector<std::unique_ptr<Body>> m_bodies;      ///< List of BEM body database
+    std::vector<std::shared_ptr<Body>> m_bodies;      ///< List of BEM body database
 
     Discretization1D m_frequencyDiscretization;       ///< Wave frequency discretization
     Discretization1D m_waveDirectionDiscretization;   ///< Wave direction discretization
     Discretization1D m_timeDiscretization;            ///< Time samples
 
-    WaveDrift m_waveDrift;            ///< wave drift components
+    std::shared_ptr<WaveDrift> m_waveDrift;            ///< wave drift components
 
     /// Import a hydrodynamic database from a HDF5 file in version 3.xx
     /// \param HDF5_file file containing the hydrodynamic database in version 3.xx
@@ -139,6 +146,18 @@ namespace HDB5_io {
     /// \param body body containing the components
     void WriteRadiation(HighFive::File &HDF5_file, const std::string &path, Body *body);
 
+    /// Read the response amplitude operators
+    /// \param HDF5_file file containing the hydrodynamic database
+    /// \param path path to the components in the file
+    /// \param body body to which store the components
+    void ReadRAO(const HighFive::File &HDF5_file, const std::string &path, Body *body);
+
+    /// Write the response amplitude operators
+    /// \param HDF5_file file to export the hydrodynamic database
+    /// \param path path to the components in the file
+    /// \param body body containing the components
+    void WriteRAO(HighFive::File &HDF5_file, const std::string &path, Body *body);
+
     /// Read the components (added mass/damping r / impulse response functions)
     /// \param HDF5_file file containing the hydrodynamic database
     /// \param path path to the components in the file
@@ -153,7 +172,9 @@ namespace HDB5_io {
     /// \param body body to which store the mesh
     void ReadMesh(HighFive::File &HDF5_file, const std::string &path, Body *body);
 
-    void ReadWaveDrift(HighFive::File &HDF5_file, const std::string &path);
+    void ReadWaveDrift(HighFive::File &HDF5_file);
+
+    void WriteWaveDrift(HighFive::File &HDF5_file);
 
   };
 

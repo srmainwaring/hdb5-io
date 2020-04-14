@@ -9,6 +9,8 @@
 #include <highfive/H5File.hpp>
 #include <highfive/H5Easy.hpp>
 
+#include "WaveDrift.h"
+
 namespace HDB5_io {
 
   void HydrodynamicDataBase::SetCreationDate(std::string date) {
@@ -72,7 +74,7 @@ namespace HDB5_io {
   }
 
   Body *HydrodynamicDataBase::NewBody(unsigned int id, const std::string &name) {
-    m_bodies.push_back(std::make_unique<Body>(id, name, this));
+    m_bodies.push_back(std::make_shared<Body>(id, name, this));
     return (m_bodies.back()).get();
   }
 
@@ -82,10 +84,12 @@ namespace HDB5_io {
 
   void HydrodynamicDataBase::SetFrequencyDiscretization(double wmin, double wmax, unsigned int nw) {
     m_frequencyDiscretization = Discretization1D(wmin, wmax, nw);
+    m_waveDrift->SetFrequencies(m_frequencyDiscretization.GetVector());
   }
 
   void HydrodynamicDataBase::SetWaveDirectionDiscretization(double tmin, double tmax, unsigned int nt) {
     m_waveDirectionDiscretization = Discretization1D(tmin, tmax, nt);
+    m_waveDrift->SetWaveDirections(m_waveDirectionDiscretization.GetVector());
   }
 
   void HydrodynamicDataBase::SetTimeDiscretization(double tmin, double tmax, unsigned int nt) {
@@ -102,6 +106,14 @@ namespace HDB5_io {
 
   Discretization1D HydrodynamicDataBase::GetTimeDiscretization() const {
     return m_timeDiscretization;
+  }
+
+  void HydrodynamicDataBase::SetWaveDrift(const std::string &name, const Eigen::MatrixXd &data) {
+
+    std::vector<double> coeffs(&data(0,0), data.data()+data.size());
+
+    m_waveDrift->AddData(name, coeffs);
+
   }
 
 
@@ -188,6 +200,19 @@ namespace HDB5_io {
       body->SetMotionMask(mask);
 
       ReadMesh(file, "Bodies/Body_" + std::to_string(i) + "/Mesh", body);
+
+      if (hdb_body.exist("Hydrostatic")) {
+        mathutils::Matrix66<double> stiffnessMatrix ;
+        stiffnessMatrix = H5Easy::load<Eigen::Matrix<double, 6, 6>>(file, "Bodies/Body_" + std::to_string(i) + "/Hydrostatic/StiffnessMatrix");
+        body->SetStiffnessMatrix(stiffnessMatrix);
+      }
+      if (hdb_body.exist("Inertia")) {
+        mathutils::Matrix66<double> inertiaMatrix ;
+        inertiaMatrix = H5Easy::load<Eigen::Matrix<double, 6, 6>>(file, "Bodies/Body_" + std::to_string(i) + "/Inertia/InertiaMatrix");
+        body->SetStiffnessMatrix(inertiaMatrix);
+      }
+
+
     }
 
 
@@ -201,39 +226,17 @@ namespace HDB5_io {
       body->ComputeExcitation();
 
       ReadRadiation(file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Radiation", body.get());
+
+      if (file.getGroup("Bodies/Body_" + std::to_string(body->GetID())).exist("RAO")) {
+        ReadRAO(file, "Bodies/Body_" + std::to_string(body->GetID()) + "/RAO", body.get());
+      }
     }
 
-//    try {
-//      file.getGroup("WaveDrift");
-//      ReadWaveDrift(file, "WaveDrift");
-//    } catch (HighFive::Exception &err) {
-//      std::cerr << err.what() << std::endl;
-//    }
+    if (file.exist("WaveDrift")) {
+      ReadWaveDrift(file);
+    }
 
   }
-
-//  void HydrodynamicDataBase::ReadExcitation(HighFive::Group* group, Body* body) {
-//
-//    auto forceMask = body->GetForceMask();
-//
-//    for (unsigned int iwaveDir = 0; iwaveDir < m_waveDirectionDiscretization.GetNbSample(); ++iwaveDir) {
-//
-//      auto angle_group = group->getGroup("Excitation/Diffraction/Angle_" + std::to_string(iwaveDir));
-//
-//      double angle;
-//      angle_group.getDataSet("Angle").read(angle);
-//      assert(abs(m_waveDirectionDiscretization.GetVector()[iwaveDir] - angle) < 1E-5);
-//
-//      std::vector<std::vector<double>> coeffs;
-//      angle_group.getDataSet("ImagCoeffs").read(coeffs);
-//      std::cout<<coeffs[0][1]<<std::endl;
-//
-//      for (unsigned int idof = 0; idof < 6; idof++){}
-//
-//
-//    }
-//
-//  }
 
   void HydrodynamicDataBase::ReadExcitation(excitationType type, const HighFive::File &HDF5_file,
                                             const std::string &path, Body *body) {
@@ -344,6 +347,40 @@ namespace HDB5_io {
 
   }
 
+  void HydrodynamicDataBase::ReadRAO(const HighFive::File &HDF5_file, const std::string &path, Body *body) {
+    auto forceMask = body->GetForceMask();
+
+    for (unsigned int iwaveDir = 0; iwaveDir < m_waveDirectionDiscretization.GetNbSample(); ++iwaveDir) {
+
+      auto WaveDirPath = path + "/Angle_" + std::to_string(iwaveDir);
+
+//      auto angle = H5Easy::load<double>(HDF5_file, WaveDirPath + "/Angle");
+//      assert(abs(m_waveDirectionDiscretization.GetVector()[iwaveDir] - angle) < 1E-5);
+
+      auto amplitude = H5Easy::load<Eigen::MatrixXd>(HDF5_file, WaveDirPath + "/Amplitude");
+      auto phase = H5Easy::load<Eigen::MatrixXd>(HDF5_file, WaveDirPath + "/Phase");
+//      auto Dcoeffs = amplitude;
+      Eigen::MatrixXcd Dcoeffs = amplitude.array() * Eigen::exp( MU_JJ * phase.array() * MU_PI / 180.);
+
+      Eigen::MatrixXcd raoCoeffs;
+      if (amplitude.rows() != 6) {
+        assert(amplitude.rows() == forceMask.GetNbDOF());
+        raoCoeffs.setZero();
+        for (int i = 0; i < forceMask.GetNbDOF(); i++) {
+          raoCoeffs.row(forceMask.GetListDOF()[i]) = Dcoeffs.row(i);
+        }
+//        // Condense the matrix by removing the lines corresponding to the masked DOFs
+//        raoCoeffs = Eigen::VectorXi::Map(forceMask.GetListDOF().data(), forceMask.GetNbDOF()).replicate(1,Dcoeffs.cols()).unaryExpr(Dcoeffs);
+      } else {
+        raoCoeffs = Dcoeffs;
+      }
+
+      body->SetRAO(iwaveDir, raoCoeffs);
+
+    }
+
+  }
+
   void HydrodynamicDataBase::ReadMesh(HighFive::File &HDF5_file, const std::string &path, Body *body) {
     auto nbVertices = H5Easy::load<int>(HDF5_file, path + "/NbVertices");
     auto nbFaces = H5Easy::load<int>(HDF5_file, path + "/NbFaces");
@@ -367,24 +404,39 @@ namespace HDB5_io {
     body->LoadMesh(vertices, faces);
   }
 
-  void HydrodynamicDataBase::ReadWaveDrift(HighFive::File &HDF5_file, const std::string &path) {
+  void HydrodynamicDataBase::ReadWaveDrift(HighFive::File &HDF5_file) {
+
+    m_waveDrift = std::make_shared<WaveDrift>();
+    std::string path = "WaveDrift";
 
     auto frequency = H5Easy::load<Eigen::VectorXd>(HDF5_file, path + "/freq");
-    auto waveDirection = GetWaveDirectionDiscretization().GetVectorN();
-//    TODO: assert on freq
+    auto waveDirection = GetWaveDirectionDiscretization().GetVector();
+//    assert(frequency == GetFrequencyDiscretization().GetVectorN());
+
+    m_waveDrift->SetFrequencies(GetFrequencyDiscretization().GetVector());
+    m_waveDrift->SetWaveDirections(waveDirection);
 
     auto sym_X = H5Easy::load<int>(HDF5_file, path + "/sym_x");
     auto sym_Y = H5Easy::load<int>(HDF5_file, path + "/sym_y");
 
-    m_waveDrift.SetSymmetries(sym_X == 1, sym_Y == 1);
+    m_waveDrift->SetSymmetries(sym_X == 1, sym_Y == 1);
 
-    Eigen::MatrixXd surge(frequency.size(), waveDirection.size());
+    Eigen::MatrixXd surge(waveDirection.size(), frequency.size());
+    Eigen::MatrixXd sway(waveDirection.size(), frequency.size());
+    Eigen::MatrixXd yaw(waveDirection.size(), frequency.size());
 
-    for (unsigned int i = 0; i < m_waveDirectionDiscretization.GetNbSample(); i++) {
+    for (unsigned int i = 0; i < waveDirection.size(); i++) {
       auto data = H5Easy::load<Eigen::VectorXd>(HDF5_file, path + "/surge/heading_" + std::to_string(i) + "/data");
       surge.row(i) = data;
+      data = H5Easy::load<Eigen::VectorXd>(HDF5_file, path + "/sway/heading_" + std::to_string(i) + "/data");
+      sway.row(i) = data;
+      data = H5Easy::load<Eigen::VectorXd>(HDF5_file, path + "/yaw/heading_" + std::to_string(i) + "/data");
+      yaw.row(i) = data;
     }
-//    m_waveDrift.SetSurge();
+
+    SetWaveDrift("surge", surge);
+    SetWaveDrift("sway", sway);
+    SetWaveDrift("yaw", yaw);
 
 
   }
@@ -399,6 +451,7 @@ namespace HDB5_io {
     dataSet.write(m_creationDate);
     dataSet.createAttribute<std::string>("Description", "Date of the creation of this database.");
 
+    m_version = 3.;
     dataSet = file.createDataSet<double>("Version", DataSpace::From(m_version));
     dataSet.write(m_version);
     dataSet.createAttribute<std::string>("Description", "Version of the hdb5 output file.");
@@ -440,6 +493,10 @@ namespace HDB5_io {
                  static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (GetWaveDirectionDiscretization().GetVectorN()));
     H5Easy::dump(file, "Discretizations/Time",
                  static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (GetTimeDiscretization().GetVectorN()));
+
+    if (m_waveDrift) {
+      WriteWaveDrift(file);
+    }
 
     auto bodies = file.createGroup("Bodies");
 
@@ -486,6 +543,8 @@ namespace HDB5_io {
                       "Bodies/Body_" + std::to_string(i) + "/Excitation/FroudeKrylov", body);
 
       WriteRadiation(file, "Bodies/Body_" + std::to_string(i) + "/Radiation", body);
+
+      WriteRAO(file, "Bodies/Body_" + std::to_string(i) + "/RAO", body);
 
     }
 
@@ -651,6 +710,108 @@ namespace HDB5_io {
 
     }
 
+
+  }
+
+  void HydrodynamicDataBase::WriteRAO(HighFive::File &HDF5_file, const std::string &path, Body *body) {
+
+    for (unsigned int iwaveDir = 0; iwaveDir < m_waveDirectionDiscretization.GetNbSample(); ++iwaveDir) {
+
+      auto anglePath = path + "/Angle_" + std::to_string(iwaveDir);
+
+      Eigen::MatrixXcd coeff = body->GetRAO(iwaveDir);
+
+      auto angleGroup = HDF5_file.createGroup(anglePath);
+      H5Easy::dump(HDF5_file, anglePath + "/Angle", m_waveDirectionDiscretization.GetVector()[iwaveDir]);
+      angleGroup.getDataSet("Angle").createAttribute<std::string>("Description", "Wave direction.");
+      angleGroup.getDataSet("Angle").createAttribute<std::string>("Unit", "deg");
+
+      H5Easy::dump(HDF5_file, anglePath + "/Amplitude", static_cast<Eigen::MatrixXd>(coeff.array().abs()));
+      angleGroup.getDataSet("Amplitude").createAttribute<std::string>("Description",
+                                                                       "Amplitude of the RAO of body " +
+                                                                       std::to_string(body->GetID()) +
+                                                                       " for a wave direction of " + std::to_string(
+                                                                           m_waveDirectionDiscretization.GetVector()[iwaveDir]) +
+                                                                       " deg.");
+      angleGroup.getDataSet("Amplitude").createAttribute<std::string>("Unit", "");
+
+      std::cout<<"phase : "<<coeff(0,0)<<std::endl;
+      H5Easy::dump(HDF5_file, anglePath + "/Phase", static_cast<Eigen::MatrixXd>(coeff.array().arg()));
+      angleGroup.getDataSet("Phase").createAttribute<std::string>("Description",
+                                                                       "Phase of the RAO of body " +
+                                                                       std::to_string(body->GetID()) +
+                                                                       " for a wave direction of " + std::to_string(
+                                                                           m_waveDirectionDiscretization.GetVector()[iwaveDir]) +
+                                                                       " deg.");
+      angleGroup.getDataSet("Phase").createAttribute<std::string>("Unit", "rad");
+
+//      H5Easy::dump(HDF5_file, anglePath + "/RealCoeffs", static_cast<Eigen::MatrixXd>(coeff.real()));
+//      angleGroup.getDataSet("RealCoeffs").createAttribute<std::string>("Description",
+//                                                                       "Real part of the Froude-Krylov loads on body " +
+//                                                                       std::to_string(body->GetID()) +
+//                                                                       " for a wave direction of " + std::to_string(
+//                                                                           m_waveDirectionDiscretization.GetVector()[iwaveDir]) +
+//                                                                       " deg.");
+//      angleGroup.getDataSet("RealCoeffs").createAttribute<std::string>("Unit", "N/m");
+//
+//      H5Easy::dump(HDF5_file, anglePath + "/ImagCoeffs", static_cast<Eigen::MatrixXd>(coeff.imag()));
+//      angleGroup.getDataSet("ImagCoeffs").createAttribute<std::string>("Description",
+//                                                                       "Imaginary part of the Froude-Krylov loads on body " +
+//                                                                       std::to_string(body->GetID()) +
+//                                                                       " for a wave direction of " + std::to_string(
+//                                                                           m_waveDirectionDiscretization.GetVector()[iwaveDir]) +
+//                                                                       " deg.");
+//      angleGroup.getDataSet("ImagCoeffs").createAttribute<std::string>("Unit", "N/m");
+
+
+    }
+
+  }
+
+  void HydrodynamicDataBase::WriteWaveDrift(HighFive::File &HDF5_file) {
+
+    auto symmetries = m_waveDrift->GetSymmetries();
+
+    unsigned int sym_x = static_cast<unsigned int>(symmetries[0]);
+    unsigned int sym_y = static_cast<unsigned int>(symmetries[1]);
+
+    auto waveDriftGroup = HDF5_file.createGroup("WaveDrift");
+
+    HighFive::DataSet dataSet = waveDriftGroup.createDataSet<unsigned int>("sym_x", HighFive::DataSpace::From(sym_x));
+    dataSet.write(sym_x);
+    dataSet.createAttribute<std::string>("Description", "Symmetry along x");
+
+    dataSet = waveDriftGroup.createDataSet<unsigned int>("sym_y", HighFive::DataSpace::From(sym_y));
+    dataSet.write(sym_y);
+    dataSet.createAttribute<std::string>("Description", "Symmetry along y");
+
+    std::vector<std::string> components = {"surge", "sway", "yaw"};
+
+    for (auto & component: components) {
+
+      auto componentGroup = waveDriftGroup.createGroup(component);
+
+      for (unsigned int iangle = 0; iangle < GetWaveDirectionDiscretization().GetNbSample(); iangle++) {
+        auto angle = GetWaveDirectionDiscretization().GetVector()[iangle];
+        auto headingGroup = componentGroup.createGroup("angle_" + std::to_string(iangle));
+        Eigen::VectorXd data(GetFrequencyDiscretization().GetNbSample());
+        int i=0;
+        for (auto &frequency : GetFrequencyDiscretization().GetVector()) {
+          data(i) = m_waveDrift->Eval(component, frequency, angle);
+          i++;
+        }
+        H5Easy::dump(HDF5_file, "WaveDrift/"+component+"/angle_"+std::to_string(iangle)+"/data", data);
+        dataSet = headingGroup.getDataSet("data");
+        dataSet.createAttribute<std::string>("Description", "Wave Drift force coefficients");
+
+        dataSet = headingGroup.createDataSet<double>("angle", HighFive::DataSpace::From(angle));
+        dataSet.write(angle);
+        dataSet.createAttribute<std::string>("Description", "Wave direction angle");
+        // TODO : angle unit gestion to add
+        dataSet.createAttribute<std::string>("Unit", "rad");
+
+      }
+    }
 
   }
 

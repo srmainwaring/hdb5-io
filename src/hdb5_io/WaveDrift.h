@@ -16,12 +16,26 @@ namespace HDB5_io {
 
    public:
 
-    void SetSymmetries(bool symmetry_X, bool symmetry_Y) {
-      m_symmetry_X = symmetry_X;
-      m_symmetry_Y = symmetry_Y;
-    }
+    WaveDrift();
 
-//    void SetSurge(std::vector<double> frequencies, std::vector<double> waveDirections, mathutils::MatrixMN<double> data);
+    void SetSymmetries(bool symmetry_X, bool symmetry_Y);
+
+    std::vector<bool> GetSymmetries() const;
+
+    void SetFrequencies(const std::vector<double>& frequencies);
+
+    void SetWaveDirections(const std::vector<double>& angles);
+
+    /// Adding new data with wave drift coefficients
+    /// \param name Name of the data
+    /// \param coeffs >Wave drift coefficient values
+    void AddData(const std::string &name, const std::vector<double>& coeffs);
+
+    double Eval(const std::string &name, double frequency, double angle) const;
+
+//    double Eval(const std::string &name, std::vector<double> frequencies, std::vector<double> angles) const {
+//      return m_data->Eval(name, frequencies, angles);
+//    }
 
    private:
 

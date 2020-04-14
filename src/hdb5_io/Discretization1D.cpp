@@ -18,7 +18,7 @@ namespace HDB5_io {
 
   mathutils::VectorN<double> Discretization1D::GetVectorN() const {
     mathutils::VectorN<double> vectorN;
-    vectorN.setLinSpaced(m_nx+1, m_xmin, m_xmax);
+    vectorN.setLinSpaced(m_nx, m_xmin, m_xmax);
     return vectorN;
   }
 

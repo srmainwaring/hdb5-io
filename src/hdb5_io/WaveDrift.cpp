@@ -7,17 +7,34 @@
 namespace HDB5_io {
 
 
-//  void WaveDrift::SetSurge(mathutils::VectorN<double> frequencies, mathutils::VectorN<double> waveDirections,
-//                           mathutils::MatrixMN<double> data) {
-//
-//    auto freq = std::make_shared<std::vector<double>>(m_HDB->GetTimeDiscretization().GetVector());
-//
-//    auto vdata = std::make_shared<std::vector<mathutils::Vector6d<double>>>();
-//    for (unsigned int j = 0; j < IRF.cols(); ++j) {
-//      vdata->push_back(IRF.col(j));
-//    }
-//
-//
-//    m_surge->Initialize(frequencies, waveDirections, data);
-//  }
+
+
+  WaveDrift::WaveDrift(): m_symmetry_X(false), m_symmetry_Y(false) {
+    m_data = std::make_unique<mathutils::LookupTable2d<double>>();
+  }
+
+  void WaveDrift::SetSymmetries(bool symmetry_X, bool symmetry_Y) {
+    m_symmetry_X = symmetry_X;
+    m_symmetry_Y = symmetry_Y;
+  }
+
+  std::vector<bool> WaveDrift::GetSymmetries() const {
+    return {m_symmetry_X, m_symmetry_Y};
+  }
+
+  void WaveDrift::SetFrequencies(const std::vector<double> &frequencies) {
+    m_data->SetX(frequencies);
+  }
+
+  void WaveDrift::SetWaveDirections(const std::vector<double> &angles) {
+    m_data->SetY(angles);
+  }
+
+  void WaveDrift::AddData(const std::string &name, const std::vector<double> &coeffs) {
+    m_data->AddData(name, coeffs);
+  }
+
+  double WaveDrift::Eval(const std::string &name, double frequency, double angle) const {
+    return m_data->Eval(name, frequency, angle);
+  }
 }
