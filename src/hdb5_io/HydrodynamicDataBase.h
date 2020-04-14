@@ -68,9 +68,13 @@ namespace HDB5_io {
 
     double GetNormalizationLength() const;
 
+    Body *NewBody(unsigned int id, const std::string &name);
+
+    std::vector<std::shared_ptr<Body>> GetBodies();
+
     Body *GetBody(int id) const;
 
-    Body *NewBody(unsigned int id, const std::string &name);
+    void SetNbBodies(int nb);
 
     int GetNbBodies() const;
 
@@ -86,8 +90,26 @@ namespace HDB5_io {
 
     Discretization1D GetTimeDiscretization() const;
 
+//    void SetFrequencyDiscretization(const mathutils::VectorN<double> &frequency) {m_frequencies = frequency;}
+//
+//    void SetWaveDirectionDiscretization(const mathutils::VectorN<double> &directions) {m_waveDirections = directions;}
+//
+//    void SetTimeDiscretization(const mathutils::VectorN<double> &time) {m_time = time;}
+//
+//    mathutils::VectorN<double> GetFrequencyDiscretization() const {return m_frequencies;}
+//
+//    mathutils::VectorN<double> GetWaveDirectionDiscretization() const {return m_waveDirections;}
+//
+//    mathutils::VectorN<double> GetTimeDiscretization() const {return m_time;}
+
+
+
     /// Set the wave drift coefficient database
     void SetWaveDrift(const std::string &name, const Eigen::MatrixXd &data);
+
+    void SetWaveDrift(const std::shared_ptr<WaveDrift> &wavedrift) {
+      m_waveDrift = wavedrift;
+    }
 
 //    std::shared_ptr<WaveDrift> GetWaveDrift() const;
 
@@ -113,6 +135,10 @@ namespace HDB5_io {
     Discretization1D m_frequencyDiscretization;       ///< Wave frequency discretization
     Discretization1D m_waveDirectionDiscretization;   ///< Wave direction discretization
     Discretization1D m_timeDiscretization;            ///< Time samples
+
+    mathutils::VectorN<double> m_frequencies;
+    mathutils::VectorN<double> m_time;
+    mathutils::VectorN<double> m_waveDirections;
 
     std::shared_ptr<WaveDrift> m_waveDrift;            ///< wave drift components
 

@@ -7,6 +7,7 @@ set(HDB5IO_SRC_FILES
         Mask.cpp
         Mesh.cpp
         WaveDrift.cpp
+        io/HDBReader.cpp
         )
 
 

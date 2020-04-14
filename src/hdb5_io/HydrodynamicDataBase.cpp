@@ -69,13 +69,21 @@ namespace HDB5_io {
     return m_normalizationLength;
   }
 
+  Body *HydrodynamicDataBase::NewBody(unsigned int id, const std::string &name) {
+    m_bodies.push_back(std::make_shared<Body>(id, name, this));
+    return (m_bodies.back()).get();
+  }
+
   Body *HydrodynamicDataBase::GetBody(int id) const {
     return m_bodies[id].get();
   }
 
-  Body *HydrodynamicDataBase::NewBody(unsigned int id, const std::string &name) {
-    m_bodies.push_back(std::make_shared<Body>(id, name, this));
-    return (m_bodies.back()).get();
+  std::vector<std::shared_ptr<Body>> HydrodynamicDataBase::GetBodies() {
+    return m_bodies;
+  }
+
+  void HydrodynamicDataBase::SetNbBodies(int nb) {
+    m_nbody = nb;
   }
 
   int HydrodynamicDataBase::GetNbBodies() const {
@@ -84,12 +92,10 @@ namespace HDB5_io {
 
   void HydrodynamicDataBase::SetFrequencyDiscretization(double wmin, double wmax, unsigned int nw) {
     m_frequencyDiscretization = Discretization1D(wmin, wmax, nw);
-    m_waveDrift->SetFrequencies(m_frequencyDiscretization.GetVector());
   }
 
   void HydrodynamicDataBase::SetWaveDirectionDiscretization(double tmin, double tmax, unsigned int nt) {
     m_waveDirectionDiscretization = Discretization1D(tmin, tmax, nt);
-    m_waveDrift->SetWaveDirections(m_waveDirectionDiscretization.GetVector());
   }
 
   void HydrodynamicDataBase::SetTimeDiscretization(double tmin, double tmax, unsigned int nt) {

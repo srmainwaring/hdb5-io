@@ -3,23 +3,22 @@
 //
 
 #include "hdb5_io/HDB5_io.h"
-//#include "meshoui/meshoui.h"
-
-//using namespace meshoui;
 
 using namespace HDB5_io;
 
 int main() {
 
-  HydrodynamicDataBase HDB;
+//  auto HDB = std::make_shared<HydrodynamicDataBase>();
+//
+//  HDB->Import_HDF5("/home/lletourn/Documents/DEV/hdb5-io/Sphere_1484_faces_Kochin.hdb5");
 
-  HDB.Import_HDF5("/home/lletourn/Documents/DEV/hdb5-io/Sphere_1484_faces_Kochin.hdb5");
+  auto HDB = import_HDB("/home/lletourn/Documents/DEV/hdb5-io/Sphere_1484_faces_Kochin.hdb5");
 
-#ifdef H5_USE_VTK
-  HDB.GetBody(0)->VisualizeMesh();
-#endif
+//#ifdef H5_USE_VTK
+//  HDB.GetBody(0)->VisualizeMesh();
+//#endif
 
-  HDB.Export_HDF5("out.hdb5");
+  HDB->Export_HDF5("out.hdb5");
 
   return 0;
 }

@@ -12,4 +12,6 @@
 #include "Mesh.h"
 #include "WaveDrift.h"
 
+#include "io/HDBReader.h"
+
 #endif //HDB5_IO_HDB5_IO_H
