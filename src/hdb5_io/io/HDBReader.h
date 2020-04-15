@@ -77,6 +77,9 @@ namespace HDB5_io {
 
     virtual void ReadWaveDrift(HighFive::File &HDF5_file);
 
+    virtual Eigen::VectorXd
+    ReadWaveDriftComponents(HighFive::File &HDF5_file, const std::string &path, unsigned int i) = 0;
+
   };
 
   std::shared_ptr<HydrodynamicDataBase> import_HDB(const std::string &filename);
@@ -92,6 +95,7 @@ namespace HDB5_io {
 
     void ReadDiscretizations(const HighFive::File &file) override;
 
+    Eigen::VectorXd ReadWaveDriftComponents(HighFive::File &HDF5_file, const std::string &path, unsigned int i) override;
 
   };
 
@@ -106,6 +110,7 @@ namespace HDB5_io {
 
     void ReadDiscretizations(const HighFive::File &file) override;
 
+    Eigen::VectorXd ReadWaveDriftComponents(HighFive::File &HDF5_file, const std::string &path, unsigned int i) override;
 
   };
 

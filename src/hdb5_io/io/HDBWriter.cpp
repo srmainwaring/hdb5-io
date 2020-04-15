@@ -23,6 +23,8 @@ namespace HDB5_io {
 
     WriteHDBBasics(file);
 
+    WriteDiscretizations(file);
+
     if (m_hdb->GetWaveDrift()) {
       WriteWaveDrift(file);
     }
@@ -338,7 +340,6 @@ namespace HDB5_io {
                                                                       " deg.");
       angleGroup.getDataSet("Amplitude").createAttribute<std::string>("Unit", "");
 
-      std::cout<<"phase : "<<coeff(0,0)<<std::endl;
       H5Easy::dump(HDF5_file, anglePath + "/Phase", static_cast<Eigen::MatrixXd>(coeff.array().arg()));
       angleGroup.getDataSet("Phase").createAttribute<std::string>("Description",
                                                                   "Phase of the RAO of body " +

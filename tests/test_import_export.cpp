@@ -8,17 +8,11 @@ using namespace HDB5_io;
 
 int main() {
 
-//  auto HDB = std::make_shared<HydrodynamicDataBase>();
-//
-//  HDB->Import_HDF5("/home/lletourn/Documents/DEV/hdb5-io/Sphere_1484_faces_Kochin.hdb5");
-
   auto HDB = import_HDB("/home/lletourn/Documents/DEV/hdb5-io/Sphere_1484_faces_Kochin.hdb5");
 
-//#ifdef H5_USE_VTK
-//  HDB.GetBody(0)->VisualizeMesh();
-//#endif
-
-//  HDB->Export_HDF5("out.hdb5");
+#ifdef H5_USE_VTK
+  HDB->GetBody(0)->VisualizeMesh();
+#endif
 
   export_HDB("out.hdb5", HDB.get());
 

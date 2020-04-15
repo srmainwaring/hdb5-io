@@ -183,8 +183,14 @@ namespace HDB5_io {
 
       auto amplitude = H5Easy::load<Eigen::MatrixXd>(HDF5_file, WaveDirPath + "/Amplitude");
       auto phase = H5Easy::load<Eigen::MatrixXd>(HDF5_file, WaveDirPath + "/Phase");
-//      auto Dcoeffs = amplitude;
-      Eigen::MatrixXcd Dcoeffs = amplitude.array() * Eigen::exp( MU_JJ * phase.array() * MU_PI / 180.);
+
+      auto DataSet = HDF5_file.getDataSet(WaveDirPath + "/Phase");
+      std::string unit;
+      DataSet.getAttribute("Unit").read<std::string>(unit);
+      if (unit != "rad")
+        phase = phase.array() * DEG2RAD;
+
+      Eigen::MatrixXcd Dcoeffs = amplitude.array() * Eigen::exp( MU_JJ * phase.array());
 
       Eigen::MatrixXcd raoCoeffs;
       if (amplitude.rows() != 6) {
@@ -283,12 +289,12 @@ namespace HDB5_io {
     Eigen::MatrixXd yaw(waveDirection.size(), frequency.size());
 
     for (unsigned int i = 0; i < waveDirection.size(); i++) {
-      auto data = H5Easy::load<Eigen::VectorXd>(HDF5_file, "WaveDrift/surge/heading_" + std::to_string(i) + "/data");
-      surge.row(i) = data;
-      data = H5Easy::load<Eigen::VectorXd>(HDF5_file, "WaveDrift/sway/heading_" + std::to_string(i) + "/data");
-      sway.row(i) = data;
-      data = H5Easy::load<Eigen::VectorXd>(HDF5_file, "WaveDrift/yaw/heading_" + std::to_string(i) + "/data");
-      yaw.row(i) = data;
+      auto data_surge = ReadWaveDriftComponents(HDF5_file, "WaveDrift/surge", i);
+      surge.row(i) = data_surge;
+      auto data_sway = ReadWaveDriftComponents(HDF5_file, "WaveDrift/sway", i);
+      sway.row(i) = data_sway;
+      auto data_yaw = ReadWaveDriftComponents(HDF5_file, "WaveDrift/yaw", i);
+      yaw.row(i) = data_yaw;
     }
 
     std::vector<double> coeff_surge(&surge(0,0), surge.data()+surge.size());
@@ -349,6 +355,15 @@ namespace HDB5_io {
     m_hdb->SetWaveDirectionDiscretization(mathutils::VectorN<double>::LinSpaced(nb, min, max));
   }
 
+  Eigen::VectorXd
+  HDBReader_v2::ReadWaveDriftComponents(HighFive::File &HDF5_file, const std::string &path, unsigned int i) {
+    return H5Easy::load<Eigen::VectorXd>(HDF5_file, path + "/heading_" + std::to_string(i) + "/data");
+  }
+
+  Eigen::VectorXd
+  HDBReader_v3::ReadWaveDriftComponents(HighFive::File &HDF5_file, const std::string &path, unsigned int i) {
+    return H5Easy::load<Eigen::VectorXd>(HDF5_file, path + "/angle_" + std::to_string(i) + "/data");
+  }
 
 
   void HDBReader_v3::ReadDiscretizations(const HighFive::File &file) {
