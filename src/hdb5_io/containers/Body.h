@@ -110,7 +110,7 @@ namespace HDB5_io {
     /// \param hydrostaticStiffnessMatrix Hydrostatic stiffness matrix
     void SetStiffnessMatrix(const mathutils::Matrix66<double> &hydrostaticStiffnessMatrix);
 
-    void SetInertia(const mathutils::Matrix66<double> & inertiaMatrix);
+    void SetInertia(const mathutils::Matrix66<double> &inertiaMatrix);
 
     /// Load the mesh, from vertices and connectivity
     /// \param vertices vertices container
@@ -195,9 +195,9 @@ namespace HDB5_io {
     /// \return radiation mask
     mathutils::Matrix66<bool> GetRadiationMask(Body *BodyMotion) const;
 
-    bool HasRAO() const {
-      return m_isRAO;
-    }
+    /// Check if the RAO are calculated
+    /// \return true if RAO were calculated
+    bool HasRAO() const;
 
     /// Get the response amplitude operator for this body
     /// \param iangle index of the angle
@@ -214,14 +214,20 @@ namespace HDB5_io {
     /// \return 6x6 matrix added mass
     mathutils::Matrix66<double> GetSelfInfiniteAddedMass();
 
+    /// Get the interpolator corresponding to the data type given
+    /// \param type type of the data interpolated (IRF_K, IRF_KU, ADDED_MASS, RADIATION_DAMPING)
+    /// \return interpolator
     HDBinterpolator *GetHDBInterpolator(interpolatedData type);
 
+    /// Get the interpolated data for the following parameters
+    /// \param type type of the data interpolated (IRF_K, IRF_KU, ADDED_MASS, RADIATION_DAMPING)
+    /// \param BodyMotion body at the origin of the perturbation
+    /// \param idof index of the degree of freedom considered
+    /// \param frequencies set of frequencies for which the data are interpolated
+    /// \return interpolated data in matrix form (6 x nfreq)
     Eigen::MatrixXd
-    GetHDBInterpolatedData(interpolatedData type, Body *BodyMotion, unsigned int idof, mathutils::VectorN<double> frequencies);
-
-
-    std::shared_ptr<WaveDrift> GetWaveDrift() const;
-
+    GetHDBInterpolatedData(interpolatedData type, Body *BodyMotion, unsigned int idof,
+                           mathutils::VectorN<double> frequencies);
 
    private:
 
@@ -235,7 +241,7 @@ namespace HDB5_io {
 
     std::shared_ptr<Mesh> m_mesh;                  ///< mesh of the body
 
-    // TODO :replace these std::vector with 2D-interpolator, or at least unordered_map
+    // TODO :replace these std::vector with 2D-interpolator, or at least unordered_map ?
     std::vector<Eigen::MatrixXcd> m_excitation;    ///< Complex coefficient of the excitation force
     std::vector<Eigen::MatrixXcd> m_froudeKrylov;  ///< Complex coefficient of the froude-krylov force
     std::vector<Eigen::MatrixXcd> m_diffraction;   ///< Complex coefficient of the diffraction force

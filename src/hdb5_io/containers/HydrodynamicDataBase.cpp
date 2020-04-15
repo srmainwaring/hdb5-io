@@ -83,4 +83,36 @@ namespace HDB5_io {
     return m_nbody;
   }
 
+  void HydrodynamicDataBase::SetFrequencyDiscretization(const mathutils::VectorN<double> &frequency) {
+    m_frequencyDiscretization = frequency;
+  }
+
+  void HydrodynamicDataBase::SetWaveDirectionDiscretization(const mathutils::VectorN<double> &directions) {
+    m_waveDirectionDiscretization = directions;
+  }
+
+  void HydrodynamicDataBase::SetTimeDiscretization(const mathutils::VectorN<double> &time) {
+    m_timeDiscretization = time;
+  }
+
+  mathutils::VectorN<double> HydrodynamicDataBase::GetFrequencyDiscretization() const {
+    return m_frequencyDiscretization;
+  }
+
+  mathutils::VectorN<double> HydrodynamicDataBase::GetWaveDirectionDiscretization() const {
+    return m_waveDirectionDiscretization;
+  }
+
+  mathutils::VectorN<double> HydrodynamicDataBase::GetTimeDiscretization() const {
+    return m_timeDiscretization;
+  }
+
+  void HydrodynamicDataBase::SetWaveDrift(const std::shared_ptr<WaveDrift> &wavedrift) {
+    m_waveDrift = wavedrift;
+  }
+
+  WaveDrift *HydrodynamicDataBase::GetWaveDrift() const {
+    return m_waveDrift.get();
+  }
+
 } // namespace HDB5_io

@@ -22,14 +22,14 @@ namespace HDB5_io {
 
     std::vector<bool> GetSymmetries() const;
 
-    void SetFrequencies(const mathutils::VectorN<double>& frequencies);
+    void SetFrequencies(const mathutils::VectorN<double> &frequencies);
 
-    void SetWaveDirections(const mathutils::VectorN<double>& angles);
+    void SetWaveDirections(const mathutils::VectorN<double> &angles);
 
     /// Adding new data with wave drift coefficients
     /// \param name Name of the data
     /// \param coeffs >Wave drift coefficient values
-    void AddData(const std::string &name, const std::vector<double>& coeffs);
+    void AddData(const std::string &name, const std::vector<double> &coeffs);
 
     double Eval(const std::string &name, double frequency, double angle) const;
 

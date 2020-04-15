@@ -17,12 +17,20 @@ namespace HDB5_io {
 
   class Body;
 
+  /**
+  * \class HDBReader
+  * \brief Class for reading a hydrodynamic database from a .hdb5 file. 
+  */
   class HDBReader {
 
    public:
 
+    /// Constructor of the HDBReader
+    /// \param hdb hydrodynamic database in which store the data
     explicit HDBReader(HydrodynamicDataBase *hdb) : m_hdb(hdb) {}
 
+    /// Read a hdb5 file
+    /// \param filename name of the file to read
     virtual void Read(const std::string &filename);
 
    protected:
@@ -33,58 +41,80 @@ namespace HDB5_io {
 
 //    double m_version;
 
-    HydrodynamicDataBase *m_hdb;
+    HydrodynamicDataBase *m_hdb;  ///< hydrodynamic database to store the data
 
-    virtual void ReadHDBBasics(const HighFive::File &HDF5_file);
+    /// Read basic information contained in the hydrodynamic database (version, date of creation, solver, etc.)
+    /// \param file file containing the hydrodynamic database
+    virtual void ReadHDBBasics(const HighFive::File &file);
 
-    virtual Body *ReadBodyBasics(const HighFive::File &HDF5_file, const std::string &path);
+    /// Read basic information related to the body given in the path
+    /// \param file file containing the hydrodynamic database
+    /// \param path path to the body data in the hdb5
+    /// \return container of the body hydrodynamic data
+    virtual Body *ReadBodyBasics(const HighFive::File &file, const std::string &path);
 
+    /// Read the wave direction, frequency, and time discretizations 
+    /// \param file file containing the hydrodynamic database
     virtual void ReadDiscretizations(const HighFive::File &file) = 0;
 
     /// Read the excitation components
     /// \param type excitation type (Diffraction or Froude_Krylov
-    /// \param HDF5_file file containing the hydrodynamic database
+    /// \param file file containing the hydrodynamic database
     /// \param path path to the components in the file
     /// \param body body to which store the components
     virtual void
-    ReadExcitation(excitationType type, const HighFive::File &HDF5_file, const std::string &path, Body *body);
+    ReadExcitation(excitationType type, const HighFive::File &file, const std::string &path, Body *body);
 
     /// Read the radiation components
-    /// \param HDF5_file file containing the hydrodynamic database
+    /// \param file file containing the hydrodynamic database
     /// \param path path to the components in the file
     /// \param body body to which store the components
-    virtual void ReadRadiation(const HighFive::File &HDF5_file, const std::string &path, Body *body);
+    virtual void ReadRadiation(const HighFive::File &file, const std::string &path, Body *body);
 
     /// Read the response amplitude operators
-    /// \param HDF5_file file containing the hydrodynamic database
+    /// \param file file containing the hydrodynamic database
     /// \param path path to the components in the file
     /// \param body body to which store the components
-    virtual void ReadRAO(const HighFive::File &HDF5_file, const std::string &path, Body *body);
+    virtual void ReadRAO(const HighFive::File &file, const std::string &path, Body *body);
 
     /// Read the components (added mass/radiation damping/ impulse response functions)
-    /// \param HDF5_file file containing the hydrodynamic database
+    /// \param file file containing the hydrodynamic database
     /// \param path path to the components in the file
     /// \param radiationMask radiation mask
     /// \return matrix containing the components
-    virtual std::vector<Eigen::MatrixXd> ReadComponents(const HighFive::File &HDF5_file, const std::string &path,
+    virtual std::vector<Eigen::MatrixXd> ReadComponents(const HighFive::File &file, const std::string &path,
                                                         Eigen::MatrixXi radiationMask);
 
     /// Read the mesh contained in the HDF5 file
-    /// \param HDF5_file file containing the mesh
+    /// \param file file containing the mesh
     /// \param path path to the mesh in the file
     /// \param body body to which store the mesh
-    virtual void ReadMesh(HighFive::File &HDF5_file, const std::string &path, Body *body);
+    virtual void ReadMesh(HighFive::File &file, const std::string &path, Body *body);
 
-    virtual void ReadWaveDrift(HighFive::File &HDF5_file);
+    /// Read the wave drift data
+    /// \param file file containing the hydrodynamic database
+    virtual void ReadWaveDrift(HighFive::File &file);
 
+    /// Read the wave drift components, from the path given, for the i-th body
+    /// \param file file containing the hydrodynamic database
+    /// \param path path in the hdb5 file
+    /// \param i index of the body
+    /// \return wave drift components (surge, sway or yaw) in Eigen::vectorXd format
     virtual Eigen::VectorXd
-    ReadWaveDriftComponents(HighFive::File &HDF5_file, const std::string &path, unsigned int i) = 0;
+    ReadWaveDriftComponents(HighFive::File &file, const std::string &path, unsigned int i) = 0;
 
   };
 
+  /// Import a hydrodynamic database from a .hdb5 file
+  /// \param filename name of the file to import
+  /// \return hydrodynamic database
   std::shared_ptr<HydrodynamicDataBase> import_HDB(const std::string &filename);
 
 
+  /**
+  * \class HDBReader_v2
+  * \brief Class for reading a hydrodynamic database from a .hdb5 file, stored in version 2.xx
+  */
   class HDBReader_v2 : public HDBReader {
 
    public:
@@ -95,11 +125,15 @@ namespace HDB5_io {
 
     void ReadDiscretizations(const HighFive::File &file) override;
 
-    Eigen::VectorXd ReadWaveDriftComponents(HighFive::File &HDF5_file, const std::string &path, unsigned int i) override;
+    Eigen::VectorXd ReadWaveDriftComponents(HighFive::File &file, const std::string &path, unsigned int i) override;
 
   };
 
 
+  /**
+  * \class HDBReader_v3
+  * \brief Class for reading a hydrodynamic database from a .hdb5 file, stored in version 3.xx
+  */
   class HDBReader_v3 : public HDBReader {
 
    public:
@@ -110,7 +144,7 @@ namespace HDB5_io {
 
     void ReadDiscretizations(const HighFive::File &file) override;
 
-    Eigen::VectorXd ReadWaveDriftComponents(HighFive::File &HDF5_file, const std::string &path, unsigned int i) override;
+    Eigen::VectorXd ReadWaveDriftComponents(HighFive::File &file, const std::string &path, unsigned int i) override;
 
   };
 

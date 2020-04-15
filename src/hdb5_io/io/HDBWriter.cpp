@@ -11,9 +11,6 @@
 #include "hdb5_io/containers/Body.h"
 #include "hdb5_io/containers/WaveDrift.h"
 
-#include "MathUtils/VectorN.h"
-#include "MathUtils/Vector3d.h"
-
 namespace HDB5_io {
 
 
@@ -57,7 +54,8 @@ namespace HDB5_io {
   void HDBWriter::WriteHDBBasics(HighFive::File &file) const {
 
     auto creationDate = m_hdb->GetCreationDate();
-    HighFive::DataSet dataSet = file.createDataSet<std::string>("CreationDate", HighFive::DataSpace::From(creationDate));
+    HighFive::DataSet dataSet = file.createDataSet<std::string>("CreationDate",
+                                                                HighFive::DataSpace::From(creationDate));
     dataSet.write(creationDate);
     dataSet.createAttribute<std::string>("Description", "Date of the creation of this database.");
 
@@ -132,21 +130,23 @@ namespace HDB5_io {
                                                                       "Center of gravity of the body in the absolute frame");
 
     bodyGroup.createGroup("Mask");
-    H5Easy::dump(file, path + "/Mask/ForceMask", static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetForceMask().GetMask()));
-    H5Easy::dump(file, path + "/Mask/MotionMask", static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetMotionMask().GetMask()));
+    H5Easy::dump(file, path + "/Mask/ForceMask",
+                 static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetForceMask().GetMask()));
+    H5Easy::dump(file, path + "/Mask/MotionMask",
+                 static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetMotionMask().GetMask()));
 
     bodyGroup.createGroup("Inertia");
-    H5Easy::dump(file, path + "/Inertia/InertiaMatrix", static_cast<Eigen::Matrix<double, 6, 6>> (body->GetInertiaMatrix()));
-    bodyGroup.getDataSet("Inertia/InertiaMatrix").createAttribute<std::string>("Description",
-                                                                               "Inertia matrix.");
+    H5Easy::dump(file, path + "/Inertia/InertiaMatrix",
+                 static_cast<Eigen::Matrix<double, 6, 6>> (body->GetInertiaMatrix()));
+    bodyGroup.getDataSet("Inertia/InertiaMatrix").createAttribute<std::string>("Description", "Inertia matrix.");
 
     bodyGroup.createGroup("Hydrostatic");
     Eigen::Matrix<double, 6, 6> stiffnessMatrix;
     stiffnessMatrix.setZero();
-    stiffnessMatrix.block<3,3>(2,2) = body->GetHydrostaticStiffnessMatrix();
+    stiffnessMatrix.block<3, 3>(2, 2) = body->GetHydrostaticStiffnessMatrix();
     H5Easy::dump(file, path + "/Hydrostatic/StiffnessMatrix", stiffnessMatrix);
     bodyGroup.getDataSet("Hydrostatic/StiffnessMatrix").createAttribute<std::string>("Description",
-                                                                               "Hydrostatic stiffness matrix.");
+                                                                                     "Hydrostatic stiffness matrix.");
 
   }
 
@@ -397,7 +397,7 @@ namespace HDB5_io {
     auto frequencies = m_hdb->GetFrequencyDiscretization();
     auto waveDrift = m_hdb->GetWaveDrift();
 
-    for (auto & component: components) {
+    for (auto &component: components) {
 
       auto componentGroup = waveDriftGroup.createGroup(component);
 
@@ -405,10 +405,10 @@ namespace HDB5_io {
         auto angle = angles(iangle);
         auto headingGroup = componentGroup.createGroup("angle_" + std::to_string(iangle));
         Eigen::VectorXd data(frequencies.size());
-        for (unsigned int i=0; i<frequencies.size(); i++) {
+        for (unsigned int i = 0; i < frequencies.size(); i++) {
           data(i) = waveDrift->Eval(component, frequencies(i), angle);
         }
-        H5Easy::dump(HDF5_file, "WaveDrift/"+component+"/angle_"+std::to_string(iangle)+"/data", data);
+        H5Easy::dump(HDF5_file, "WaveDrift/" + component + "/angle_" + std::to_string(iangle) + "/data", data);
         dataSet = headingGroup.getDataSet("data");
         dataSet.createAttribute<std::string>("Description", "Wave Drift force coefficients");
 

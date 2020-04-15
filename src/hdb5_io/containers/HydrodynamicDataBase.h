@@ -21,8 +21,8 @@ namespace HDB5_io {
 
   /**
   * \class HydrodynamicDataBase
-  * \brief Class for storing a hydrodynamic database.
-  * All components are stored, even null DOF components, resulting in 6 DOF vectors and 6x6 matrices.
+  * \brief Class for storing a hydrodynamic database. Contains basic information (version, date of creation, solver, ...)
+   * and body and wave drift container class containing all related hydrodynamic data.
   */
   class HydrodynamicDataBase {
 
@@ -58,32 +58,36 @@ namespace HDB5_io {
 
     double GetNormalizationLength() const;
 
+    /// Add a body to the hydrodynamic database
+    /// \param id index of the body in the database
+    /// \param name name o the body, must be unique
+    /// \return body created
     Body *NewBody(unsigned int id, const std::string &name);
 
+    /// Get id-th body
+    /// \param id index of the body in the database
+    /// \return
     Body *GetBody(int id) const;
 
     void SetNbBodies(int nb);
 
     int GetNbBodies() const;
 
-    void SetFrequencyDiscretization(const mathutils::VectorN<double> &frequency) {m_frequencyDiscretization = frequency;}
+    void SetFrequencyDiscretization(const mathutils::VectorN<double> &frequency);
 
-    void SetWaveDirectionDiscretization(const mathutils::VectorN<double> &directions) {m_waveDirectionDiscretization = directions;}
+    void SetWaveDirectionDiscretization(const mathutils::VectorN<double> &directions);
 
-    void SetTimeDiscretization(const mathutils::VectorN<double> &time) {m_timeDiscretization = time;}
+    void SetTimeDiscretization(const mathutils::VectorN<double> &time);
 
-    mathutils::VectorN<double> GetFrequencyDiscretization() const {return m_frequencyDiscretization;}
+    mathutils::VectorN<double> GetFrequencyDiscretization() const;
 
-    mathutils::VectorN<double> GetWaveDirectionDiscretization() const {return m_waveDirectionDiscretization;}
+    mathutils::VectorN<double> GetWaveDirectionDiscretization() const;
 
-    mathutils::VectorN<double> GetTimeDiscretization() const {return m_timeDiscretization;}
+    mathutils::VectorN<double> GetTimeDiscretization() const;
 
-    void SetWaveDrift(const std::shared_ptr<WaveDrift> &wavedrift) {
-      m_waveDrift = wavedrift;
-    }
+    void SetWaveDrift(const std::shared_ptr<WaveDrift> &wavedrift);
 
-    WaveDrift* GetWaveDrift() const {return m_waveDrift.get();}
-
+    WaveDrift *GetWaveDrift() const;
 
    private:
 
@@ -97,6 +101,7 @@ namespace HDB5_io {
     double m_normalizationLength;     ///< Normalization length coming from the HDB
 
     int m_nbody;                      ///< Number of bodies in interaction considered in the HDB
+    // FIXME :: change the vector to unordered_map with index as key, to be sure which body to get with the GetBody method
     std::vector<std::shared_ptr<Body>> m_bodies;      ///< List of BEM body database
 
     mathutils::VectorN<double> m_frequencyDiscretization;

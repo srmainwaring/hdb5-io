@@ -113,14 +113,14 @@ namespace HDB5_io {
           case IRF_K: {
             auto EigenTime = m_HDB->GetTimeDiscretization();
             assert(data.cols() == EigenTime.size());
-            std::vector<double> time(&EigenTime(0,0), EigenTime.data()+EigenTime.size());
+            std::vector<double> time(&EigenTime(0, 0), EigenTime.data() + EigenTime.size());
             table->SetX(time);
             break;
           }
           case IRF_KU: {
             auto EigenTime = m_HDB->GetTimeDiscretization();
             assert(data.cols() == EigenTime.size());
-            std::vector<double> time(&EigenTime(0,0), EigenTime.data()+EigenTime.size());
+            std::vector<double> time(&EigenTime(0, 0), EigenTime.data() + EigenTime.size());
             table->SetX(time);
             break;
           }
@@ -269,6 +269,10 @@ namespace HDB5_io {
 
   mathutils::Matrix66<double> Body::GetSelfInfiniteAddedMass() {
     return m_infiniteAddedMass[this];
+  }
+
+  bool Body::HasRAO() const {
+    return m_isRAO;
   }
 
   Eigen::MatrixXcd Body::GetRAO(const unsigned int iangle) const {

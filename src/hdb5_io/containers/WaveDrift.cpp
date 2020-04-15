@@ -7,9 +7,7 @@
 namespace HDB5_io {
 
 
-
-
-  WaveDrift::WaveDrift(): m_symmetry_X(false), m_symmetry_Y(false) {
+  WaveDrift::WaveDrift() : m_symmetry_X(false), m_symmetry_Y(false) {
     m_data = std::make_unique<mathutils::LookupTable2d<double>>();
   }
 
@@ -23,12 +21,12 @@ namespace HDB5_io {
   }
 
   void WaveDrift::SetFrequencies(const mathutils::VectorN<double> &frequencies) {
-    std::vector<double> freq(&frequencies(0,0), frequencies.data()+frequencies.size());
+    std::vector<double> freq(&frequencies(0, 0), frequencies.data() + frequencies.size());
     m_data->SetX(freq);
   }
 
   void WaveDrift::SetWaveDirections(const mathutils::VectorN<double> &angles) {
-    std::vector<double> ang(&angles(0,0), angles.data()+angles.size());
+    std::vector<double> ang(&angles(0, 0), angles.data() + angles.size());
     m_data->SetY(ang);
   }
 

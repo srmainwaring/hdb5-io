@@ -20,7 +20,7 @@ namespace HDB5_io {
 
     ReadDiscretizations(file);
 
-    std::vector<Body*> bodies;
+    std::vector<Body *> bodies;
 
     for (int i = 0; i < m_hdb->GetNbBodies(); i++) {
       bodies.push_back(ReadBodyBasics(file, "Bodies/Body_" + std::to_string(i)));
@@ -62,7 +62,7 @@ namespace HDB5_io {
 
   }
 
-  Body* HDBReader::ReadBodyBasics(const HighFive::File &file, const std::string &path) {
+  Body *HDBReader::ReadBodyBasics(const HighFive::File &file, const std::string &path) {
 
 //    std::string name;
 //    file.getGroup(path).getDataSet("BodyName").read(name);
@@ -77,12 +77,12 @@ namespace HDB5_io {
     body->SetMotionMask(H5Easy::load<Eigen::Matrix<int, 6, 1>>(file, path + "/Mask/MotionMask"));
 
     if (file.exist(path + "/Hydrostatic")) {
-      mathutils::Matrix66<double> stiffnessMatrix ;
+      mathutils::Matrix66<double> stiffnessMatrix;
       stiffnessMatrix = H5Easy::load<Eigen::Matrix<double, 6, 6>>(file, path + "/Hydrostatic/StiffnessMatrix");
       body->SetStiffnessMatrix(stiffnessMatrix);
     }
     if (file.exist(path + "/Inertia")) {
-      mathutils::Matrix66<double> inertiaMatrix ;
+      mathutils::Matrix66<double> inertiaMatrix;
       inertiaMatrix = H5Easy::load<Eigen::Matrix<double, 6, 6>>(file, path + "/Inertia/InertiaMatrix");
       body->SetInertia(inertiaMatrix);
     }
@@ -190,7 +190,7 @@ namespace HDB5_io {
       if (unit != "rad")
         phase = phase.array() * DEG2RAD;
 
-      Eigen::MatrixXcd Dcoeffs = amplitude.array() * Eigen::exp( MU_JJ * phase.array());
+      Eigen::MatrixXcd Dcoeffs = amplitude.array() * Eigen::exp(MU_JJ * phase.array());
 
       Eigen::MatrixXcd raoCoeffs;
       if (amplitude.rows() != 6) {
@@ -297,11 +297,11 @@ namespace HDB5_io {
       yaw.row(i) = data_yaw;
     }
 
-    std::vector<double> coeff_surge(&surge(0,0), surge.data()+surge.size());
+    std::vector<double> coeff_surge(&surge(0, 0), surge.data() + surge.size());
     waveDrift->AddData("surge", coeff_surge);
-    std::vector<double> coeff_sway(&sway(0,0), sway.data()+sway.size());
+    std::vector<double> coeff_sway(&sway(0, 0), sway.data() + sway.size());
     waveDrift->AddData("sway", coeff_sway);
-    std::vector<double> coeff_yaw(&yaw(0,0), yaw.data()+yaw.size());
+    std::vector<double> coeff_yaw(&yaw(0, 0), yaw.data() + yaw.size());
     waveDrift->AddData("yaw", coeff_yaw);
 
     m_hdb->SetWaveDrift(waveDrift);
@@ -309,7 +309,7 @@ namespace HDB5_io {
   }
 
 
-  std::shared_ptr<HydrodynamicDataBase> import_HDB(const std::string& filename){
+  std::shared_ptr<HydrodynamicDataBase> import_HDB(const std::string &filename) {
     auto hdb = std::make_shared<HydrodynamicDataBase>();
 
     HighFive::File file(filename, HighFive::File::ReadOnly);
@@ -318,11 +318,10 @@ namespace HDB5_io {
     if (file.exist("Version"))
       version = H5Easy::load<double>(file, "Version");
 
-    if (version<=2) {
+    if (version <= 2) {
       auto hdb_reader = std::make_shared<HDBReader_v2>(hdb.get());
       hdb_reader->Read(filename);
-    }
-    else {
+    } else {
       auto hdb_reader = std::make_shared<HDBReader_v3>(hdb.get());
       hdb_reader->Read(filename);
     }

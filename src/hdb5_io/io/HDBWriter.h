@@ -13,14 +13,23 @@ namespace HDB5_io {
 
   // Forward Declarations
   class HydrodynamicDataBase;
+
   class Body;
 
+  /**
+  * \class HDBWriter
+  * \brief Class for writing a hydrodynamic database in a .hdb5 file. 
+  */
   class HDBWriter {
 
    public:
 
-    explicit HDBWriter(HydrodynamicDataBase* hdb) : m_hdb(hdb) {}
+    /// Constructor of the HDBWriter
+    /// \param hdb hydrodynamic database to write the data
+    explicit HDBWriter(HydrodynamicDataBase *hdb) : m_hdb(hdb) {}
 
+    /// Write the hydrodynamic data in a .hdb5 file
+    /// \param filename name of the file to write the hydrodynamic data
     virtual void Write(const std::string &filename) const;
 
    protected:
@@ -29,39 +38,56 @@ namespace HDB5_io {
       Diffraction, Froude_Krylov
     };
 
-    HydrodynamicDataBase* m_hdb;
+    HydrodynamicDataBase *m_hdb;  ///< hydrodynamic database containing the data
 
-    virtual void WriteHDBBasics(HighFive::File &HDF5_file) const;
+    /// Write basic information contained in the hydrodynamic database (version, date of creation, solver, etc.)
+    /// \param file file to export the hydrodynamic database
+    virtual void WriteHDBBasics(HighFive::File &file) const;
 
-    virtual void WriteDiscretizations(HighFive::File &HDF5_file) const;
+    /// Write the wave direction, frequency, and time discretizations
+    /// \param file file to export the hydrodynamic database
+    virtual void WriteDiscretizations(HighFive::File &file) const;
 
-    virtual void WriteBodyBasics(HighFive::File &HDF5_file, const std::string &path, Body *body) const;
+    /// Write basic information related to the body given in the path
+    /// \param file file to export the hydrodynamic database
+    /// \param path path to the body data in the hdb5
+    virtual void WriteBodyBasics(HighFive::File &file, const std::string &path, Body *body) const;
 
-    virtual void WriteMesh(HighFive::File &HDF5_file, const std::string &path, Body *body) const;
+    /// Write the mesh contained in the hydrodynamic database
+    /// \param file file to export the hydrodynamic database
+    /// \param path path to the mesh in the file
+    /// \param body body containing the mesh
+    virtual void WriteMesh(HighFive::File &file, const std::string &path, Body *body) const;
 
     /// Write the excitation components
     /// \param type excitation type (Diffraction or Froude_Krylov
-    /// \param HDF5_file file to export the hydrodynamic database
+    /// \param file file to export the hydrodynamic database
     /// \param path path to the components in the file
     /// \param body body containing the components
-    virtual void WriteExcitation(excitationType type, HighFive::File &HDF5_file, const std::string &path, Body *body) const;
+    virtual void
+    WriteExcitation(excitationType type, HighFive::File &file, const std::string &path, Body *body) const;
 
     /// Write the radiation components
-    /// \param HDF5_file file to export the hydrodynamic database
+    /// \param file file to export the hydrodynamic database
     /// \param path path to the components in the file
     /// \param body body containing the components
-    virtual void WriteRadiation(HighFive::File &HDF5_file, const std::string &path, Body *body) const;
+    virtual void WriteRadiation(HighFive::File &file, const std::string &path, Body *body) const;
 
     /// Write the response amplitude operators
-    /// \param HDF5_file file to export the hydrodynamic database
+    /// \param file file to export the hydrodynamic database
     /// \param path path to the components in the file
     /// \param body body containing the components
-    virtual void WriteRAO(HighFive::File &HDF5_file, const std::string &path, Body *body) const;
+    virtual void WriteRAO(HighFive::File &file, const std::string &path, Body *body) const;
 
-    virtual void WriteWaveDrift(HighFive::File &HDF5_file) const;
+    /// Write the wave drift data
+    /// \param file file to export the hydrodynamic database
+    virtual void WriteWaveDrift(HighFive::File &file) const;
 
   };
 
+  /// Export the hydrodynamic database given, in a .hdb5 file format
+  /// \param filename name of the file to export the hydrodynamic database
+  /// \param hdb hydrodynamic database containing the data
   void export_HDB(const std::string &filename, HydrodynamicDataBase *hdb);
 
 }
