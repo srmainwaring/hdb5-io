@@ -18,7 +18,9 @@ int main() {
 //  HDB.GetBody(0)->VisualizeMesh();
 //#endif
 
-  HDB->Export_HDF5("out.hdb5");
+//  HDB->Export_HDF5("out.hdb5");
+
+  export_HDB("out.hdb5", HDB.get());
 
   return 0;
 }

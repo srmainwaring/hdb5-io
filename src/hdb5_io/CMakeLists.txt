@@ -3,11 +3,11 @@
 set(HDB5IO_SRC_FILES
         HydrodynamicDataBase.cpp
         Body.cpp
-        Discretization1D.cpp
         Mask.cpp
         Mesh.cpp
         WaveDrift.cpp
         io/HDBReader.cpp
+        io/HDBWriter.cpp
         )
 
 

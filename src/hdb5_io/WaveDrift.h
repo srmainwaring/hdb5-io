@@ -6,9 +6,9 @@
 #define HDB5_IO_WAVEDRIFT_H
 
 #include <memory>
-#include "Discretization1D.h"
 #include "MathUtils/LookupTable2D.h"
 #include "MathUtils/Matrix.h"
+#include "MathUtils/VectorN.h"
 
 namespace HDB5_io {
 

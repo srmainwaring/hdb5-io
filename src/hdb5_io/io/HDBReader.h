@@ -5,7 +5,7 @@
 #ifndef HDB5_IO_HDBREADER_H
 #define HDB5_IO_HDBREADER_H
 
-#include <memory>
+#include <string>
 #include <Eigen/Dense>
 
 #include "highfive/H5Group.hpp"

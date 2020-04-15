@@ -7,11 +7,11 @@
 
 #include "HydrodynamicDataBase.h"
 #include "Body.h"
-#include "Discretization1D.h"
 #include "Mask.h"
 #include "Mesh.h"
 #include "WaveDrift.h"
 
 #include "io/HDBReader.h"
+#include "io/HDBWriter.h"
 
 #endif //HDB5_IO_HDB5_IO_H

@@ -7,11 +7,11 @@
 
 #include <iostream>
 #include <memory>
-#include "Discretization1D.h"
 #include "Body.h"
 #include "WaveDrift.h"
 
 #include "MathUtils/Vector3d.h"
+#include "MathUtils/VectorN.h"
 #include "highfive/H5Group.hpp"
 
 namespace HDB5_io {
@@ -110,6 +110,8 @@ namespace HDB5_io {
     void SetWaveDrift(const std::shared_ptr<WaveDrift> &wavedrift) {
       m_waveDrift = wavedrift;
     }
+
+    WaveDrift* GetWaveDrift() const {return m_waveDrift.get();}
 
 //    std::shared_ptr<WaveDrift> GetWaveDrift() const;
 
