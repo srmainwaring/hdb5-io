@@ -5,11 +5,11 @@
 #ifndef HDB5_IO_HDB5_IO_H
 #define HDB5_IO_HDB5_IO_H
 
-#include "HydrodynamicDataBase.h"
-#include "Body.h"
-#include "Mask.h"
-#include "Mesh.h"
-#include "WaveDrift.h"
+#include "hdb5_io/containers/HydrodynamicDataBase.h"
+#include "hdb5_io/containers/Body.h"
+#include "hdb5_io/containers/Mask.h"
+#include "hdb5_io/containers/Mesh.h"
+#include "hdb5_io/containers/WaveDrift.h"
 
 #include "io/HDBReader.h"
 #include "io/HDBWriter.h"

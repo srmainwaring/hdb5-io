@@ -3,11 +3,13 @@
 //
 
 #include <Eigen/Dense>
-
-#include "HDBWriter.h"
 #include <highfive/H5Easy.hpp>
 
-#include "../HydrodynamicDataBase.h"
+#include "HDBWriter.h"
+
+#include "hdb5_io/containers/HydrodynamicDataBase.h"
+#include "hdb5_io/containers/Body.h"
+#include "hdb5_io/containers/WaveDrift.h"
 
 #include "MathUtils/VectorN.h"
 #include "MathUtils/Vector3d.h"

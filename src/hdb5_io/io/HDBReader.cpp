@@ -4,8 +4,9 @@
 
 #include "HDBReader.h"
 
-#include "../HydrodynamicDataBase.h"
-#include "../Body.h"
+#include "hdb5_io/containers/HydrodynamicDataBase.h"
+#include "hdb5_io/containers/Body.h"
+#include "hdb5_io/containers/WaveDrift.h"
 
 #include <highfive/H5File.hpp>
 #include <highfive/H5Easy.hpp>

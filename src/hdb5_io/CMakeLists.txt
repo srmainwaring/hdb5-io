@@ -1,11 +1,11 @@
 
 # TODO : ajouter les fichiers source cpp dans la variable suivante :
 set(HDB5IO_SRC_FILES
-        HydrodynamicDataBase.cpp
-        Body.cpp
-        Mask.cpp
-        Mesh.cpp
-        WaveDrift.cpp
+        containers/HydrodynamicDataBase.cpp
+        containers/Body.cpp
+        containers/Mask.cpp
+        containers/Mesh.cpp
+        containers/WaveDrift.cpp
         io/HDBReader.cpp
         io/HDBWriter.cpp
         )

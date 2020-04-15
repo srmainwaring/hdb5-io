@@ -8,21 +8,22 @@
 #include <string>
 #include <Eigen/Dense>
 
-#include "highfive/H5Group.hpp"
+#include <highfive/H5Group.hpp>
 
 namespace HDB5_io {
 
   // Forward Declaration
   class HydrodynamicDataBase;
+
   class Body;
 
   class HDBReader {
 
    public:
 
-    explicit HDBReader(HydrodynamicDataBase* hdb) : m_hdb(hdb) {}
+    explicit HDBReader(HydrodynamicDataBase *hdb) : m_hdb(hdb) {}
 
-    virtual void Read(const std::string& filename);
+    virtual void Read(const std::string &filename);
 
    protected:
 
@@ -32,11 +33,11 @@ namespace HDB5_io {
 
 //    double m_version;
 
-    HydrodynamicDataBase* m_hdb;
+    HydrodynamicDataBase *m_hdb;
 
     virtual void ReadHDBBasics(const HighFive::File &HDF5_file);
 
-    virtual Body* ReadBodyBasics(const HighFive::File &HDF5_file, const std::string &path);
+    virtual Body *ReadBodyBasics(const HighFive::File &HDF5_file, const std::string &path);
 
     virtual void ReadDiscretizations(const HighFive::File &file) = 0;
 
@@ -45,7 +46,8 @@ namespace HDB5_io {
     /// \param HDF5_file file containing the hydrodynamic database
     /// \param path path to the components in the file
     /// \param body body to which store the components
-    virtual void ReadExcitation(excitationType type, const HighFive::File &HDF5_file, const std::string &path, Body *body);
+    virtual void
+    ReadExcitation(excitationType type, const HighFive::File &HDF5_file, const std::string &path, Body *body);
 
     /// Read the radiation components
     /// \param HDF5_file file containing the hydrodynamic database
@@ -77,16 +79,14 @@ namespace HDB5_io {
 
   };
 
-  std::shared_ptr<HydrodynamicDataBase> import_HDB(const std::string& filename);
-
-
+  std::shared_ptr<HydrodynamicDataBase> import_HDB(const std::string &filename);
 
 
   class HDBReader_v2 : public HDBReader {
 
    public:
 
-    explicit HDBReader_v2(HydrodynamicDataBase* hdb) : HDBReader(hdb) {}
+    explicit HDBReader_v2(HydrodynamicDataBase *hdb) : HDBReader(hdb) {}
 
    protected:
 
@@ -96,12 +96,11 @@ namespace HDB5_io {
   };
 
 
-
   class HDBReader_v3 : public HDBReader {
 
    public:
 
-    explicit HDBReader_v3(HydrodynamicDataBase* hdb) : HDBReader(hdb) {}
+    explicit HDBReader_v3(HydrodynamicDataBase *hdb) : HDBReader(hdb) {}
 
    protected:
 
