@@ -19,8 +19,6 @@ namespace HDB5_io {
   // Forward declaration
   class HydrodynamicDataBase;
 
-  class Discretization1D;
-
   class WaveDrift;
 
   /**
@@ -216,7 +214,7 @@ namespace HDB5_io {
     HDBinterpolator *GetHDBInterpolator(interpolatedData type);
 
     Eigen::MatrixXd
-    GetHDBInterpolatedData(interpolatedData type, Body *BodyMotion, unsigned int idof, Discretization1D frequencies);
+    GetHDBInterpolatedData(interpolatedData type, Body *BodyMotion, unsigned int idof, mathutils::VectorN<double> frequencies);
 
 
     std::shared_ptr<WaveDrift> GetWaveDrift() const;
@@ -234,6 +232,7 @@ namespace HDB5_io {
 
     std::shared_ptr<Mesh> m_mesh;                  ///< mesh of the body
 
+    // TODO :replace these std::vector with 2D-interpolator, or at least unordered_map
     std::vector<Eigen::MatrixXcd> m_excitation;    ///< Complex coefficient of the excitation force
     std::vector<Eigen::MatrixXcd> m_froudeKrylov;  ///< Complex coefficient of the froude-krylov force
     std::vector<Eigen::MatrixXcd> m_diffraction;   ///< Complex coefficient of the diffraction force

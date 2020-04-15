@@ -22,12 +22,14 @@ namespace HDB5_io {
     return {m_symmetry_X, m_symmetry_Y};
   }
 
-  void WaveDrift::SetFrequencies(const std::vector<double> &frequencies) {
-    m_data->SetX(frequencies);
+  void WaveDrift::SetFrequencies(const mathutils::VectorN<double> &frequencies) {
+    std::vector<double> freq(&frequencies(0,0), frequencies.data()+frequencies.size());
+    m_data->SetX(freq);
   }
 
-  void WaveDrift::SetWaveDirections(const std::vector<double> &angles) {
-    m_data->SetY(angles);
+  void WaveDrift::SetWaveDirections(const mathutils::VectorN<double> &angles) {
+    std::vector<double> ang(&angles(0,0), angles.data()+angles.size());
+    m_data->SetY(ang);
   }
 
   void WaveDrift::AddData(const std::string &name, const std::vector<double> &coeffs) {

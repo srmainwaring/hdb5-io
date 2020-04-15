@@ -41,23 +41,23 @@ namespace HDB5_io {
   }
 
   void Body::SetDiffraction(unsigned int iangle, const Eigen::MatrixXcd &diffractionMatrix) {
-    assert(iangle < m_HDB->GetWaveDirectionDiscretization().GetNbSample());
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
     assert(diffractionMatrix.rows() == 6);
-    assert(diffractionMatrix.cols() == m_HDB->GetFrequencyDiscretization().GetNbSample());
+    assert(diffractionMatrix.cols() == m_HDB->GetFrequencyDiscretization().size());
     m_diffraction[iangle] = diffractionMatrix;
   }
 
   void Body::SetFroudeKrylov(unsigned int iangle, const Eigen::MatrixXcd &froudeKrylovMatrix) {
-    assert(iangle < m_HDB->GetWaveDirectionDiscretization().GetNbSample());
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
     assert(froudeKrylovMatrix.rows() == 6);
-    assert(froudeKrylovMatrix.cols() == m_HDB->GetFrequencyDiscretization().GetNbSample());
+    assert(froudeKrylovMatrix.cols() == m_HDB->GetFrequencyDiscretization().size());
     m_froudeKrylov[iangle] = froudeKrylovMatrix;
   }
 
   void Body::SetExcitation(unsigned int iangle, const Eigen::MatrixXcd &excitationMatrix) {
-    assert(iangle < m_HDB->GetWaveDirectionDiscretization().GetNbSample());
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
     assert(excitationMatrix.rows() == 6);
-    assert(excitationMatrix.cols() == m_HDB->GetFrequencyDiscretization().GetNbSample());
+    assert(excitationMatrix.cols() == m_HDB->GetFrequencyDiscretization().size());
     m_excitation[iangle] = excitationMatrix;
   }
 
@@ -91,9 +91,9 @@ namespace HDB5_io {
   }
 
   void Body::SetRAO(unsigned int iangle, const Eigen::MatrixXcd &RAO) {
-    assert(iangle < m_HDB->GetWaveDirectionDiscretization().GetNbSample());
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
     assert(RAO.rows() == 6);
-    assert(RAO.cols() == m_HDB->GetFrequencyDiscretization().GetNbSample());
+    assert(RAO.cols() == m_HDB->GetFrequencyDiscretization().size());
     m_RAO[iangle] = RAO;
     m_isRAO = true;
   }
@@ -110,16 +110,34 @@ namespace HDB5_io {
         auto table = std::make_shared<mathutils::LookupTable1D<double, mathutils::Vector6d<double>>>();
 
         switch (type) {
-          case IRF_K:
-          case IRF_KU:
-            assert(data.cols() == m_HDB->GetTimeDiscretization().GetNbSample());
-            table->SetX(m_HDB->GetTimeDiscretization().GetVector());
+          case IRF_K: {
+            auto EigenTime = m_HDB->GetTimeDiscretization();
+            assert(data.cols() == EigenTime.size());
+            std::vector<double> time(&EigenTime(0,0), EigenTime.data()+EigenTime.size());
+            table->SetX(time);
             break;
-          case ADDED_MASS:
-          case RADIATION_DAMPING:
-            assert(data.cols() == m_HDB->GetFrequencyDiscretization().GetNbSample());
-            table->SetX(m_HDB->GetFrequencyDiscretization().GetVector());
+          }
+          case IRF_KU: {
+            auto EigenTime = m_HDB->GetTimeDiscretization();
+            assert(data.cols() == EigenTime.size());
+            std::vector<double> time(&EigenTime(0,0), EigenTime.data()+EigenTime.size());
+            table->SetX(time);
             break;
+          }
+          case ADDED_MASS: {
+            assert(data.cols() == m_HDB->GetFrequencyDiscretization().size());
+            auto EigenFreq = m_HDB->GetFrequencyDiscretization();
+            std::vector<double> freq(&EigenFreq(0, 0), EigenFreq.data() + EigenFreq.size());
+            table->SetX(freq);
+            break;
+          }
+          case RADIATION_DAMPING: {
+            assert(data.cols() == m_HDB->GetFrequencyDiscretization().size());
+            auto EigenFreq = m_HDB->GetFrequencyDiscretization();
+            std::vector<double> freq(&EigenFreq(0, 0), EigenFreq.data() + EigenFreq.size());
+            table->SetX(freq);
+            break;
+          }
         }
 
         std::vector<mathutils::Vector6d<double>> vdata;
@@ -271,11 +289,11 @@ namespace HDB5_io {
 
   Eigen::MatrixXd
   Body::GetHDBInterpolatedData(interpolatedData type, Body *BodyMotion, unsigned int idof,
-                               Discretization1D frequencies) {
+                               mathutils::VectorN<double> frequencies) {
 
-    Eigen::MatrixXd data(6, frequencies.GetNbSample());
-    for (unsigned int i = 0; i < frequencies.GetNbSample(); i++) {
-      data.col(i) = GetHDBInterpolator(type)->at(idof)->Eval(BodyMotion->GetName(), frequencies.GetVector()[i]);
+    Eigen::MatrixXd data(6, frequencies.size());
+    for (unsigned int i = 0; i < frequencies.size(); i++) {
+      data.col(i) = GetHDBInterpolator(type)->at(idof)->Eval(BodyMotion->GetName(), frequencies(i));
     }
     return data;
 
@@ -286,8 +304,8 @@ namespace HDB5_io {
 
     // This subroutine allocates the arrays for the hdb.
 
-    auto nDirections = m_HDB->GetWaveDirectionDiscretization().GetNbSample();
-    auto nFrequencies = m_HDB->GetFrequencyDiscretization().GetNbSample();
+    auto nDirections = m_HDB->GetWaveDirectionDiscretization().size();
+    auto nFrequencies = m_HDB->GetFrequencyDiscretization().size();
     m_diffraction.reserve((unsigned long) nDirections);
     m_froudeKrylov.reserve((unsigned long) nDirections);
     m_excitation.reserve((unsigned long) nDirections);
@@ -299,6 +317,7 @@ namespace HDB5_io {
       m_diffraction.push_back(mat);
       m_froudeKrylov.push_back(mat);
       m_excitation.push_back(mat);
+      m_RAO.push_back(mat);
     }
 
     /// --> Allocating arrays for radiation

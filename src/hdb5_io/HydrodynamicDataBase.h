@@ -78,29 +78,29 @@ namespace HDB5_io {
 
     int GetNbBodies() const;
 
-    void SetFrequencyDiscretization(double wmin, double wmax, unsigned int nw);
-
-    void SetWaveDirectionDiscretization(double tmin, double tmax, unsigned int nt);
-
-    void SetTimeDiscretization(double tmin, double tmax, unsigned int nt);
-
-    Discretization1D GetFrequencyDiscretization() const;
-
-    Discretization1D GetWaveDirectionDiscretization() const;
-
-    Discretization1D GetTimeDiscretization() const;
-
-//    void SetFrequencyDiscretization(const mathutils::VectorN<double> &frequency) {m_frequencies = frequency;}
+//    void SetFrequencyDiscretization(double wmin, double wmax, unsigned int nw);
 //
-//    void SetWaveDirectionDiscretization(const mathutils::VectorN<double> &directions) {m_waveDirections = directions;}
+//    void SetWaveDirectionDiscretization(double tmin, double tmax, unsigned int nt);
 //
-//    void SetTimeDiscretization(const mathutils::VectorN<double> &time) {m_time = time;}
+//    void SetTimeDiscretization(double tmin, double tmax, unsigned int nt);
 //
-//    mathutils::VectorN<double> GetFrequencyDiscretization() const {return m_frequencies;}
+//    Discretization1D GetFrequencyDiscretization() const;
 //
-//    mathutils::VectorN<double> GetWaveDirectionDiscretization() const {return m_waveDirections;}
+//    Discretization1D GetWaveDirectionDiscretization() const;
 //
-//    mathutils::VectorN<double> GetTimeDiscretization() const {return m_time;}
+//    Discretization1D GetTimeDiscretization() const;
+
+    void SetFrequencyDiscretization(const mathutils::VectorN<double> &frequency) {m_frequencyDiscretization = frequency;}
+
+    void SetWaveDirectionDiscretization(const mathutils::VectorN<double> &directions) {m_waveDirectionDiscretization = directions;}
+
+    void SetTimeDiscretization(const mathutils::VectorN<double> &time) {m_timeDiscretization = time;}
+
+    mathutils::VectorN<double> GetFrequencyDiscretization() const {return m_frequencyDiscretization;}
+
+    mathutils::VectorN<double> GetWaveDirectionDiscretization() const {return m_waveDirectionDiscretization;}
+
+    mathutils::VectorN<double> GetTimeDiscretization() const {return m_timeDiscretization;}
 
 
 
@@ -132,13 +132,9 @@ namespace HDB5_io {
     int m_nbody;                      ///< Number of bodies in interaction considered in the HDB
     std::vector<std::shared_ptr<Body>> m_bodies;      ///< List of BEM body database
 
-    Discretization1D m_frequencyDiscretization;       ///< Wave frequency discretization
-    Discretization1D m_waveDirectionDiscretization;   ///< Wave direction discretization
-    Discretization1D m_timeDiscretization;            ///< Time samples
-
-    mathutils::VectorN<double> m_frequencies;
-    mathutils::VectorN<double> m_time;
-    mathutils::VectorN<double> m_waveDirections;
+    mathutils::VectorN<double> m_frequencyDiscretization;
+    mathutils::VectorN<double> m_timeDiscretization;
+    mathutils::VectorN<double> m_waveDirectionDiscretization;
 
     std::shared_ptr<WaveDrift> m_waveDrift;            ///< wave drift components
 

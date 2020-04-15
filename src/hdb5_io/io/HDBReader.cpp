@@ -95,7 +95,7 @@ namespace HDB5_io {
                             Body *body) {
     auto forceMask = body->GetForceMask();
 
-    for (unsigned int iwaveDir = 0; iwaveDir < m_hdb->GetWaveDirectionDiscretization().GetNbSample(); ++iwaveDir) {
+    for (unsigned int iwaveDir = 0; iwaveDir < m_hdb->GetWaveDirectionDiscretization().size(); ++iwaveDir) {
 
       auto WaveDirPath = path + "/Angle_" + std::to_string(iwaveDir);
 
@@ -173,7 +173,7 @@ namespace HDB5_io {
   void HDBReader::ReadRAO(const HighFive::File &HDF5_file, const std::string &path, Body *body) {
     auto forceMask = body->GetForceMask();
 
-    for (unsigned int iwaveDir = 0; iwaveDir < m_hdb->GetWaveDirectionDiscretization().GetNbSample(); ++iwaveDir) {
+    for (unsigned int iwaveDir = 0; iwaveDir < m_hdb->GetWaveDirectionDiscretization().size(); ++iwaveDir) {
 
       auto WaveDirPath = path + "/Angle_" + std::to_string(iwaveDir);
 
@@ -264,11 +264,12 @@ namespace HDB5_io {
 
     auto waveDrift = std::make_shared<WaveDrift>();
 
-    auto frequency = H5Easy::load<Eigen::VectorXd>(HDF5_file, "WaveDrift/freq");
-    auto waveDirection = m_hdb->GetWaveDirectionDiscretization().GetVector();
+//    auto frequency = H5Easy::load<Eigen::VectorXd>(HDF5_file, "WaveDrift/freq");
+    auto frequency = m_hdb->GetFrequencyDiscretization();
+    auto waveDirection = m_hdb->GetWaveDirectionDiscretization();
 //    assert(frequency == GetFrequencyDiscretization().GetVectorN());
 
-    waveDrift->SetFrequencies(m_hdb->GetFrequencyDiscretization().GetVector());
+    waveDrift->SetFrequencies(m_hdb->GetFrequencyDiscretization());
     waveDrift->SetWaveDirections(waveDirection);
 
     auto sym_X = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_x");
@@ -331,29 +332,29 @@ namespace HDB5_io {
     disc.getDataSet("MinFrequency").read(min);
     disc.getDataSet("MaxFrequency").read(max);
     disc.getDataSet("NbFrequencies").read(nb);
-    m_hdb->SetFrequencyDiscretization(min, max, nb);
+    m_hdb->SetFrequencyDiscretization(mathutils::VectorN<double>::LinSpaced(nb, min, max));
 
     disc = file.getGroup("Discretizations").getGroup("Time");
     disc.getDataSet("TimeStep").read(min);
     disc.getDataSet("FinalTime").read(max);
     disc.getDataSet("NbTimeSample").read(nb);
 //    assert(abs(max/double(nb) - min) < 1E-5);
-    m_hdb->SetTimeDiscretization(0., max, nb);
+    m_hdb->SetTimeDiscretization(mathutils::VectorN<double>::LinSpaced(nb, 0., max));
 
     disc = file.getGroup("Discretizations").getGroup("WaveDirections");
     disc.getDataSet("MinAngle").read(min);
     disc.getDataSet("MaxAngle").read(max);
     disc.getDataSet("NbWaveDirections").read(nb);
-    m_hdb->SetWaveDirectionDiscretization(min, max, nb);
+    m_hdb->SetWaveDirectionDiscretization(mathutils::VectorN<double>::LinSpaced(nb, min, max));
   }
 
 
 
   void HDBReader_v3::ReadDiscretizations(const HighFive::File &file) {
 
-//    m_hdb->SetFrequencyDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/Frequency"));
-//    m_hdb->SetTimeDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/Time"));
-//    m_hdb->SetWaveDirectionDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/WaveDirection"));
+    m_hdb->SetFrequencyDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/Frequency"));
+    m_hdb->SetTimeDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/Time"));
+    m_hdb->SetWaveDirectionDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/WaveDirection"));
 
   }
 
