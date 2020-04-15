@@ -189,6 +189,10 @@ namespace HDB5_io {
     m_hydrostaticStiffnessMatrix = hydrostaticStiffnessMatrix.block<3, 3>(2, 2);
   }
 
+  void Body::SetInertia(const mathutils::Matrix66<double> &inertiaMatrix) {
+    m_inertia = inertiaMatrix;
+  }
+
   void
   Body::LoadMesh(const std::vector<mathutils::Vector3d<double>> &vertices, const std::vector<Eigen::VectorXi> &faces) {
     m_mesh->Load(vertices, faces);
@@ -216,6 +220,10 @@ namespace HDB5_io {
 
   mathutils::Matrix33<double> Body::GetHydrostaticStiffnessMatrix() const {
     return m_hydrostaticStiffnessMatrix;
+  }
+
+  mathutils::Matrix66<double> Body::GetInertiaMatrix() const {
+    return m_inertia;
   }
 
   Eigen::MatrixXcd Body::GetDiffraction(const unsigned int iangle) const {

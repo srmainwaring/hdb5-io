@@ -111,6 +111,8 @@ namespace HDB5_io {
     /// \param hydrostaticStiffnessMatrix Hydrostatic stiffness matrix
     void SetStiffnessMatrix(const mathutils::Matrix66<double> &hydrostaticStiffnessMatrix);
 
+    void SetInertia(const mathutils::Matrix66<double> & inertiaMatrix);
+
     /// Load the mesh, from vertices and connectivity
     /// \param vertices vertices container
     /// \param faces connectivity of all faces
@@ -148,6 +150,8 @@ namespace HDB5_io {
     /// Get the hydrostatic stiffness of this body
     /// \return 3x3 matrix containing the hydrostatic components (heave, roll, pitch)
     mathutils::Matrix33<double> GetHydrostaticStiffnessMatrix() const;
+
+    mathutils::Matrix66<double> GetInertiaMatrix() const;
 
     /// Get the diffraction components for this body
     /// \param iangle index of the angle
@@ -222,10 +226,10 @@ namespace HDB5_io {
 
    private:
 
-    HydrodynamicDataBase *m_HDB;                   ///< HDB from which BEM data are extracted
+    HydrodynamicDataBase *m_HDB;                   ///< HDB containing this data container
     unsigned int m_id;                             ///< ID of the BEM Body
     std::string m_name;                            ///< Name of the body
-    mathutils::Vector3d<double> m_position;        ///< Position of the body from HDB
+    mathutils::Vector3d<double> m_position;        ///< Position of the body COG
 
     Mask m_forceMask;                              ///< Mask applied on the force
     Mask m_motionMask;                             ///< Mask applied on the DOF
@@ -241,6 +245,7 @@ namespace HDB5_io {
     std::vector<Eigen::MatrixXcd> m_RAO;           ///< response amplitude operators
 
     mathutils::Matrix33<double> m_hydrostaticStiffnessMatrix;   ///< Hydrostatic matrix
+    mathutils::Matrix66<double> m_inertia;         ///< Inertia matrix
 
     std::unordered_map<Body *, mathutils::Matrix66<bool>> m_radiationMask;          ///< Radiation mask
     std::unordered_map<Body *, mathutils::Matrix66<double>> m_infiniteAddedMass;    ///< Infinite added mass for each body

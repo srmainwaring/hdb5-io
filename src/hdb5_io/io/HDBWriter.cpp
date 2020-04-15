@@ -128,8 +128,21 @@ namespace HDB5_io {
                                                                       "Center of gravity of the body in the absolute frame");
 
     bodyGroup.createGroup("Mask");
-//    H5Easy::dump(file, path + "/Mask/ForceMask", static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetForceMask().GetMask()));
-//    H5Easy::dump(file, path + "/Mask/MotionMask", static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetMotionMask().GetMask()));
+    H5Easy::dump(file, path + "/Mask/ForceMask", static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetForceMask().GetMask()));
+    H5Easy::dump(file, path + "/Mask/MotionMask", static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetMotionMask().GetMask()));
+
+    bodyGroup.createGroup("Inertia");
+    H5Easy::dump(file, path + "/Inertia/InertiaMatrix", static_cast<Eigen::Matrix<double, 6, 6>> (body->GetInertiaMatrix()));
+    bodyGroup.getDataSet("Inertia/InertiaMatrix").createAttribute<std::string>("Description",
+                                                                               "Inertia matrix.");
+
+    bodyGroup.createGroup("Hydrostatic");
+    Eigen::Matrix<double, 6, 6> stiffnessMatrix;
+    stiffnessMatrix.setZero();
+    stiffnessMatrix.block<3,3>(2,2) = body->GetHydrostaticStiffnessMatrix();
+    H5Easy::dump(file, path + "/Hydrostatic/StiffnessMatrix", stiffnessMatrix);
+    bodyGroup.getDataSet("Hydrostatic/StiffnessMatrix").createAttribute<std::string>("Description",
+                                                                               "Hydrostatic stiffness matrix.");
 
   }
 

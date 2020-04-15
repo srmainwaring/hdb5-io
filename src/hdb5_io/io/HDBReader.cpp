@@ -75,15 +75,15 @@ namespace HDB5_io {
     body->SetForceMask(H5Easy::load<Eigen::Matrix<int, 6, 1>>(file, path + "/Mask/ForceMask"));
     body->SetMotionMask(H5Easy::load<Eigen::Matrix<int, 6, 1>>(file, path + "/Mask/MotionMask"));
 
-    if (file.exist(path + "Hydrostatic")) {
+    if (file.exist(path + "/Hydrostatic")) {
       mathutils::Matrix66<double> stiffnessMatrix ;
       stiffnessMatrix = H5Easy::load<Eigen::Matrix<double, 6, 6>>(file, path + "/Hydrostatic/StiffnessMatrix");
       body->SetStiffnessMatrix(stiffnessMatrix);
     }
-    if (file.exist(path + "Inertia")) {
+    if (file.exist(path + "/Inertia")) {
       mathutils::Matrix66<double> inertiaMatrix ;
       inertiaMatrix = H5Easy::load<Eigen::Matrix<double, 6, 6>>(file, path + "/Inertia/InertiaMatrix");
-      body->SetStiffnessMatrix(inertiaMatrix);
+      body->SetInertia(inertiaMatrix);
     }
 
     return body;
