@@ -202,7 +202,7 @@ namespace HDB5_io {
     m_mesh->Load(vertices, faces);
   }
 
-  void Body::SetModalCoefficients(Body *BodyMotion, std::vector<PoleResidue> modalCoefficients) {
+  void Body::AddModalCoefficients(Body *BodyMotion, std::vector<PoleResidue> modalCoefficients) {
     if (m_modalCoefficients.count(BodyMotion)>0) {
       auto coeff = m_modalCoefficients.find(BodyMotion);
       coeff->second.emplace_back(modalCoefficients);

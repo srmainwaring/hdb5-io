@@ -323,6 +323,7 @@ namespace HDB5_io {
       }
 
       // Writing the modal coefficients
+      //TODO: add description, units, etc.
       if (body->HasModal(bodyMotion)) {
         auto modalGroup = bodyMotionGroup.createGroup("Modal");
         modalGroup.createAttribute("Description", "Modal coefficients due to the velocity of body " +

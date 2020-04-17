@@ -420,7 +420,7 @@ namespace HDB5_io {
             modalCoeff.emplace_back(pair);
 
           }
-          body->SetModalCoefficients(bodyMotion, modalCoeff);
+          body->AddModalCoefficients(bodyMotion, modalCoeff);
 
         }
 

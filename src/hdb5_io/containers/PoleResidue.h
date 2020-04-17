@@ -12,6 +12,12 @@
 
 namespace HDB5_io {
 
+
+  /**
+  * \class PoleResiduePair
+  * \brief Class for storing the paired modal coefficients : pole and residue
+   * Templated depending if the pole and residue are real or complex.
+  */
   template<typename T>
   class PoleResiduePair {
 
@@ -34,6 +40,10 @@ namespace HDB5_io {
   using RealPoleResiduePair = PoleResiduePair<double>;
   using CCPoleResiduePair = PoleResiduePair<std::complex<double>>;
 
+  /**
+  * \class PoleResidue
+  * \brief Class for storing the modal coefficients : poles and residues (real and complex ones)
+  */
   class PoleResidue {
 
    public:
@@ -58,14 +68,18 @@ namespace HDB5_io {
 
     std::vector<double> GetRealResidues() const;
 
+    /// Get the complex poles in a matrix form, where the real part is in the first row and the imaginary part in the
+    /// second row. For writing purpose mostly
     Eigen::MatrixXd GetComplexPoles() const;
 
+    /// Get the complex residues in a matrix form, where the real part is in the first row and the imaginary part in the
+    /// second row. For writing purpose mostly
     Eigen::MatrixXd GetComplexResidues() const;
 
    private:
 
-    std::vector<RealPoleResiduePair> m_real_pairs;
-    std::vector<CCPoleResiduePair> m_cc_pairs;
+    std::vector<RealPoleResiduePair> m_real_pairs;  ///< container of the real poles and residues
+    std::vector<CCPoleResiduePair> m_cc_pairs;      ///< container of the complex poles and residues
 
   };
 

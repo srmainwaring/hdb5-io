@@ -44,7 +44,7 @@ int main() {
       modalCoeff.emplace_back(pair);
 
     }
-    HDB->GetBody(0)->SetModalCoefficients(HDB->GetBody(0), modalCoeff);
+    HDB->GetBody(0)->AddModalCoefficients(HDB->GetBody(0), modalCoeff);
   }
 
   export_HDB("out.hdb5", HDB.get());
