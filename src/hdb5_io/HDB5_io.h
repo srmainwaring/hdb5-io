@@ -10,6 +10,7 @@
 #include "hdb5_io/containers/Mask.h"
 #include "hdb5_io/containers/Mesh.h"
 #include "hdb5_io/containers/WaveDrift.h"
+#include "hdb5_io/containers/PoleResidue.h"
 
 #include "io/HDBReader.h"
 #include "io/HDBWriter.h"

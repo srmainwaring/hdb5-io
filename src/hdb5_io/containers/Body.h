@@ -12,6 +12,7 @@
 
 #include "Mask.h"
 #include "Mesh.h"
+#include "PoleResidue.h"
 
 namespace HDB5_io {
 
@@ -84,6 +85,11 @@ namespace HDB5_io {
     /// \param CMInf Infinite added mass matrix
     void SetInfiniteAddedMass(Body *BodyMotion, const mathutils::Matrix66<double> &CMInf);
 
+    /// Set the zero frequency added mass of the BEM body with respect to the motion of another BEM body
+    /// \param BodyMotion BEM body to which the motion is considered
+    /// \param CMInf zero frequency added mass matrix
+    void SetZeroFreqAddedMass(Body *BodyMotion, const mathutils::Matrix66<double> &CMZero);
+
     /// Set the radiation mask of the BEM body with respect to the motion of another BEM body
     /// \param BodyMotion BEM body to which the motion is considered
     /// \param mask radiation mask of the BEM body with respect to the motion of another BEM body
@@ -117,9 +123,19 @@ namespace HDB5_io {
     /// \param faces connectivity of all faces
     void LoadMesh(const std::vector<mathutils::Vector3d<double>> &vertices, const std::vector<Eigen::VectorXi> &faces);
 
+    void SetModalCoefficients(Body *BodyMotion, std::vector<PoleResidue> modalCoefficients);
+
     //
     // Getters
     //
+
+    /// Check if the RAO are calculated
+    /// \return true if RAO were calculated
+    bool HasRAO() const;
+
+    bool HasModal(Body *BodyMotion) const;
+
+    bool HasZeroFreqAddedMass(Body *BodyMotion) const;
 
     /// Return the position of the body as stored in the HDB
     /// \return position of the body
@@ -190,14 +206,15 @@ namespace HDB5_io {
     /// \return 6x6 matrix added mass
     mathutils::Matrix66<double> GetInfiniteAddedMass(Body *BodyMotion) const;
 
+    /// Get the zero frequency added mass, resulting from a motion of body BodyMotion
+    /// \param BodyMotion body which motion create added mass on this body
+    /// \return 6x6 matrix added mass
+    mathutils::Matrix66<double> GetZeroFreqAddedMass(Body *BodyMotion) const;
+
     /// Get the radiation mask, between this body and BodyMotion body
     /// \param BodyMotion body
     /// \return radiation mask
     mathutils::Matrix66<bool> GetRadiationMask(Body *BodyMotion) const;
-
-    /// Check if the RAO are calculated
-    /// \return true if RAO were calculated
-    bool HasRAO() const;
 
     /// Get the response amplitude operator for this body
     /// \param iangle index of the angle
@@ -229,6 +246,10 @@ namespace HDB5_io {
     GetHDBInterpolatedData(interpolatedData type, Body *BodyMotion, unsigned int idof,
                            mathutils::VectorN<double> frequencies);
 
+    std::vector<PoleResidue> GetModalCoefficients(Body *BodyMotion, int idof);
+
+    PoleResidue GetModalCoefficients(Body *BodyMotion, int idof, int iforce);
+
    private:
 
     HydrodynamicDataBase *m_HDB;                   ///< HDB containing this data container
@@ -254,6 +275,9 @@ namespace HDB5_io {
 
     std::unordered_map<Body *, mathutils::Matrix66<bool>> m_radiationMask;          ///< Radiation mask
     std::unordered_map<Body *, mathutils::Matrix66<double>> m_infiniteAddedMass;    ///< Infinite added mass for each body
+    std::unordered_map<Body *, mathutils::Matrix66<double>> m_zeroFreqAddedMass;    ///< Zero frequency added mass for each body
+
+    std::unordered_map<Body *, std::vector<std::vector<PoleResidue>>> m_modalCoefficients;       ///<
 
     std::shared_ptr<HDBinterpolator> m_interpK;                     ///< Impulse response function interpolator
     std::shared_ptr<HDBinterpolator> m_interpKu;                    ///< Impulse response function speed dependent interpolator

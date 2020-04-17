@@ -75,6 +75,10 @@ namespace HDB5_io {
     m_infiniteAddedMass[BodyMotion] = CMInf;
   }
 
+  void Body::SetZeroFreqAddedMass(Body *BodyMotion, const mathutils::Matrix66<double> &CMZero) {
+    m_zeroFreqAddedMass[BodyMotion] = CMZero;
+  }
+
 //  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const mathutils::Matrix66<bool> &mask){
 //    m_radiationMask[BodyMotion] = mask;
 //  }
@@ -198,9 +202,35 @@ namespace HDB5_io {
     m_mesh->Load(vertices, faces);
   }
 
+  void Body::SetModalCoefficients(Body *BodyMotion, std::vector<PoleResidue> modalCoefficients) {
+    if (m_modalCoefficients.count(BodyMotion)>0) {
+      auto coeff = m_modalCoefficients.find(BodyMotion);
+      coeff->second.emplace_back(modalCoefficients);
+    }else {
+      std::vector<std::vector<PoleResidue>> coefficients;
+      coefficients.emplace_back(modalCoefficients);
+      m_modalCoefficients[BodyMotion] = coefficients;
+//      auto paired = std::make_pair(BodyMotion, coefficients);
+//      m_modalCoefficients.insert(paired);
+    }
+
+  }
+
   //
   // Getters
   //
+
+  bool Body::HasRAO() const {
+    return m_isRAO;
+  }
+
+  bool Body::HasModal(Body *BodyMotion) const {
+    return m_modalCoefficients.count(BodyMotion) > 0;
+  }
+
+  bool Body::HasZeroFreqAddedMass(Body *BodyMotion) const {
+    return m_zeroFreqAddedMass.count(BodyMotion) > 0;
+  }
 
   mathutils::Vector3d<double> Body::GetPosition() const {
     return m_position;
@@ -263,16 +293,16 @@ namespace HDB5_io {
     return m_infiniteAddedMass.at(BodyMotion);
   }
 
+  mathutils::Matrix66<double> Body::GetZeroFreqAddedMass(HDB5_io::Body *BodyMotion) const {
+    return m_zeroFreqAddedMass.at(BodyMotion);
+  }
+
   mathutils::Matrix66<bool> Body::GetRadiationMask(Body *BodyMotion) const {
     return m_radiationMask.at(BodyMotion);
   }
 
   mathutils::Matrix66<double> Body::GetSelfInfiniteAddedMass() {
     return m_infiniteAddedMass[this];
-  }
-
-  bool Body::HasRAO() const {
-    return m_isRAO;
   }
 
   Eigen::MatrixXcd Body::GetRAO(const unsigned int iangle) const {
@@ -309,6 +339,14 @@ namespace HDB5_io {
     }
     return data;
 
+  }
+
+  std::vector<PoleResidue> Body::GetModalCoefficients(Body *BodyMotion, int idof) {
+    return m_modalCoefficients.at(BodyMotion)[idof];
+  }
+
+  PoleResidue Body::GetModalCoefficients(Body *BodyMotion, int idof, int iforce) {
+    return m_modalCoefficients.at(BodyMotion)[idof][iforce];
   }
 
 

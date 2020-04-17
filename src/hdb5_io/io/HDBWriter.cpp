@@ -10,6 +10,7 @@
 #include "hdb5_io/containers/HydrodynamicDataBase.h"
 #include "hdb5_io/containers/Body.h"
 #include "hdb5_io/containers/WaveDrift.h"
+#include "hdb5_io/containers/PoleResidue.h"
 
 namespace HDB5_io {
 
@@ -236,6 +237,18 @@ namespace HDB5_io {
                                         " from acceleration of body  " +
                                         std::to_string(body->GetID()) + ".");
 
+      // Writing the infinite added mass matrix for the body.
+      if (body->HasZeroFreqAddedMass(bodyMotion)) {
+        H5Easy::dump(HDF5_file, bodyMotionPath + "/ZeroFreqAddedMass",
+                     static_cast<Eigen::MatrixXd>(body->GetZeroFreqAddedMass(bodyMotion)));
+        auto ZeroFreqAddedMass = bodyMotionGroup.getDataSet("ZeroFreqAddedMass");
+        ZeroFreqAddedMass.createAttribute("Description",
+                                          "Zero frequency added mass matrix that modifies the apparent mass of body " +
+                                          std::to_string(bodyMotion->GetID()) +
+                                          " from acceleration of body  " +
+                                          std::to_string(body->GetID()) + ".");
+      }
+
       // Writing the radiation mask matrix for the body.
       H5Easy::dump(HDF5_file, bodyMotionPath + "/RadiationMask",
                    static_cast<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>(body->GetRadiationMask(
@@ -309,6 +322,67 @@ namespace HDB5_io {
         DOF.createAttribute("Description", "Impulse response functions KU");
       }
 
+      // Writing the modal coefficients
+      if (body->HasModal(bodyMotion)) {
+        auto modalGroup = bodyMotionGroup.createGroup("Modal");
+        modalGroup.createAttribute("Description", "Modal coefficients due to the velocity of body " +
+                                                  std::to_string(bodyMotion->GetID()) +
+                                                  " that radiates waves and generates forces on body " +
+                                                  std::to_string(body->GetID()) + ".");
+        for (unsigned int idof = 0; idof < 6; idof++) {
+          auto DOF = modalGroup.createGroup("DOF_" + std::to_string(idof));
+
+          for (unsigned int iforce = 0; iforce < 6; iforce++) {
+            auto force = DOF.createGroup("FORCE_" + std::to_string(iforce));
+            force.createGroup("ComplexPoles");
+            force.createGroup("ComplexResidues");
+
+            auto forcePath = bodyMotionPath + "/Modal/DOF_" + std::to_string(idof) + "/FORCE_" + std::to_string(iforce);
+
+            auto modalCoefficient = body->GetModalCoefficients(bodyMotion, idof, iforce);
+            auto pole = modalCoefficient.GetRealPoles();
+            auto residue = modalCoefficient.GetRealResidues();
+
+            H5Easy::dump(HDF5_file, forcePath + "/RealPoles", modalCoefficient.GetRealPoles());
+            H5Easy::dump(HDF5_file, forcePath + "/RealResidues", modalCoefficient.GetRealResidues());
+
+            auto coeff = static_cast<Eigen::VectorXd>(modalCoefficient.GetComplexPoles().row(0));
+            H5Easy::dump(HDF5_file, forcePath + "/ComplexPoles/RealCoeff", coeff);
+            coeff = static_cast<Eigen::VectorXd>(modalCoefficient.GetComplexPoles().row(1));
+            H5Easy::dump(HDF5_file, forcePath + "/ComplexPoles/ImagCoeff", coeff);
+            coeff = static_cast<Eigen::VectorXd>(modalCoefficient.GetComplexResidues().row(0));
+            H5Easy::dump(HDF5_file, forcePath + "/ComplexResidues/RealCoeff", coeff);
+            coeff = static_cast<Eigen::VectorXd>(modalCoefficient.GetComplexResidues().row(1));
+            H5Easy::dump(HDF5_file, forcePath + "/ComplexResidues/ImagCoeff", coeff);
+
+//            auto poleDataSet = force.createDataSet<std::vector<double>>("RealPoles", HighFive::DataSpace::From(pole));
+//            poleDataSet.write(pole);
+//            auto residueDataSet = force.createDataSet<std::vector<double>>("RealResidues",
+//                                                                           HighFive::DataSpace::From(residue));
+//            residueDataSet.write(residue);
+
+
+//            auto complexGroup = force.createGroup("ComplexPoles");
+//            auto cplxPoles = modalCoefficient.GetComplexPoles();
+//
+//            Eigen::VectorXd coeffs = cplxPoles.row(0);
+//            complexGroup.createDataSet<Eigen::VectorXd>("RealCoeffs", HighFive::DataSpace::From(coeffs)).write(coeffs);
+//            coeffs = cplxPoles.row(1);
+//            complexGroup.createDataSet<Eigen::VectorXd>("ImagCoeffs", HighFive::DataSpace::From(coeffs)).write(coeffs);
+//
+//            complexGroup = force.createGroup("ComplexResidues");
+//            auto cplxResidues = modalCoefficient.GetComplexResidues();
+//
+//            coeffs = cplxResidues.row(0);
+//            complexGroup.createDataSet<Eigen::VectorXd>("RealCoeffs", HighFive::DataSpace::From(coeffs)).write(coeffs);
+//            coeffs = cplxResidues.row(1);
+//            complexGroup.createDataSet<Eigen::VectorXd>("ImagCoeffs", HighFive::DataSpace::From(coeffs)).write(coeffs);
+
+          }
+
+
+        }
+      }
 
     }
 

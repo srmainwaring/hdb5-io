@@ -146,6 +146,12 @@ namespace HDB5_io {
 
     Eigen::VectorXd ReadWaveDriftComponents(HighFive::File &file, const std::string &path, unsigned int i) override;
 
+    /// Read the radiation components
+    /// \param file file containing the hydrodynamic database
+    /// \param path path to the components in the file
+    /// \param body body to which store the components
+    void ReadRadiation(const HighFive::File &file, const std::string &path, Body *body) override;
+
   };
 
 } // end namespace HDB5_io

@@ -155,9 +155,11 @@ namespace HDB5_io {
                                                       radiationMask);
       body->SetHDBInterpolator(Body::interpolatedData::IRF_K, bodyMotion, impulseResponseFunctionsK);
 
-      impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU",
-                                                 radiationMask);
-      body->SetHDBInterpolator(Body::interpolatedData::IRF_KU, bodyMotion, impulseResponseFunctionsK);
+      if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionKU")) {
+        impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU",
+                                                   radiationMask);
+        body->SetHDBInterpolator(Body::interpolatedData::IRF_KU, bodyMotion, impulseResponseFunctionsK);
+      }
 
       // Reading the added mass and radiation damping coefficients
       auto addedMass = ReadComponents(HDF5_file, bodyMotionPath + "/AddedMass", radiationMask);
@@ -370,6 +372,61 @@ namespace HDB5_io {
     m_hdb->SetFrequencyDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/Frequency"));
     m_hdb->SetTimeDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/Time"));
     m_hdb->SetWaveDirectionDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/WaveDirection"));
+
+  }
+
+  void HDBReader_v3::ReadRadiation(const HighFive::File &file, const std::string &path, Body *body) {
+    HDBReader::ReadRadiation(file, path, body);
+
+    for (unsigned int ibodyMotion = 0; ibodyMotion < m_hdb->GetNbBodies(); ++ibodyMotion) {
+
+      auto bodyMotion = m_hdb->GetBody(ibodyMotion);
+      auto bodyMotionPath = path + "/BodyMotion_" + std::to_string(ibodyMotion);
+
+      if (file.exist(bodyMotionPath + "/ZeroFreqAddedMass")) {
+        auto zeroFreqAddedMass = H5Easy::load<Eigen::MatrixXd>(file, bodyMotionPath + "/ZeroFreqAddedMass");
+        body->SetZeroFreqAddedMass(bodyMotion, zeroFreqAddedMass);
+      }
+
+      if (file.exist(bodyMotionPath + "/Modal")) {
+
+        for (unsigned int idof = 0; idof < 6; idof++) {
+
+          std::vector<PoleResidue> modalCoeff;
+          for (unsigned int iforce = 0; iforce < 6; iforce++) {
+
+            auto forcePath = bodyMotionPath + "/Modal/DOF_" + std::to_string(idof) + "/FORCE_" + std::to_string(iforce);
+
+            auto poles = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/RealPoles");
+            auto nPoles = poles.size();
+            auto residues = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/RealResidues");
+            assert(residues.size() == nPoles);
+
+            auto realCoeff = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/ComplexPoles/RealCoeff");
+            auto imagCoeff = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/ComplexPoles/ImagCoeff");
+            assert(realCoeff.size() == nPoles && imagCoeff.size() == nPoles);
+            Eigen::VectorXcd cplxPoles = realCoeff + MU_JJ * imagCoeff;
+
+            realCoeff = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/ComplexResidues/RealCoeff");
+            imagCoeff = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/ComplexResidues/ImagCoeff");
+            assert(realCoeff.size() == nPoles && imagCoeff.size() == nPoles);
+            Eigen::VectorXcd cplxResidues = realCoeff + MU_JJ * imagCoeff;
+
+            PoleResidue pair;
+            for (int i=0; i < nPoles; i++) {
+              pair.AddPoleResidue(poles(i), residues(i));
+              pair.AddPoleResidue(cplxPoles(i), cplxResidues(i));
+            }
+            modalCoeff.emplace_back(pair);
+
+          }
+          body->SetModalCoefficients(bodyMotion, modalCoeff);
+
+        }
+
+      }
+
+    }
 
   }
 
