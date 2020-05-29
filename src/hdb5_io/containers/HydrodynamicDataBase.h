@@ -87,9 +87,9 @@ namespace HDB5_io {
 
     void SetWaveDrift(const std::shared_ptr<WaveDrift> &wavedrift);
 
-    WaveDrift *GetWaveDrift() const;
+    std::shared_ptr<WaveDrift> GetWaveDrift() const;
 
-   private:
+   protected:
 
     std::string m_creationDate;       ///< Creation date of the HDB
     std::string m_solver;             ///< Solver which computed the hydrodynamic data base (NEMOH/HELIOS)

@@ -263,7 +263,7 @@ namespace HDB5_io {
     /// \return modal coefficients
     PoleResidue GetModalCoefficients(Body *BodyMotion, int idof, int iforce);
 
-   private:
+   protected:
 
     HydrodynamicDataBase *m_HDB;                   ///< HDB containing this data container
     unsigned int m_id;                             ///< ID of the BEM Body

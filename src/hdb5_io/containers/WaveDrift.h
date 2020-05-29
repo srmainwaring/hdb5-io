@@ -37,7 +37,7 @@ namespace HDB5_io {
 //      return m_data->Eval(name, frequencies, angles);
 //    }
 
-   private:
+   protected:
 
     bool m_symmetry_X;
     bool m_symmetry_Y;
