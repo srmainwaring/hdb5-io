@@ -13,7 +13,7 @@ namespace HDB5_io {
     for (unsigned int i = 0; i < 6; i++) {
       if (mask(i) == 1) {
         m_mask(i) = true;
-        m_listDOF.push_back(i);
+        m_DOFs.emplace_back(i);
       } else {
         m_mask(i) = false;
       }
@@ -37,6 +37,17 @@ namespace HDB5_io {
 
   mathutils::MatrixMN<double> Mask::GetMatrix() const {
     return m_matrix;
+  }
+
+  std::vector<unsigned int> Mask::GetListDOF() const {
+
+    std::vector<unsigned int> DOFlist;
+
+    for (const auto &dof : m_DOFs) {
+      DOFlist.push_back(dof.GetIndex());
+    }
+
+    return DOFlist;
   }
 
 
