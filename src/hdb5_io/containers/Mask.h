@@ -134,7 +134,7 @@ namespace HDB5_io {
     /// \return List of activated DOF
     std::vector<unsigned int> GetListDOF() const;
 
-    std::vector<DOF> GetDOFs() const {}
+    std::vector<DOF> GetDOFs() const { return m_DOFs;}
   };
 
 
