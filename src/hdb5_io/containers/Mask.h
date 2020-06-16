@@ -30,32 +30,32 @@ namespace HDB5_io {
 
     DOF(unsigned int index) : m_index(index) {
       switch (index) {
-        case 1: {
+        case 0: {
           m_type = LINEAR;
           m_direction = {1,0,0};
+          break;
+        }
+        case 1: {
+          m_type = LINEAR;
+          m_direction = {0,1,0};
           break;
         }
         case 2: {
           m_type = LINEAR;
-          m_direction = {0,1,0};
-          break;
-        }
-        case 3: {
-          m_type = LINEAR;
           m_direction = {0,0,1};
           break;
         }
-        case 4: {
+        case 3: {
           m_type = ANGULAR;
           m_direction = {1,0,0};
           break;
         }
-        case 5: {
+        case 4: {
           m_type = ANGULAR;
           m_direction = {0,1,0};
           break;
         }
-        case 6: {
+        case 5: {
           m_type = ANGULAR;
           m_direction = {0,0,1};
           break;
