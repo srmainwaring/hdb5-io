@@ -63,7 +63,7 @@ namespace HDB5_io {
 
   void Body::ComputeExcitation() {
 
-    /// This subroutine computes the excitation loads from the diffraction loads and the Froude-Krylov loads.
+    // This method computes the excitation loads from the diffraction loads and the Froude-Krylov loads.
 
     assert(m_diffraction.size() == m_froudeKrylov.size());
     for (unsigned int iangle = 0; iangle < m_diffraction.size(); ++iangle) {
