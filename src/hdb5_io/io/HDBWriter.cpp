@@ -296,30 +296,32 @@ namespace HDB5_io {
         DOF.createAttribute("Unit", "");
       }
 
-      // Writing the impulse response function K for the body.
-      auto KGroup = bodyMotionGroup.createGroup("ImpulseResponseFunctionK");
-      KGroup.createAttribute("Description", "Impulse response functions K due to the velocity of body " +
-                                            std::to_string(bodyMotion->GetID()) +
-                                            " that radiates waves and generates forces on body " +
-                                            std::to_string(body->GetID()) + ".");
-      for (unsigned int i = 0; i < 6; i++) {
-        H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK/DOF_" + std::to_string(i),
-                     body->GetHDBInterpolatedData(Body::interpolatedData::IRF_K, bodyMotion, i, time));
-        auto DOF = KGroup.getDataSet("DOF_" + std::to_string(i));
-        DOF.createAttribute("Description", "Impulse response functions K");
-      }
+      if(body->HasIRF()) {
+        // Writing the impulse response function K for the body.
+        auto KGroup = bodyMotionGroup.createGroup("ImpulseResponseFunctionK");
+        KGroup.createAttribute("Description", "Impulse response functions K due to the velocity of body " +
+                                              std::to_string(bodyMotion->GetID()) +
+                                              " that radiates waves and generates forces on body " +
+                                              std::to_string(body->GetID()) + ".");
+        for (unsigned int i = 0; i < 6; i++) {
+          H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK/DOF_" + std::to_string(i),
+                       body->GetHDBInterpolatedData(Body::interpolatedData::IRF_K, bodyMotion, i, time));
+          auto DOF = KGroup.getDataSet("DOF_" + std::to_string(i));
+          DOF.createAttribute("Description", "Impulse response functions K");
+        }
 
-      // Writing the impulse response function KU for the body.
-      auto KUGroup = bodyMotionGroup.createGroup("ImpulseResponseFunctionKU");
-      KUGroup.createAttribute("Description", "Impulse response functions KU due to the velocity of body " +
-                                             std::to_string(bodyMotion->GetID()) +
-                                             " that radiates waves and generates forces on body " +
-                                             std::to_string(body->GetID()) + ".");
-      for (unsigned int i = 0; i < 6; i++) {
-        H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU/DOF_" + std::to_string(i),
-                     body->GetHDBInterpolatedData(Body::interpolatedData::IRF_KU, bodyMotion, i, time));
-        auto DOF = KUGroup.getDataSet("DOF_" + std::to_string(i));
-        DOF.createAttribute("Description", "Impulse response functions KU");
+        // Writing the impulse response function KU for the body.
+        auto KUGroup = bodyMotionGroup.createGroup("ImpulseResponseFunctionKU");
+        KUGroup.createAttribute("Description", "Impulse response functions KU due to the velocity of body " +
+                                               std::to_string(bodyMotion->GetID()) +
+                                               " that radiates waves and generates forces on body " +
+                                               std::to_string(body->GetID()) + ".");
+        for (unsigned int i = 0; i < 6; i++) {
+          H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU/DOF_" + std::to_string(i),
+                       body->GetHDBInterpolatedData(Body::interpolatedData::IRF_KU, bodyMotion, i, time));
+          auto DOF = KUGroup.getDataSet("DOF_" + std::to_string(i));
+          DOF.createAttribute("Description", "Impulse response functions KU");
+        }
       }
 
       // Writing the modal coefficients

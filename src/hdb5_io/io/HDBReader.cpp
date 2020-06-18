@@ -151,12 +151,14 @@ namespace HDB5_io {
       body->SetRadiationMask(bodyMotion, radiationMask);
 
       // Reading the impulse response functions.
-      auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK",
-                                                      radiationMask);
-      body->SetHDBInterpolator(Body::interpolatedData::IRF_K, bodyMotion, impulseResponseFunctionsK);
+      if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionK")) {
+        auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK",
+                                                        radiationMask);
+        body->SetHDBInterpolator(Body::interpolatedData::IRF_K, bodyMotion, impulseResponseFunctionsK);
+      }
 
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionKU")) {
-        impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU",
+        auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU",
                                                    radiationMask);
         body->SetHDBInterpolator(Body::interpolatedData::IRF_KU, bodyMotion, impulseResponseFunctionsK);
       }
@@ -167,9 +169,7 @@ namespace HDB5_io {
 
       auto radiationDamping = ReadComponents(HDF5_file, bodyMotionPath + "/RadiationDamping", radiationMask);
       body->SetHDBInterpolator(Body::interpolatedData::RADIATION_DAMPING, bodyMotion, radiationDamping);
-
     }
-
 
   }
 
@@ -327,7 +327,6 @@ namespace HDB5_io {
       auto hdb_reader = std::make_shared<HDBReader_v3>(hdb.get());
       hdb_reader->Read(filename);
     }
-
 
     return hdb;
   }

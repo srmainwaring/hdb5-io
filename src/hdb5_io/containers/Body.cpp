@@ -183,6 +183,10 @@ namespace HDB5_io {
       }
     }
 
+    if((type == IRF_K) or (type == IRF_KU)) {
+      m_isIRF = true;
+    }
+
   }
 
   void Body::SetStiffnessMatrix(const mathutils::Matrix33<double> &hydrostaticStiffnessMatrix) {
@@ -226,6 +230,10 @@ namespace HDB5_io {
 
   bool Body::HasModal(Body *BodyMotion) const {
     return m_modalCoefficients.count(BodyMotion) > 0;
+  }
+
+  bool Body::HasIRF() const {
+    return m_isIRF;
   }
 
   bool Body::HasZeroFreqAddedMass(Body *BodyMotion) const {

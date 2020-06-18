@@ -139,6 +139,8 @@ namespace HDB5_io {
 
     bool HasModal(Body *BodyMotion) const;
 
+    bool HasIRF() const;
+
     bool HasZeroFreqAddedMass(Body *BodyMotion) const;
 
     /// Return the position of the body as stored in the HDB
@@ -294,6 +296,7 @@ namespace HDB5_io {
 
     std::shared_ptr<HDBinterpolator> m_interpK;                     ///< Impulse response function interpolator
     std::shared_ptr<HDBinterpolator> m_interpKu;                    ///< Impulse response function speed dependent interpolator
+    bool m_isIRF = false;
 
     std::shared_ptr<HDBinterpolator> m_addedMass;                   ///< added mass interpolator
     std::shared_ptr<HDBinterpolator> m_radiationDamping;            ///< radiation damping interpolator
