@@ -396,24 +396,31 @@ namespace HDB5_io {
 
             auto forcePath = bodyMotionPath + "/Modal/DOF_" + std::to_string(idof) + "/FORCE_" + std::to_string(iforce);
 
+            // Real poles and residues.
             auto poles = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/RealPoles");
-            auto nPoles = poles.size();
+            auto nPoles_real = poles.size();
             auto residues = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/RealResidues");
-            assert(residues.size() == nPoles);
+            assert(residues.size() == nPoles_real);
 
+            // Complex poles.
             auto realCoeff = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/ComplexPoles/RealCoeff");
             auto imagCoeff = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/ComplexPoles/ImagCoeff");
-            assert(realCoeff.size() == nPoles && imagCoeff.size() == nPoles);
+            auto nPoles_cc = realCoeff.size();
+            assert(imagCoeff.size() == nPoles_cc);
             Eigen::VectorXcd cplxPoles = realCoeff + MU_JJ * imagCoeff;
 
+            // Complex residues.
             realCoeff = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/ComplexResidues/RealCoeff");
             imagCoeff = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/ComplexResidues/ImagCoeff");
-            assert(realCoeff.size() == nPoles && imagCoeff.size() == nPoles);
+            assert(realCoeff.size() == nPoles_cc && imagCoeff.size() == nPoles_cc);
             Eigen::VectorXcd cplxResidues = realCoeff + MU_JJ * imagCoeff;
 
+            // Adding to modalCoeff.
             PoleResidue pair;
-            for (int i=0; i < nPoles; i++) {
+            for (int i=0; i < nPoles_real; i++) {
               pair.AddPoleResidue(poles(i), residues(i));
+            }
+            for (int i=0; i < nPoles_cc; i++) {
               pair.AddPoleResidue(cplxPoles(i), cplxResidues(i));
             }
             modalCoeff.emplace_back(pair);

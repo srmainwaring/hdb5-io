@@ -342,6 +342,7 @@ namespace HDB5_io {
 
             auto forcePath = bodyMotionPath + "/Modal/DOF_" + std::to_string(idof) + "/FORCE_" + std::to_string(iforce);
 
+            // Real poles and residues.
             auto modalCoefficient = body->GetModalCoefficients(bodyMotion, idof, iforce);
             auto pole = modalCoefficient.GetRealPoles();
             auto residue = modalCoefficient.GetRealResidues();
@@ -349,6 +350,7 @@ namespace HDB5_io {
             H5Easy::dump(HDF5_file, forcePath + "/RealPoles", modalCoefficient.GetRealPoles());
             H5Easy::dump(HDF5_file, forcePath + "/RealResidues", modalCoefficient.GetRealResidues());
 
+            // Complex poles and residues.
             auto coeff = static_cast<Eigen::VectorXd>(modalCoefficient.GetComplexPoles().row(0));
             H5Easy::dump(HDF5_file, forcePath + "/ComplexPoles/RealCoeff", coeff);
             coeff = static_cast<Eigen::VectorXd>(modalCoefficient.GetComplexPoles().row(1));

@@ -21,24 +21,29 @@ int main() {
             5, 4, 6, 5, 5, 4,
             4, 5, 6, 6, 5, 6,
             5, 4, 6, 5, 5, 4;
+  int n_pole_real = 1;
 
   for (int idof = 0; idof<6; idof++) {
 
     std::vector<PoleResidue> modalCoeff;
     for (int iforce = 0; iforce<6; iforce ++) {
-      int n_pole = ordre(idof, iforce);
-      Eigen::VectorXd poles(n_pole), residues(n_pole);
+
+      // Real poles and residues.
+      Eigen::VectorXd poles(n_pole_real), residues(n_pole_real);
       poles.setRandom();
       residues.setRandom();
 
-      Eigen::VectorXcd cplxPoles(n_pole), cplxResidues(n_pole);
+      // Complex poles and residues.
+      int n_pole_cc = ordre(idof, iforce) - n_pole_real;
+      Eigen::VectorXcd cplxPoles(n_pole_cc), cplxResidues(n_pole_cc);
       cplxPoles.setRandom();
       cplxResidues.setRandom();
 
       PoleResidue pair;
-      for (int i=0; i < n_pole; i++) {
-//        std::cout<<poles(i)<<"; "<<residues(i)<<std::endl;
+      for (int i=0; i < n_pole_real; i++) {
         pair.AddPoleResidue(poles(i), residues(i));
+      }
+      for (int i=0; i < n_pole_cc; i++) {
         pair.AddPoleResidue(cplxPoles(i), cplxResidues(i));
       }
       modalCoeff.emplace_back(pair);
