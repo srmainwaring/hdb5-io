@@ -118,6 +118,10 @@ namespace HDB5_io {
 
     void SetInertia(const mathutils::Matrix66<double> &inertiaMatrix);
 
+    void SetMooring(const mathutils::Matrix66<double> &mooringMatrix);
+
+    void SetLinearDamping(const mathutils::Matrix66<double> &linearDampingMatrix);
+
     /// Load the mesh, from vertices and connectivity
     /// \param vertices vertices container
     /// \param faces connectivity of all faces
@@ -144,6 +148,10 @@ namespace HDB5_io {
     bool HasInertia() const;
 
     bool HasHydrostatic() const;
+
+    bool HasMooring() const;
+
+    bool HasDamping() const;
 
     bool HasZeroFreqAddedMass(Body *BodyMotion) const;
 
@@ -177,6 +185,10 @@ namespace HDB5_io {
     mathutils::Matrix33<double> GetHydrostaticStiffnessMatrix() const;
 
     mathutils::Matrix66<double> GetInertiaMatrix() const;
+
+    mathutils::Matrix66<double> GetMooringMatrix() const;
+
+    mathutils::Matrix66<double> GetDampingMatrix() const;
 
     /// Get the diffraction components for this body
     /// \param iangle index of the angle
@@ -293,6 +305,10 @@ namespace HDB5_io {
     mathutils::Matrix33<double> m_hydrostaticStiffnessMatrix;   ///< Hydrostatic matrix
     bool m_isInertia = false;
     mathutils::Matrix66<double> m_inertia;         ///< Inertia matrix
+    bool m_isMooring = false;
+    mathutils::Matrix66<double> m_mooringStiffnessMatrix;         ///< Mooring stiffness matrix
+    bool m_isDamping = false;
+    mathutils::Matrix66<double> m_linearDampingMatrix;         ///< Linear damping matrix (not radiation).
 
     std::unordered_map<Body *, mathutils::Matrix66<bool>> m_radiationMask;          ///< Radiation mask
     std::unordered_map<Body *, mathutils::Matrix66<double>> m_infiniteAddedMass;    ///< Infinite added mass for each body

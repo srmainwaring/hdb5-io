@@ -161,6 +161,22 @@ namespace HDB5_io {
                                                                                        "Hydrostatic stiffness matrix.");
     }
 
+    // Mooring matrix.
+    if (body->HasMooring()) {
+      bodyGroup.createGroup("Mooring");
+      H5Easy::dump(file, path + "/Mooring/MooringMatrix",
+                   static_cast<Eigen::Matrix<double, 6, 6>> (body->GetMooringMatrix()));
+      bodyGroup.getDataSet("Mooring/MooringMatrix").createAttribute<std::string>("Description", "Mooring matrix.");
+    }
+
+    // Damping matrix.
+    if (body->HasDamping()) {
+      bodyGroup.createGroup("LinearDamping");
+      H5Easy::dump(file, path + "/LinearDamping/DampingMatrix",
+                   static_cast<Eigen::Matrix<double, 6, 6>> (body->GetDampingMatrix()));
+      bodyGroup.getDataSet("LinearDamping/DampingMatrix").createAttribute<std::string>("Description", "Linear damping matrix.");
+    }
+
   }
 
   void HDBWriter::WriteMesh(HighFive::File &file, const std::string &path, Body *body) const {

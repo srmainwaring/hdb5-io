@@ -203,6 +203,15 @@ namespace HDB5_io {
     m_inertia = inertiaMatrix;
     m_isInertia = true;
   }
+
+  void Body::SetMooring(const mathutils::Matrix66<double> &mooringMatrix) {
+    m_mooringStiffnessMatrix = mooringMatrix;
+    m_isMooring = true;
+  }
+
+  void Body::SetLinearDamping(const mathutils::Matrix66<double> &linearDampingMatrix) {
+    m_linearDampingMatrix = linearDampingMatrix;
+    m_isDamping = true;
   }
 
   void
@@ -247,6 +256,15 @@ namespace HDB5_io {
   bool Body::HasHydrostatic() const {
     return m_isHydrostatic;
   }
+
+  bool Body::HasMooring() const {
+    return m_isMooring;
+  }
+
+  bool Body::HasDamping() const {
+    return m_isDamping;
+  }
+
   bool Body::HasZeroFreqAddedMass(Body *BodyMotion) const {
     return m_zeroFreqAddedMass.count(BodyMotion) > 0;
   }
@@ -273,6 +291,14 @@ namespace HDB5_io {
 
   mathutils::Matrix66<double> Body::GetInertiaMatrix() const {
     return m_inertia;
+  }
+
+  mathutils::Matrix66<double> Body::GetMooringMatrix() const {
+    return m_mooringStiffnessMatrix;
+  }
+
+  mathutils::Matrix66<double> Body::GetDampingMatrix() const {
+    return m_linearDampingMatrix;
   }
 
   Eigen::MatrixXcd Body::GetDiffraction(const unsigned int iangle) const {

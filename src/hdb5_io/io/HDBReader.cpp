@@ -94,6 +94,20 @@ namespace HDB5_io {
       body->SetInertia(inertiaMatrix);
     }
 
+    // Mooring matrix.
+    if (file.exist(path + "/Mooring")) {
+      mathutils::Matrix66<double> mooringMatrix;
+      mooringMatrix = H5Easy::load<Eigen::Matrix<double, 6, 6>>(file, path + "/Mooring/MooringMatrix");
+      body->SetMooring(mooringMatrix);
+    }
+
+    // Damping matrix.
+    if (file.exist(path + "/LinearDamping")) {
+      mathutils::Matrix66<double> dampingMatrix;
+      dampingMatrix = H5Easy::load<Eigen::Matrix<double, 6, 6>>(file, path + "/LinearDamping/DampingMatrix");
+      body->SetLinearDamping(dampingMatrix);
+    }
+
     return body;
 
   }
