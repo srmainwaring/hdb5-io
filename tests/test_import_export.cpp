@@ -11,17 +11,23 @@ int main() {
   auto HDB = import_HDB("../../data/Boxbarge_Vertices_353_Faces_652.hdb5");
 
 #ifdef H5_USE_VTK
-  HDB->GetBody(0)->VisualizeMesh();
+//  HDB->GetBody(0)->VisualizeMesh();
 #endif
 
-  Eigen::MatrixXi ordre(6,6);
-  ordre <<  4, 5, 6, 6, 5, 6,
-            5, 4, 6, 5, 5, 4,
-            4, 5, 6, 6, 5, 6,
-            5, 4, 6, 5, 5, 4,
-            4, 5, 6, 6, 5, 6,
-            5, 4, 6, 5, 5, 4;
-  int n_pole_real = 1;
+  // Number of real and complex coefficients.
+  Eigen::MatrixXi nb_real(6,6), nb_cc(6,6);
+  nb_real <<  1, 0, 1, 2, 3, 6,
+            1, 1, 0, 0, 0, 0,
+            1, 2, 3, 1, 1, 0,
+            3, 4, 2, 0, 0, 0,
+            2, 1, 1, 0, 1, 0,
+            2, 1, 1, 0, 1, 3;
+  nb_cc <<  0, 1, 6, 6, 5, 6,
+      5, 4, 6, 5, 5, 4,
+      4, 5, 6, 6, 5, 6,
+      5, 4, 6, 5, 5, 4,
+      4, 5, 6, 6, 5, 6,
+      5, 4, 6, 5, 5, 4;
 
   for (int idof = 0; idof<6; idof++) {
 
@@ -29,12 +35,13 @@ int main() {
     for (int iforce = 0; iforce<6; iforce ++) {
 
       // Real poles and residues.
+      int n_pole_real = nb_real(idof, iforce);
       Eigen::VectorXd poles(n_pole_real), residues(n_pole_real);
       poles.setRandom();
       residues.setRandom();
 
       // Complex poles and residues.
-      int n_pole_cc = ordre(idof, iforce) - n_pole_real;
+      int n_pole_cc = nb_cc(idof, iforce);
       Eigen::VectorXcd cplxPoles(n_pole_cc), cplxResidues(n_pole_cc);
       cplxPoles.setRandom();
       cplxResidues.setRandom();
