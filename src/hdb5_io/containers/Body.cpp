@@ -191,14 +191,18 @@ namespace HDB5_io {
 
   void Body::SetStiffnessMatrix(const mathutils::Matrix33<double> &hydrostaticStiffnessMatrix) {
     m_hydrostaticStiffnessMatrix = hydrostaticStiffnessMatrix;
+    m_isHydrostatic = true;
   }
 
   void Body::SetStiffnessMatrix(const mathutils::Matrix66<double> &hydrostaticStiffnessMatrix) {
     m_hydrostaticStiffnessMatrix = hydrostaticStiffnessMatrix.block<3, 3>(2, 2);
+    m_isHydrostatic = true;
   }
 
   void Body::SetInertia(const mathutils::Matrix66<double> &inertiaMatrix) {
     m_inertia = inertiaMatrix;
+    m_isInertia = true;
+  }
   }
 
   void
@@ -236,6 +240,13 @@ namespace HDB5_io {
     return m_isIRF;
   }
 
+  bool Body::HasInertia() const {
+    return m_isInertia;
+  }
+
+  bool Body::HasHydrostatic() const {
+    return m_isHydrostatic;
+  }
   bool Body::HasZeroFreqAddedMass(Body *BodyMotion) const {
     return m_zeroFreqAddedMass.count(BodyMotion) > 0;
   }

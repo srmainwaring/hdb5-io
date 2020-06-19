@@ -64,23 +64,30 @@ namespace HDB5_io {
 
   Body *HDBReader::ReadBodyBasics(const HighFive::File &file, const std::string &path) {
 
-//    std::string name;
-//    file.getGroup(path).getDataSet("BodyName").read(name);
+    // Name.
     auto name = H5Easy::load<std::string>(file, path + "/BodyName");
+
+    // Index.
     auto id = H5Easy::load<unsigned int>(file, path + "/ID");
 
+    // New body.
     auto body = m_hdb->NewBody(id, name);
 
+    // Position.
     body->SetPosition(H5Easy::load<Eigen::Vector3d>(file, path + "/BodyPosition"));
 
+    // Force and Motion masks.
     body->SetForceMask(H5Easy::load<Eigen::Matrix<int, 6, 1>>(file, path + "/Mask/ForceMask"));
     body->SetMotionMask(H5Easy::load<Eigen::Matrix<int, 6, 1>>(file, path + "/Mask/MotionMask"));
 
+    // Hydrostatic matrix.
     if (file.exist(path + "/Hydrostatic")) {
       mathutils::Matrix66<double> stiffnessMatrix;
       stiffnessMatrix = H5Easy::load<Eigen::Matrix<double, 6, 6>>(file, path + "/Hydrostatic/StiffnessMatrix");
       body->SetStiffnessMatrix(stiffnessMatrix);
     }
+
+    // Inertia matrix.
     if (file.exist(path + "/Inertia")) {
       mathutils::Matrix66<double> inertiaMatrix;
       inertiaMatrix = H5Easy::load<Eigen::Matrix<double, 6, 6>>(file, path + "/Inertia/InertiaMatrix");

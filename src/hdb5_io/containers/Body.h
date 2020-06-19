@@ -141,6 +141,10 @@ namespace HDB5_io {
 
     bool HasIRF() const;
 
+    bool HasInertia() const;
+
+    bool HasHydrostatic() const;
+
     bool HasZeroFreqAddedMass(Body *BodyMotion) const;
 
     /// Return the position of the body as stored in the HDB
@@ -285,7 +289,9 @@ namespace HDB5_io {
     bool m_isRAO = false;
     std::vector<Eigen::MatrixXcd> m_RAO;           ///< response amplitude operators
 
+    bool m_isHydrostatic = false;
     mathutils::Matrix33<double> m_hydrostaticStiffnessMatrix;   ///< Hydrostatic matrix
+    bool m_isInertia = false;
     mathutils::Matrix66<double> m_inertia;         ///< Inertia matrix
 
     std::unordered_map<Body *, mathutils::Matrix66<bool>> m_radiationMask;          ///< Radiation mask

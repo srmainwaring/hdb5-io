@@ -11,7 +11,7 @@ int main() {
   auto HDB = import_HDB("../../data/Boxbarge_Vertices_353_Faces_652.hdb5");
 
 #ifdef H5_USE_VTK
-//  HDB->GetBody(0)->VisualizeMesh();
+  HDB->GetBody(0)->VisualizeMesh();
 #endif
 
   // Number of real and complex coefficients.
