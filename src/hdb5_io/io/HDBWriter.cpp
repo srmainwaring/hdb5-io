@@ -17,15 +17,14 @@ namespace HDB5_io {
 
   void HDBWriter::Write(const std::string &filename) const {
 
+    // HDB file.
     HighFive::File file(filename, HighFive::File::ReadWrite | HighFive::File::Create | HighFive::File::Truncate);
 
+    // HDB basic data (version, date, gravity constant, density, etc.).
     WriteHDBBasics(file);
 
+    // Wave frequency and wave directions.
     WriteDiscretizations(file);
-
-    if (m_hdb->GetWaveDrift()) {
-      WriteWaveDrift(file);
-    }
 
     auto bodies = file.createGroup("Bodies");
 
@@ -36,17 +35,35 @@ namespace HDB5_io {
 
       auto bodyPath = "Bodies/Body_" + std::to_string(i);
 
+      // Body basic data (index, name, position, mass, etc.).
       WriteBodyBasics(file, "Bodies/Body_" + std::to_string(i), body);
 
+      // Body mesh.
       WriteMesh(file, bodyPath, body);
 
+      // Diffraction loads.
       WriteExcitation(excitationType::Diffraction, file, bodyPath + "/Excitation/Diffraction", body);
+
+      // Froude-Krylov loads.
       WriteExcitation(excitationType::Froude_Krylov, file, bodyPath + "/Excitation/FroudeKrylov", body);
 
+      // Added mass, damping, IRF, poles and residues.
       WriteRadiation(file, bodyPath + "/Radiation", body);
 
-      if (body->HasRAO())
+      // RAOs.
+      if (body->HasRAO()) {
         WriteRAO(file, bodyPath + "/RAO", body);
+      }
+    }
+
+    // Mean wave drift loads.
+    if (m_hdb->GetWaveDrift()) {
+      WriteWaveDrift(file);
+    }
+
+    // Vector fitting parameters.
+    if (m_hdb->GetVF()) {
+      WriteVF(file);
     }
 
   }
@@ -533,12 +550,20 @@ namespace HDB5_io {
 
   }
 
+  void HDBWriter::WriteVF(HighFive::File &file) const {
+
+    auto VF = file.createGroup("VectorFitting");
+    H5Easy::dump(file, "VectorFitting/Relaxed", static_cast<int> (m_hdb->GetVFRelaxed()));
+    H5Easy::dump(file, "VectorFitting/MaxOrder", static_cast<int> (m_hdb->GetVFMaxOrder()));
+    H5Easy::dump(file, "VectorFitting/Tolerance", static_cast<double> (m_hdb->GetVFTolerance()));
+
+  }
+
   void export_HDB(const std::string &filename, HydrodynamicDataBase *hdb) {
 
     auto hdbWriter = std::make_shared<HDBWriter>(hdb);
     hdbWriter->Write(filename);
 
   }
-
 
 }

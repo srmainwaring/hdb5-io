@@ -115,4 +115,36 @@ namespace HDB5_io {
     return m_waveDrift;
   }
 
+  void HydrodynamicDataBase::SetVF() {
+    m_isVF = true;
+  }
+
+  bool HydrodynamicDataBase::GetVF() const {
+    return m_isVF;
+  }
+
+  void HydrodynamicDataBase::SetVFRelaxed(const int &relaxed) {
+    m_VF_relaxed = relaxed;
+  }
+
+  int HydrodynamicDataBase::GetVFRelaxed() const {
+    return m_VF_relaxed;
+  }
+
+  void HydrodynamicDataBase::SetVFMaxOrder(const int &order) {
+    m_VF_max_order = order;
+  }
+
+  int HydrodynamicDataBase::GetVFMaxOrder() const {
+    return m_VF_max_order;
+  }
+
+  void HydrodynamicDataBase::SetVFTolerance(const double &tolerance) {
+    m_VF_tolerance = tolerance;
+  }
+
+  double HydrodynamicDataBase::GetVFTolerance() const {
+    return m_VF_tolerance;
+  }
+
 } // namespace HDB5_io

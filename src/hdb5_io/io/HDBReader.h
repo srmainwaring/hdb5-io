@@ -95,6 +95,10 @@ namespace HDB5_io {
     /// \param file file containing the hydrodynamic database
     virtual void ReadWaveDrift(HighFive::File &file);
 
+    /// Read the wave drift data
+    /// \param file file containing the hydrodynamic database
+    virtual void ReadVectorFitting(HighFive::File &file);
+
     /// Read the wave drift components, from the path given, for the i-th body
     /// \param file file containing the hydrodynamic database
     /// \param path path in the hdb5 file

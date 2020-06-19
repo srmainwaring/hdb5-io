@@ -89,6 +89,22 @@ namespace HDB5_io {
 
     std::shared_ptr<WaveDrift> GetWaveDrift() const;
 
+    void SetVF();
+
+    bool GetVF() const;
+
+    void SetVFRelaxed(const int &relaxed);
+
+    int GetVFRelaxed() const;
+
+    void SetVFMaxOrder(const int &order);
+
+    int GetVFMaxOrder() const;
+
+    void SetVFTolerance(const double &tolerance);
+
+    double GetVFTolerance() const;
+
    protected:
 
     std::string m_creationDate;       ///< Creation date of the HDB
@@ -99,6 +115,11 @@ namespace HDB5_io {
     double m_waterDensity;            ///< Water density coming from the HDB
     double m_waterDepth;              ///< Water depth coming from the HDB
     double m_normalizationLength;     ///< Normalization length coming from the HDB
+
+    bool m_isVF = false;
+    int m_VF_relaxed; /// Relaxed vector fitting (1) or not (0).
+    int m_VF_max_order; /// Maximum order of the vector fitting.
+    double m_VF_tolerance; /// Tolerance of the vector fitting.
 
     int m_nbody;                      ///< Number of bodies in interaction considered in the HDB
     // FIXME :: change the vector to unordered_map with index as key, to be sure which body to get with the GetBody method

@@ -83,6 +83,8 @@ namespace HDB5_io {
     /// \param file file to export the hydrodynamic database
     virtual void WriteWaveDrift(HighFive::File &file) const;
 
+    virtual void WriteVF(HighFive::File &file) const;
+
   };
 
   /// Export the hydrodynamic database given, in a .hdb5 file format

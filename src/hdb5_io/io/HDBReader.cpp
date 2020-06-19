@@ -14,40 +14,58 @@
 namespace HDB5_io {
 
   void HDBReader::Read(const std::string &filename) {
+
+    // HDB file.
     HighFive::File file(filename, HighFive::File::ReadOnly);
 
+    // HDB basic data (version, date, gravity constant, density, etc.).
     ReadHDBBasics(file);
 
+    // Wave frequency and wave directions.
     ReadDiscretizations(file);
 
+    // Body basic data (index, name, position, mass, etc.).
     std::vector<Body *> bodies;
-
     for (int i = 0; i < m_hdb->GetNbBodies(); i++) {
       bodies.push_back(ReadBodyBasics(file, "Bodies/Body_" + std::to_string(i)));
     }
 
-
+    // Other body data.
     for (auto &body : bodies) {
 
+      // Body mesh.
       ReadMesh(file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Mesh", body);
 
+      // Diffraction loads.
       ReadExcitation(Diffraction, file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Excitation/Diffraction",
                      body);
+
+      // Froude-Krylov loads.
       ReadExcitation(Froude_Krylov, file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Excitation/FroudeKrylov",
                      body);
 
+      // Excitation loads.
       body->ComputeExcitation();
 
+      // Added mass, damping, IRF, poles and residues.
       ReadRadiation(file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Radiation", body);
 
+      // RAOs.
       if (file.getGroup("Bodies/Body_" + std::to_string(body->GetID())).exist("RAO")) {
         ReadRAO(file, "Bodies/Body_" + std::to_string(body->GetID()) + "/RAO", body);
       }
     }
 
+    // Mean wave drift loads.
     if (file.exist("WaveDrift")) {
       ReadWaveDrift(file);
     }
+
+    // Vector fitting parameters.
+    if (file.exist("VectorFitting")) {
+      ReadVectorFitting(file);
+    }
+
   }
 
   void HDBReader::ReadHDBBasics(const HighFive::File &HDF5_file) {
@@ -331,6 +349,14 @@ namespace HDB5_io {
 
   }
 
+  void HDBReader::ReadVectorFitting(HighFive::File &file) {
+
+    m_hdb->SetVF();
+    m_hdb->SetVFRelaxed(H5Easy::load<int>(file, "VectorFitting/Relaxed"));
+    m_hdb->SetVFMaxOrder(H5Easy::load<int>(file, "VectorFitting/MaxOrder"));
+    m_hdb->SetVFTolerance(H5Easy::load<double>(file, "VectorFitting/Tolerance"));
+
+  }
 
   std::shared_ptr<HydrodynamicDataBase> import_HDB(const std::string &filename) {
     auto hdb = std::make_shared<HydrodynamicDataBase>();
