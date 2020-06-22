@@ -57,6 +57,10 @@ namespace HDB5_io {
     /// \param file file containing the hydrodynamic database
     virtual void ReadDiscretizations(const HighFive::File &file) = 0;
 
+    /// Read the symmetry data
+    /// \param file file containing the hydrodynamic database
+    virtual void ReadSymmetries(HighFive::File &file);
+
     /// Read the excitation components
     /// \param type excitation type (Diffraction or Froude_Krylov
     /// \param file file containing the hydrodynamic database
@@ -94,6 +98,10 @@ namespace HDB5_io {
     /// Read the wave drift data
     /// \param file file containing the hydrodynamic database
     virtual void ReadWaveDrift(HighFive::File &file);
+
+    /// Read the wave field data
+    /// \param file file containing the hydrodynamic database
+    virtual void ReadWaveField(HighFive::File &file);
 
     /// Read the wave drift data
     /// \param file file containing the hydrodynamic database

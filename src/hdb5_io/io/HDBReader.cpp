@@ -24,6 +24,11 @@ namespace HDB5_io {
     // Wave frequency and wave directions.
     ReadDiscretizations(file);
 
+    // Symmetries.
+    if (file.exist("Symmetries")) {
+      ReadSymmetries(file);
+    }
+
     // Body basic data (index, name, position, mass, etc.).
     std::vector<Body *> bodies;
     for (int i = 0; i < m_hdb->GetNbBodies(); i++) {
@@ -59,6 +64,11 @@ namespace HDB5_io {
     // Mean wave drift loads.
     if (file.exist("WaveDrift")) {
       ReadWaveDrift(file);
+    }
+
+    // Wave field parameters.
+    if (file.exist("WaveField")) {
+      ReadWaveField(file);
     }
 
     // Vector fitting parameters.
@@ -320,10 +330,14 @@ namespace HDB5_io {
     waveDrift->SetFrequencies(m_hdb->GetFrequencyDiscretization());
     waveDrift->SetWaveDirections(waveDirection);
 
+    auto kochin_activate = H5Easy::load<int>(HDF5_file, "WaveDrift/Activation");
+    auto kochin_step = H5Easy::load<double>(HDF5_file, "WaveDrift/KochinStep");
     auto sym_X = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_x");
     auto sym_Y = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_y");
 
     waveDrift->SetSymmetries(sym_X == 1, sym_Y == 1);
+    waveDrift->SetKochinActivation(kochin_activate);
+    waveDrift->SetKochinStep(kochin_step);
 
     Eigen::MatrixXd surge(waveDirection.size(), frequency.size());
     Eigen::MatrixXd sway(waveDirection.size(), frequency.size());
@@ -349,12 +363,27 @@ namespace HDB5_io {
 
   }
 
+  void HDBReader::ReadWaveField(HighFive::File &file) {
+
+    m_hdb->SetWaveField();
+
+  }
+
   void HDBReader::ReadVectorFitting(HighFive::File &file) {
 
     m_hdb->SetVF();
     m_hdb->SetVFRelaxed(H5Easy::load<int>(file, "VectorFitting/Relaxed"));
     m_hdb->SetVFMaxOrder(H5Easy::load<int>(file, "VectorFitting/MaxOrder"));
     m_hdb->SetVFTolerance(H5Easy::load<double>(file, "VectorFitting/Tolerance"));
+
+  }
+
+  void HDBReader::ReadSymmetries(HighFive::File &file) {
+
+    m_hdb->SetSymmetries();
+    m_hdb->SetSymBottom(H5Easy::load<int>(file, "Symmetries/Bottom"));
+    m_hdb->SetSymXOZ(H5Easy::load<int>(file, "Symmetries/xOz"));
+    m_hdb->SetSymYOZ(H5Easy::load<int>(file, "Symmetries/yOz"));
 
   }
 

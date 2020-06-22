@@ -26,13 +26,17 @@ namespace HDB5_io {
     // Wave frequency and wave directions.
     WriteDiscretizations(file);
 
+    // Symmetries.
+    if(m_hdb->GetSymmetries()) {
+      WriteSymmetries(file);
+    }
+
     auto bodies = file.createGroup("Bodies");
 
     for (unsigned int i = 0; i < m_hdb->GetNbBodies(); i++) {
+
       auto bodyGroup = bodies.createGroup("Body_" + std::to_string(i));
-
       auto body = m_hdb->GetBody(i);
-
       auto bodyPath = "Bodies/Body_" + std::to_string(i);
 
       // Body basic data (index, name, position, mass, etc.).
@@ -59,6 +63,11 @@ namespace HDB5_io {
     // Mean wave drift loads.
     if (m_hdb->GetWaveDrift()) {
       WriteWaveDrift(file);
+    }
+
+    // Wave field.
+    if(m_hdb->GetWaveField()) {
+      WriteWaveField(file);
     }
 
     // Vector fitting parameters.
@@ -128,6 +137,15 @@ namespace HDB5_io {
                  static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (m_hdb->GetWaveDirectionDiscretization()));
     H5Easy::dump(file, "Discretizations/Time",
                  static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (m_hdb->GetTimeDiscretization()));
+
+  }
+
+  void HDBWriter::WriteSymmetries(HighFive::File &file) const {
+
+    auto Symmetries = file.createGroup("Symmetries");
+    H5Easy::dump(file, "Symmetries/Bottom", static_cast<int> (m_hdb->GetSymBottom()));
+    H5Easy::dump(file, "Symmetries/xOz", static_cast<int> (m_hdb->GetSymXOZ()));
+    H5Easy::dump(file, "Symmetries/yOz", static_cast<int> (m_hdb->GetSymYOZ()));
 
   }
 
@@ -505,7 +523,6 @@ namespace HDB5_io {
 
     // Write symmetries data
     auto symmetries = m_hdb->GetWaveDrift()->GetSymmetries();
-
     auto sym_x = static_cast<unsigned int>(symmetries[0]);
     auto sym_y = static_cast<unsigned int>(symmetries[1]);
 
@@ -516,6 +533,17 @@ namespace HDB5_io {
     dataSet = waveDriftGroup.createDataSet<unsigned int>("sym_y", HighFive::DataSpace::From(sym_y));
     dataSet.write(sym_y);
     dataSet.createAttribute<std::string>("Description", "Symmetry along y");
+
+    // Kochin data.
+    auto kochin_activate = m_hdb->GetWaveDrift()->GetKochinActivation();
+    dataSet = waveDriftGroup.createDataSet<unsigned int>("Activation", HighFive::DataSpace::From(kochin_activate));
+    dataSet.write(kochin_activate);
+    dataSet.createAttribute<std::string>("Description", "Activation of the Kochin functions and the mean wave drift loads");
+
+    auto kochin_step = m_hdb->GetWaveDrift()->GetKochinStep();
+    dataSet = waveDriftGroup.createDataSet<double>("KochinStep", HighFive::DataSpace::From(kochin_step));
+    dataSet.write(kochin_step);
+    dataSet.createAttribute<std::string>("Description", "Angular discretization for the Kochin functions");
 
     // Write wave drift data
     std::vector<std::string> components = {"surge", "sway", "yaw"};
@@ -547,6 +575,12 @@ namespace HDB5_io {
 
       }
     }
+
+  }
+
+  void HDBWriter::WriteWaveField(HighFive::File &file) const {
+
+    auto VF = file.createGroup("WaveField");
 
   }
 

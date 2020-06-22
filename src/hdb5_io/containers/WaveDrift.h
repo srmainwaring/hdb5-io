@@ -33,6 +33,14 @@ namespace HDB5_io {
 
     double Eval(const std::string &name, double frequency, double angle) const;
 
+    void SetKochinActivation(const bool &kochin_activate);
+
+    bool GetKochinActivation() const;
+
+    void SetKochinStep(const double &kochin_step);
+
+    double GetKochinStep() const;
+
 //    double Eval(const std::string &name, std::vector<double> frequencies, std::vector<double> angles) const {
 //      return m_data->Eval(name, frequencies, angles);
 //    }
@@ -41,6 +49,9 @@ namespace HDB5_io {
 
     bool m_symmetry_X;
     bool m_symmetry_Y;
+
+    bool m_kochin_activate; /// Activation of the computation of the Kochin functions and the mean wave drift loads.
+    double m_kochin_step; /// Kochin angle step in degrees.
 
     std::unique_ptr<mathutils::LookupTable2d<double>> m_data;
 
