@@ -87,7 +87,7 @@ namespace HDB5_io {
 
     void SetWaveDrift(const std::shared_ptr<WaveDrift> &wavedrift);
 
-    std::shared_ptr<WaveDrift> GetWaveDrift() const;
+    WaveDrift* GetWaveDrift() const;
 
     void SetVF();
 

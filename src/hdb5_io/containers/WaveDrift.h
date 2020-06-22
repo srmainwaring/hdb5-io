@@ -37,6 +37,18 @@ namespace HDB5_io {
 //      return m_data->Eval(name, frequencies, angles);
 //    }
 
+    bool HasSurge() const { return m_data->HasSerie("surge"); }
+
+    bool HasSway() const { return m_data->HasSerie("sway"); }
+
+    bool HasHeave() const { return m_data->HasSerie("heave"); }
+
+    bool HasPitch() const { return m_data->HasSerie("pitch"); }
+
+    bool HasRoll() const { return m_data->HasSerie("roll"); }
+
+    bool HasYaw() const { return m_data->HasSerie("yaw"); }
+
    protected:
 
     bool m_symmetry_X;

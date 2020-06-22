@@ -111,8 +111,8 @@ namespace HDB5_io {
     m_waveDrift = wavedrift;
   }
 
-  std::shared_ptr<WaveDrift> HydrodynamicDataBase::GetWaveDrift() const {
-    return m_waveDrift;
+  WaveDrift* HydrodynamicDataBase::GetWaveDrift() const {
+    return m_waveDrift.get();
   }
 
   void HydrodynamicDataBase::SetVF() {
