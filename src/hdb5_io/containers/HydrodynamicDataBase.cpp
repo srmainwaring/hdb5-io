@@ -152,7 +152,7 @@ namespace HDB5_io {
   }
 
   bool HydrodynamicDataBase::GetWaveField() const {
-    return m_isSymmetries;
+    return m_isWaveField;
   }
 
   void HydrodynamicDataBase::SetSymmetries() {
