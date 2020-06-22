@@ -133,8 +133,11 @@ namespace HDB5_io {
     auto discretizations = file.createGroup("Discretizations");
     H5Easy::dump(file, "Discretizations/Frequency",
                  static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (m_hdb->GetFrequencyDiscretization()));
+
+    // Conversion in degrees.
     H5Easy::dump(file, "Discretizations/WaveDirection",
-                 static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (m_hdb->GetWaveDirectionDiscretization()));
+                 static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (m_hdb->GetWaveDirectionDiscretization()
+                 * MU_180_PI));
     H5Easy::dump(file, "Discretizations/Time",
                  static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (m_hdb->GetTimeDiscretization()));
 

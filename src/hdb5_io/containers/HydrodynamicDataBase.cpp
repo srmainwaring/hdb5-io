@@ -88,7 +88,13 @@ namespace HDB5_io {
   }
 
   void HydrodynamicDataBase::SetWaveDirectionDiscretization(const mathutils::VectorN<double> &directions) {
+
+    // Setting in degrees.
     m_waveDirectionDiscretization = directions;
+
+    // Conversion in radians.
+    m_waveDirectionDiscretization *= MU_PI_180;
+
   }
 
   void HydrodynamicDataBase::SetTimeDiscretization(const mathutils::VectorN<double> &time) {

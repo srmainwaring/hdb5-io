@@ -424,10 +424,15 @@ namespace HDB5_io {
 //    assert(abs(max/double(nb) - min) < 1E-5);
     m_hdb->SetTimeDiscretization(mathutils::VectorN<double>::LinSpaced(nb, 0., max));
 
+    // The wave directions are written in degrees in the hdb5 file. The conversion degrees to radians is performed
+    // in the method SetWaveDirectionDiscretization.
     disc = file.getGroup("Discretizations").getGroup("WaveDirections");
-    disc.getDataSet("MinAngle").read(min);
-    disc.getDataSet("MaxAngle").read(max);
+    disc.getDataSet("MinAngle").read(min); // In degrees.
+    disc.getDataSet("MaxAngle").read(max); // In degrees.
     disc.getDataSet("NbWaveDirections").read(nb);
+
+    // The wave directions are read in degrees from the hdb5 file. The conversion degrees to radians is performed
+    // in the method SetWaveDirectionDiscretization.
     m_hdb->SetWaveDirectionDiscretization(mathutils::VectorN<double>::LinSpaced(nb, min, max));
   }
 
@@ -446,7 +451,10 @@ namespace HDB5_io {
 
     m_hdb->SetFrequencyDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/Frequency"));
     m_hdb->SetTimeDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/Time"));
-    m_hdb->SetWaveDirectionDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/WaveDirection"));
+
+    // The wave directions are read in degrees from the hdb5 file. The conversion degrees to radians is performed
+    // in the method SetWaveDirectionDiscretization.
+    m_hdb->SetWaveDirectionDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/WaveDirection")); // In degrees.
 
   }
 
