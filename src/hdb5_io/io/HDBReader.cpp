@@ -431,9 +431,8 @@ namespace HDB5_io {
     disc.getDataSet("MaxAngle").read(max); // In degrees.
     disc.getDataSet("NbWaveDirections").read(nb);
 
-    // The wave directions are read in degrees from the hdb5 file. The conversion degrees to radians is performed
-    // in the method SetWaveDirectionDiscretization.
-    m_hdb->SetWaveDirectionDiscretization(mathutils::VectorN<double>::LinSpaced(nb, min, max));
+    // The wave directions are read in degrees from the hdb5 file. The conversion degrees to radians is performed below.
+    m_hdb->SetWaveDirectionDiscretization(mathutils::VectorN<double>::LinSpaced(nb, min, max) * MU_PI_180);
   }
 
   Eigen::VectorXd
@@ -452,9 +451,8 @@ namespace HDB5_io {
     m_hdb->SetFrequencyDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/Frequency"));
     m_hdb->SetTimeDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/Time"));
 
-    // The wave directions are read in degrees from the hdb5 file. The conversion degrees to radians is performed
-    // in the method SetWaveDirectionDiscretization.
-    m_hdb->SetWaveDirectionDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/WaveDirection")); // In degrees.
+    // The wave directions are read in degrees from the hdb5 file. The conversion degrees to radians is performed below.
+    m_hdb->SetWaveDirectionDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/WaveDirection") * MU_PI_180);
 
   }
 
