@@ -252,7 +252,7 @@ namespace HDB5_io {
         }
       }
       auto angleGroup = HDF5_file.createGroup(anglePath);
-      H5Easy::dump(HDF5_file, anglePath + "/Angle", angle);
+      H5Easy::dump(HDF5_file, anglePath + "/Angle", angle * MU_180_PI);
       angleGroup.getDataSet("Angle").createAttribute<std::string>("Description", "Wave direction.");
       angleGroup.getDataSet("Angle").createAttribute<std::string>("Unit", "deg");
 
@@ -261,7 +261,7 @@ namespace HDB5_io {
                                                                        "Real part of the Froude-Krylov loads on body " +
                                                                        std::to_string(body->GetID()) +
                                                                        " for a wave direction of " + std::to_string(
-                                                                           angle) +
+                                                                           angle * MU_180_PI) +
                                                                        " deg.");
       angleGroup.getDataSet("RealCoeffs").createAttribute<std::string>("Unit", "N/m");
 
@@ -270,7 +270,7 @@ namespace HDB5_io {
                                                                        "Imaginary part of the Froude-Krylov loads on body " +
                                                                        std::to_string(body->GetID()) +
                                                                        " for a wave direction of " + std::to_string(
-                                                                           angle) +
+                                                                           angle * MU_180_PI) +
                                                                        " deg.");
       angleGroup.getDataSet("ImagCoeffs").createAttribute<std::string>("Unit", "N/m");
 
