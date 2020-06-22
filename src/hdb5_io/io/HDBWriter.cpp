@@ -545,7 +545,7 @@ namespace HDB5_io {
 
     auto kochin_step = m_hdb->GetWaveDrift()->GetKochinStep();
     dataSet = waveDriftGroup.createDataSet<double>("KochinStep", HighFive::DataSpace::From(kochin_step));
-    dataSet.write(kochin_step);
+    dataSet.write(kochin_step * MU_180_PI); // Conversion in degrees.
     dataSet.createAttribute<std::string>("Description", "Angular discretization in degrees for the Kochin functions");
 
     // Write wave drift data

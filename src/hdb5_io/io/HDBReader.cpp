@@ -331,13 +331,13 @@ namespace HDB5_io {
     waveDrift->SetWaveDirections(waveDirection);
 
     auto kochin_activate = H5Easy::load<int>(HDF5_file, "WaveDrift/Activation");
-    auto kochin_step = H5Easy::load<double>(HDF5_file, "WaveDrift/KochinStep");
+    auto kochin_step = H5Easy::load<double>(HDF5_file, "WaveDrift/KochinStep"); // In degree.
     auto sym_X = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_x");
     auto sym_Y = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_y");
 
     waveDrift->SetSymmetries(sym_X == 1, sym_Y == 1);
     waveDrift->SetKochinActivation(kochin_activate);
-    waveDrift->SetKochinStep(kochin_step);
+    waveDrift->SetKochinStep(kochin_step * MU_PI_180); // Conversion in radians.
 
     Eigen::MatrixXd surge(waveDirection.size(), frequency.size());
     Eigen::MatrixXd sway(waveDirection.size(), frequency.size());
