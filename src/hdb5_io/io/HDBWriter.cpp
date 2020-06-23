@@ -571,7 +571,7 @@ namespace HDB5_io {
         dataSet.createAttribute<std::string>("Description", "Wave Drift force coefficients");
 
         dataSet = headingGroup.createDataSet<double>("angle", HighFive::DataSpace::From(angle));
-        dataSet.write(angle);
+        dataSet.write(angle * MU_180_PI); // Conversion in degrees.
         dataSet.createAttribute<std::string>("Description", "Wave direction angle");
         // TODO : angle unit gestion to add
         dataSet.createAttribute<std::string>("Unit", "rad");
