@@ -17,6 +17,12 @@ set(highfive_PATCH highfive.patch)
 set(googletest_URL https://github.com/google/googletest.git)
 set(googletest_TAG release-1.8.1)
 
+
 # MeshOui
 set(meshoui_URL git@frydom-ce.org:ce/meshoui.git)
 set(meshoui_TAG feature/LL_HDB5IO_integration)
+
+
+# HDF5
+set(HDF5_URL https://github.com/HDFGroup/hdf5.git)
+set(HDF5_TAG hdf5-1_8_21)

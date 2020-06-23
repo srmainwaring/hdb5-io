@@ -17,7 +17,8 @@ add_library(hdb5io SHARED)
 target_sources(hdb5io PRIVATE ${HDB5IO_SRC_FILES})
 target_link_libraries(hdb5io PUBLIC
         MathUtils::MathUtils
-        HDF5
+#        HDF5  # when using the findHDF5 script into the Add_HDF5.cmake file
+        hdf5_cpp-static
         eigen
         HighFive
         meshoui
