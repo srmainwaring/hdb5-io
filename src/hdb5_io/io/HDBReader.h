@@ -89,15 +89,15 @@ namespace HDB5_io {
     virtual std::vector<Eigen::MatrixXd> ReadComponents(const HighFive::File &file, const std::string &path,
                                                         Eigen::MatrixXi radiationMask);
 
+    /// Read the wave drift data
+    /// \param file file containing the hydrodynamic database
+    virtual void ReadWaveDrift(HighFive::File &file) = 0;
+
     /// Read the mesh contained in the HDF5 file
     /// \param file file containing the mesh
     /// \param path path to the mesh in the file
     /// \param body body to which store the mesh
     virtual void ReadMesh(HighFive::File &file, const std::string &path, Body *body);
-
-    /// Read the wave drift data
-    /// \param file file containing the hydrodynamic database
-    virtual void ReadWaveDrift(HighFive::File &file);
 
     /// Read the wave field data
     /// \param file file containing the hydrodynamic database
@@ -137,6 +137,10 @@ namespace HDB5_io {
 
     void ReadDiscretizations(const HighFive::File &file) override;
 
+    /// Read the wave drift data
+    /// \param file file containing the hydrodynamic database
+    void ReadWaveDrift(HighFive::File &file) override;
+
     Eigen::VectorXd ReadWaveDriftComponents(HighFive::File &file, const std::string &path, unsigned int i) override;
 
   };
@@ -157,6 +161,10 @@ namespace HDB5_io {
     void ReadDiscretizations(const HighFive::File &file) override;
 
     Eigen::VectorXd ReadWaveDriftComponents(HighFive::File &file, const std::string &path, unsigned int i) override;
+
+    /// Read the wave drift data
+    /// \param file file containing the hydrodynamic database
+    virtual void ReadWaveDrift(HighFive::File &file);
 
     /// Read the radiation components
     /// \param file file containing the hydrodynamic database

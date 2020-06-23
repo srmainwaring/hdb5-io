@@ -318,51 +318,6 @@ namespace HDB5_io {
 
   }
 
-  void HDBReader::ReadWaveDrift(HighFive::File &HDF5_file) {
-
-    auto waveDrift = std::make_shared<WaveDrift>();
-
-//    auto frequency = H5Easy::load<Eigen::VectorXd>(HDF5_file, "WaveDrift/freq");
-    auto frequency = m_hdb->GetFrequencyDiscretization();
-    auto waveDirection = m_hdb->GetWaveDirectionDiscretization();
-//    assert(frequency == GetFrequencyDiscretization().GetVectorN());
-
-    waveDrift->SetFrequencies(m_hdb->GetFrequencyDiscretization());
-    waveDrift->SetWaveDirections(waveDirection);
-
-    auto kochin_activate = H5Easy::load<int>(HDF5_file, "WaveDrift/Activation");
-    auto kochin_step = H5Easy::load<double>(HDF5_file, "WaveDrift/KochinStep"); // In degree.
-    auto sym_X = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_x");
-    auto sym_Y = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_y");
-
-    waveDrift->SetSymmetries(sym_X == 1, sym_Y == 1);
-    waveDrift->SetKochinActivation(kochin_activate);
-    waveDrift->SetKochinStep(kochin_step * MU_PI_180); // Conversion in radians.
-
-    Eigen::MatrixXd surge(waveDirection.size(), frequency.size());
-    Eigen::MatrixXd sway(waveDirection.size(), frequency.size());
-    Eigen::MatrixXd yaw(waveDirection.size(), frequency.size());
-
-    for (unsigned int i = 0; i < waveDirection.size(); i++) {
-      auto data_surge = ReadWaveDriftComponents(HDF5_file, "WaveDrift/surge", i);
-      surge.row(i) = data_surge;
-      auto data_sway = ReadWaveDriftComponents(HDF5_file, "WaveDrift/sway", i);
-      sway.row(i) = data_sway;
-      auto data_yaw = ReadWaveDriftComponents(HDF5_file, "WaveDrift/yaw", i);
-      yaw.row(i) = data_yaw;
-    }
-
-    std::vector<double> coeff_surge(&surge(0, 0), surge.data() + surge.size());
-    waveDrift->AddData("surge", coeff_surge);
-    std::vector<double> coeff_sway(&sway(0, 0), sway.data() + sway.size());
-    waveDrift->AddData("sway", coeff_sway);
-    std::vector<double> coeff_yaw(&yaw(0, 0), yaw.data() + yaw.size());
-    waveDrift->AddData("yaw", coeff_yaw);
-
-    m_hdb->SetWaveDrift(waveDrift);
-
-  }
-
   void HDBReader::ReadWaveField(HighFive::File &file) {
 
     m_hdb->SetWaveField();
@@ -440,11 +395,96 @@ namespace HDB5_io {
     return H5Easy::load<Eigen::VectorXd>(HDF5_file, path + "/heading_" + std::to_string(i) + "/data");
   }
 
+  void HDBReader_v2::ReadWaveDrift(HighFive::File &HDF5_file) {
+
+    auto waveDrift = std::make_shared<WaveDrift>();
+
+//    auto frequency = H5Easy::load<Eigen::VectorXd>(HDF5_file, "WaveDrift/freq");
+    auto frequency = m_hdb->GetFrequencyDiscretization();
+    auto waveDirection = m_hdb->GetWaveDirectionDiscretization();
+//    assert(frequency == GetFrequencyDiscretization().GetVectorN());
+
+    waveDrift->SetFrequencies(m_hdb->GetFrequencyDiscretization());
+    waveDrift->SetWaveDirections(waveDirection);
+
+    auto sym_X = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_x");
+    auto sym_Y = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_y");
+
+    waveDrift->SetSymmetries(sym_X == 1, sym_Y == 1);
+
+    Eigen::MatrixXd surge(waveDirection.size(), frequency.size());
+    Eigen::MatrixXd sway(waveDirection.size(), frequency.size());
+    Eigen::MatrixXd yaw(waveDirection.size(), frequency.size());
+
+    for (unsigned int i = 0; i < waveDirection.size(); i++) {
+      auto data_surge = ReadWaveDriftComponents(HDF5_file, "WaveDrift/surge", i);
+      surge.row(i) = data_surge;
+      auto data_sway = ReadWaveDriftComponents(HDF5_file, "WaveDrift/sway", i);
+      sway.row(i) = data_sway;
+      auto data_yaw = ReadWaveDriftComponents(HDF5_file, "WaveDrift/yaw", i);
+      yaw.row(i) = data_yaw;
+    }
+
+    std::vector<double> coeff_surge(&surge(0, 0), surge.data() + surge.size());
+    waveDrift->AddData("surge", coeff_surge);
+    std::vector<double> coeff_sway(&sway(0, 0), sway.data() + sway.size());
+    waveDrift->AddData("sway", coeff_sway);
+    std::vector<double> coeff_yaw(&yaw(0, 0), yaw.data() + yaw.size());
+    waveDrift->AddData("yaw", coeff_yaw);
+
+    m_hdb->SetWaveDrift(waveDrift);
+
+  }
+
   Eigen::VectorXd
   HDBReader_v3::ReadWaveDriftComponents(HighFive::File &HDF5_file, const std::string &path, unsigned int i) {
     return H5Easy::load<Eigen::VectorXd>(HDF5_file, path + "/angle_" + std::to_string(i) + "/data");
   }
 
+  void HDBReader_v3::ReadWaveDrift(HighFive::File &HDF5_file) {
+
+    auto waveDrift = std::make_shared<WaveDrift>();
+
+//    auto frequency = H5Easy::load<Eigen::VectorXd>(HDF5_file, "WaveDrift/freq");
+    auto frequency = m_hdb->GetFrequencyDiscretization();
+    auto waveDirection = m_hdb->GetWaveDirectionDiscretization();
+//    assert(frequency == GetFrequencyDiscretization().GetVectorN());
+
+    waveDrift->SetFrequencies(m_hdb->GetFrequencyDiscretization());
+    waveDrift->SetWaveDirections(waveDirection);
+
+    auto kochin_activate = H5Easy::load<int>(HDF5_file, "WaveDrift/Activation");
+    auto kochin_step = H5Easy::load<double>(HDF5_file, "WaveDrift/KochinStep"); // In degree.
+    auto sym_X = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_x");
+    auto sym_Y = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_y");
+
+    waveDrift->SetSymmetries(sym_X == 1, sym_Y == 1);
+    waveDrift->SetKochinActivation(kochin_activate);
+    waveDrift->SetKochinStep(kochin_step * MU_PI_180); // Conversion in radians.
+
+    Eigen::MatrixXd surge(waveDirection.size(), frequency.size());
+    Eigen::MatrixXd sway(waveDirection.size(), frequency.size());
+    Eigen::MatrixXd yaw(waveDirection.size(), frequency.size());
+
+    for (unsigned int i = 0; i < waveDirection.size(); i++) {
+      auto data_surge = ReadWaveDriftComponents(HDF5_file, "WaveDrift/surge", i);
+      surge.row(i) = data_surge;
+      auto data_sway = ReadWaveDriftComponents(HDF5_file, "WaveDrift/sway", i);
+      sway.row(i) = data_sway;
+      auto data_yaw = ReadWaveDriftComponents(HDF5_file, "WaveDrift/yaw", i);
+      yaw.row(i) = data_yaw;
+    }
+
+    std::vector<double> coeff_surge(&surge(0, 0), surge.data() + surge.size());
+    waveDrift->AddData("surge", coeff_surge);
+    std::vector<double> coeff_sway(&sway(0, 0), sway.data() + sway.size());
+    waveDrift->AddData("sway", coeff_sway);
+    std::vector<double> coeff_yaw(&yaw(0, 0), yaw.data() + yaw.size());
+    waveDrift->AddData("yaw", coeff_yaw);
+
+    m_hdb->SetWaveDrift(waveDrift);
+
+  }
 
   void HDBReader_v3::ReadDiscretizations(const HighFive::File &file) {
 
