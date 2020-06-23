@@ -10,6 +10,7 @@ set(mathutils_TAG v1.2.1)
 # HighFive
 set(highfive_URL https://github.com/BlueBrain/HighFive.git)
 set(highfive_TAG master)
+set(highfive_PATCH highfive.patch)
 
 
 # GoogleTest

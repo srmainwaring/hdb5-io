@@ -22,10 +22,10 @@ target_link_libraries(hdb5io PUBLIC
         HighFive
         meshoui
         )
-target_compile_definitions(hdb5io PUBLIC -DOMPI_SKIP_MPICXX)
 
 if (HDB5IO_USE_VTK)
     target_link_libraries(hdb5io PUBLIC ${VTK_LIBRARIES})
+    target_compile_definitions(hdb5io PUBLIC -DOMPI_SKIP_MPICXX)
 endif ()
 
 
