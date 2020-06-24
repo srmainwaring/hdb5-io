@@ -38,14 +38,6 @@ namespace HDB5_io {
     return m_data->Eval(name, frequency, angle);
   }
 
-  void WaveDrift::SetKochinActivation(const bool &kochin_activate) {
-    m_kochin_activate = kochin_activate;
-  }
-
-  bool WaveDrift::GetKochinActivation() const {
-    return m_kochin_activate;
-  }
-
   void WaveDrift::SetKochinStep(const double &kochin_step) {
     m_kochin_step = kochin_step;
   }

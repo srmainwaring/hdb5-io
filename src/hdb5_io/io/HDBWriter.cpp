@@ -538,11 +538,6 @@ namespace HDB5_io {
     dataSet.createAttribute<std::string>("Description", "Symmetry along y");
 
     // Kochin data.
-    auto kochin_activate = m_hdb->GetWaveDrift()->GetKochinActivation();
-    dataSet = waveDriftGroup.createDataSet<unsigned int>("Activation", HighFive::DataSpace::From(kochin_activate));
-    dataSet.write(kochin_activate);
-    dataSet.createAttribute<std::string>("Description", "Activation of the Kochin functions and the mean wave drift loads");
-
     auto kochin_step = m_hdb->GetWaveDrift()->GetKochinStep();
     dataSet = waveDriftGroup.createDataSet<double>("KochinStep", HighFive::DataSpace::From(kochin_step));
     dataSet.write(kochin_step * MU_180_PI); // Conversion in degrees.
