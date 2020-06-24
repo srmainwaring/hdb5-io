@@ -10,3 +10,11 @@
 
 add_executable(test_import_export test_import_export.cpp)
 target_link_libraries(test_import_export hdb5io)
+
+
+set_target_properties( test_import_export
+        PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/test_hdb5io"
+        )

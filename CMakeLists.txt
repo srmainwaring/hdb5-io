@@ -72,7 +72,7 @@ endif()
 get_target_property(INC eigen INTERFACE_INCLUDE_DIRECTORIES)
 message(STATUS "Found eigen : ${INC}")
 
-set(Eigen3_DIR ${INC})
+set(EIGEN3_INCLUDE_DIRS ${INC})
 
 include(Add_HighFive)
 

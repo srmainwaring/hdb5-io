@@ -31,3 +31,10 @@ endif ()
 
 
 target_include_directories(hdb5io PUBLIC ${CMAKE_CURRENT_LIST_DIR}/..)
+
+set_target_properties( hdb5io
+        PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/hdb5io"
+        )
