@@ -26,4 +26,4 @@ set(meshoui_TAG feature/LL_HDB5IO_integration)
 # HDF5
 set(HDF5_URL https://github.com/HDFGroup/hdf5.git)
 set(HDF5_TAG hdf5-1_8_21)
-set(HDF5_PATCH hdf5_v1.8.21.patch)
+set(HDF5_PATCH hdf5.patch)
