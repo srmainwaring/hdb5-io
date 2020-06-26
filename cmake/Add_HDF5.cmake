@@ -13,7 +13,7 @@ include(FetchContent)
 FetchContent_Declare(HDF5
         GIT_REPOSITORY ${HDF5_URL}
         GIT_TAG ${HDF5_TAG}
-        PATCH_COMMAND patch < "${PROJECT_SOURCE_DIR}/cmake/patches/${HDF5_PATCH}"
+#        PATCH_COMMAND patch < "${PROJECT_SOURCE_DIR}/cmake/patches/${HDF5_PATCH}"
         )
 
 FetchContent_GetProperties(HDF5)

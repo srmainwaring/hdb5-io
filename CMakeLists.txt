@@ -28,7 +28,7 @@ project(HDB5_IO)
 #set(CMAKE_BUILD_TYPE Debug)
 
 # OPTIONS
-set(USE_VTK ON CACHE BOOL "Enable VTK Support" FORCE)
+set(USE_VTK OFF CACHE BOOL "Enable VTK Support" FORCE)
 mark_as_advanced(USE_VTK)
 
 option(HDB5IO_USE_VTK "Enable VTK Support" ${USE_VTK})
@@ -57,8 +57,8 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/URL.conf.cmake)
 
-include(Add_MathUtils)
 include(Add_HDF5)
+include(Add_MathUtils)
 include(Add_meshoui)
 
 message(STATUS "USE VTK : ${HDB5IO_USE_VTK}" )

@@ -11,6 +11,9 @@
 add_executable(test_import_export test_import_export.cpp)
 target_link_libraries(test_import_export hdb5io)
 
+if (HDB5IO_USE_VTK)
+    target_compile_definitions(test_import_export PUBLIC -DH5_USE_VTK)
+endif()
 
 set_target_properties( test_import_export
         PROPERTIES
