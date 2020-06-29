@@ -48,6 +48,10 @@ namespace HDB5_io {
     /// \param file file to export the hydrodynamic database
     virtual void WriteDiscretizations(HighFive::File &file) const;
 
+    /// Write the symmetries.
+    /// \param file file to export the hydrodynamic database
+    virtual void WriteSymmetries(HighFive::File &file) const;
+
     /// Write basic information related to the body given in the path
     /// \param file file to export the hydrodynamic database
     /// \param path path to the body data in the hdb5
@@ -83,6 +87,12 @@ namespace HDB5_io {
     /// \param file file to export the hydrodynamic database
     virtual void WriteWaveDrift(HighFive::File &file) const;
 
+    /// Write the wave field data..
+    /// \param file file to export the hydrodynamic database
+    virtual void WriteWaveField(HighFive::File &file) const;
+
+    /// Write the vector fitting data
+    /// \param file file to export the hydrodynamic database
     virtual void WriteVF(HighFive::File &file) const;
 
   };

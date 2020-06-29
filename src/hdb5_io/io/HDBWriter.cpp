@@ -26,13 +26,17 @@ namespace HDB5_io {
     // Wave frequency and wave directions.
     WriteDiscretizations(file);
 
+    // Symmetries.
+    if(m_hdb->GetSymmetries()) {
+      WriteSymmetries(file);
+    }
+
     auto bodies = file.createGroup("Bodies");
 
     for (unsigned int i = 0; i < m_hdb->GetNbBodies(); i++) {
+
       auto bodyGroup = bodies.createGroup("Body_" + std::to_string(i));
-
       auto body = m_hdb->GetBody(i);
-
       auto bodyPath = "Bodies/Body_" + std::to_string(i);
 
       // Body basic data (index, name, position, mass, etc.).
@@ -59,6 +63,11 @@ namespace HDB5_io {
     // Mean wave drift loads.
     if (m_hdb->GetWaveDrift()) {
       WriteWaveDrift(file);
+    }
+
+    // Wave field.
+    if(m_hdb->GetWaveField()) {
+      WriteWaveField(file);
     }
 
     // Vector fitting parameters.
@@ -124,10 +133,22 @@ namespace HDB5_io {
     auto discretizations = file.createGroup("Discretizations");
     H5Easy::dump(file, "Discretizations/Frequency",
                  static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (m_hdb->GetFrequencyDiscretization()));
+
+    // Conversion in degrees.
     H5Easy::dump(file, "Discretizations/WaveDirection",
-                 static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (m_hdb->GetWaveDirectionDiscretization()));
+                 static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (m_hdb->GetWaveDirectionDiscretization()
+                 * MU_180_PI));
     H5Easy::dump(file, "Discretizations/Time",
                  static_cast<Eigen::Matrix<double, Eigen::Dynamic, 1>> (m_hdb->GetTimeDiscretization()));
+
+  }
+
+  void HDBWriter::WriteSymmetries(HighFive::File &file) const {
+
+    auto Symmetries = file.createGroup("Symmetries");
+    H5Easy::dump(file, "Symmetries/Bottom", static_cast<int> (m_hdb->GetSymBottom()));
+    H5Easy::dump(file, "Symmetries/xOz", static_cast<int> (m_hdb->GetSymXOZ()));
+    H5Easy::dump(file, "Symmetries/yOz", static_cast<int> (m_hdb->GetSymYOZ()));
 
   }
 
@@ -231,7 +252,7 @@ namespace HDB5_io {
         }
       }
       auto angleGroup = HDF5_file.createGroup(anglePath);
-      H5Easy::dump(HDF5_file, anglePath + "/Angle", angle);
+      H5Easy::dump(HDF5_file, anglePath + "/Angle", angle * MU_180_PI);
       angleGroup.getDataSet("Angle").createAttribute<std::string>("Description", "Wave direction.");
       angleGroup.getDataSet("Angle").createAttribute<std::string>("Unit", "deg");
 
@@ -240,7 +261,7 @@ namespace HDB5_io {
                                                                        "Real part of the Froude-Krylov loads on body " +
                                                                        std::to_string(body->GetID()) +
                                                                        " for a wave direction of " + std::to_string(
-                                                                           angle) +
+                                                                           angle * MU_180_PI) +
                                                                        " deg.");
       angleGroup.getDataSet("RealCoeffs").createAttribute<std::string>("Unit", "N/m");
 
@@ -249,7 +270,7 @@ namespace HDB5_io {
                                                                        "Imaginary part of the Froude-Krylov loads on body " +
                                                                        std::to_string(body->GetID()) +
                                                                        " for a wave direction of " + std::to_string(
-                                                                           angle) +
+                                                                           angle * MU_180_PI) +
                                                                        " deg.");
       angleGroup.getDataSet("ImagCoeffs").createAttribute<std::string>("Unit", "N/m");
 
@@ -505,7 +526,6 @@ namespace HDB5_io {
 
     // Write symmetries data
     auto symmetries = m_hdb->GetWaveDrift()->GetSymmetries();
-
     auto sym_x = static_cast<unsigned int>(symmetries[0]);
     auto sym_y = static_cast<unsigned int>(symmetries[1]);
 
@@ -516,6 +536,12 @@ namespace HDB5_io {
     dataSet = waveDriftGroup.createDataSet<unsigned int>("sym_y", HighFive::DataSpace::From(sym_y));
     dataSet.write(sym_y);
     dataSet.createAttribute<std::string>("Description", "Symmetry along y");
+
+    // Kochin data.
+    auto kochin_step = m_hdb->GetWaveDrift()->GetKochinStep();
+    dataSet = waveDriftGroup.createDataSet<double>("KochinStep", HighFive::DataSpace::From(kochin_step));
+    dataSet.write(kochin_step * MU_180_PI); // Conversion in degrees.
+    dataSet.createAttribute<std::string>("Description", "Angular discretization in degrees for the Kochin functions");
 
     // Write wave drift data
     std::vector<std::string> components = {"surge", "sway", "yaw"};
@@ -540,13 +566,19 @@ namespace HDB5_io {
         dataSet.createAttribute<std::string>("Description", "Wave Drift force coefficients");
 
         dataSet = headingGroup.createDataSet<double>("angle", HighFive::DataSpace::From(angle));
-        dataSet.write(angle);
+        dataSet.write(angle * MU_180_PI); // Conversion in degrees.
         dataSet.createAttribute<std::string>("Description", "Wave direction angle");
         // TODO : angle unit gestion to add
         dataSet.createAttribute<std::string>("Unit", "rad");
 
       }
     }
+
+  }
+
+  void HDBWriter::WriteWaveField(HighFive::File &file) const {
+
+    auto VF = file.createGroup("WaveField");
 
   }
 

@@ -37,4 +37,13 @@ namespace HDB5_io {
   double WaveDrift::Eval(const std::string &name, double frequency, double angle) const {
     return m_data->Eval(name, frequency, angle);
   }
+
+  void WaveDrift::SetKochinStep(const double &kochin_step) {
+    m_kochin_step = kochin_step;
+  }
+
+  double WaveDrift::GetKochinStep() const {
+    return m_kochin_step;
+  }
+
 }

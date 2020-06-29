@@ -105,6 +105,26 @@ namespace HDB5_io {
 
     double GetVFTolerance() const;
 
+    void SetWaveField();
+
+    bool GetWaveField() const;
+
+    void SetSymmetries();
+
+    bool GetSymmetries() const;
+
+    void SetSymBottom(const bool &sym_bottom);
+
+    bool GetSymBottom() const;
+
+    void SetSymXOZ(const bool &sym_xOz);
+
+    bool GetSymXOZ() const;
+
+    void SetSymYOZ(const bool &sym_yOz);
+
+    bool GetSymYOZ() const;
+
    protected:
 
     std::string m_creationDate;       ///< Creation date of the HDB
@@ -120,6 +140,13 @@ namespace HDB5_io {
     int m_VF_relaxed; /// Relaxed vector fitting (1) or not (0).
     int m_VF_max_order; /// Maximum order of the vector fitting.
     double m_VF_tolerance; /// Tolerance of the vector fitting.
+
+    bool m_isWaveField = false;
+
+    bool m_isSymmetries = false;
+    bool m_sym_bottom; /// Bottom symmetry.
+    bool m_sym_xoz; /// (xOz) symmetry.
+    bool m_sym_yoz; /// (yOz) symmetry.
 
     int m_nbody;                      ///< Number of bodies in interaction considered in the HDB
     // FIXME :: change the vector to unordered_map with index as key, to be sure which body to get with the GetBody method

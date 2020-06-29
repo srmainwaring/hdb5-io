@@ -147,4 +147,44 @@ namespace HDB5_io {
     return m_VF_tolerance;
   }
 
+  void HydrodynamicDataBase::SetWaveField() {
+    m_isWaveField = true;
+  }
+
+  bool HydrodynamicDataBase::GetWaveField() const {
+    return m_isWaveField;
+  }
+
+  void HydrodynamicDataBase::SetSymmetries() {
+    m_isSymmetries = true;
+  }
+
+  bool HydrodynamicDataBase::GetSymmetries() const {
+    return m_isWaveField;
+  }
+
+  void HydrodynamicDataBase::SetSymBottom(const bool &sym_bottom) {
+    m_sym_bottom = sym_bottom;
+  }
+
+  bool HydrodynamicDataBase::GetSymBottom() const {
+    return m_sym_bottom;
+  }
+
+  void HydrodynamicDataBase::SetSymXOZ(const bool &sym_xoz) {
+    m_sym_xoz = sym_xoz;
+  }
+
+  bool HydrodynamicDataBase::GetSymXOZ() const {
+    return m_sym_xoz;
+  }
+
+  void HydrodynamicDataBase::SetSymYOZ(const bool &sym_yoz) {
+    m_sym_yoz = sym_yoz;
+  }
+
+  bool HydrodynamicDataBase::GetSymYOZ() const {
+    return m_sym_yoz;
+  }
+
 } // namespace HDB5_io
