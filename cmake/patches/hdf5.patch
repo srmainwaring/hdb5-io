@@ -1,11 +1,12 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 8fa2b6b959..0640279537 100644
+index 2062675ff3..a0f7f8a8f4 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -769,5 +769,6 @@ endif ()
+@@ -953,6 +953,7 @@ endif ()
  # Generate the H5pubconf.h file containing user settings needed by compilation
  #-----------------------------------------------------------------------------
  configure_file (${HDF_RESOURCES_DIR}/H5pubconf.h.in ${HDF5_BINARY_DIR}/H5pubconf.h @ONLY)
 +configure_file (${HDF_RESOURCES_DIR}/H5pubconf.h.in ${HDF5_SOURCE_DIR}/src/H5pubconf.h @ONLY)
  
- include (CMakeInstallation.cmake)
+ #-----------------------------------------------------------------------------
+ # Options for use by cross compiling and toolchains
