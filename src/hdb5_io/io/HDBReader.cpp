@@ -399,12 +399,12 @@ namespace HDB5_io {
 
     auto waveDrift = std::make_shared<WaveDrift>();
 
-//    auto frequency = H5Easy::load<Eigen::VectorXd>(HDF5_file, "WaveDrift/freq");
-    auto frequency = m_hdb->GetFrequencyDiscretization();
+    auto frequency = H5Easy::load<Eigen::VectorXd>(HDF5_file, "WaveDrift/freq");
+//    auto frequency = m_hdb->GetFrequencyDiscretization();
     auto waveDirection = m_hdb->GetWaveDirectionDiscretization();
 //    assert(frequency == GetFrequencyDiscretization().GetVectorN());
 
-    waveDrift->SetFrequencies(m_hdb->GetFrequencyDiscretization());
+    waveDrift->SetFrequencies(frequency);
     waveDrift->SetWaveDirections(waveDirection);
 
     auto sym_X = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_x");
@@ -417,12 +417,18 @@ namespace HDB5_io {
     Eigen::MatrixXd yaw(waveDirection.size(), frequency.size());
 
     for (unsigned int i = 0; i < waveDirection.size(); i++) {
-      auto data_surge = ReadWaveDriftComponents(HDF5_file, "WaveDrift/surge", i);
-      surge.row(i) = data_surge;
-      auto data_sway = ReadWaveDriftComponents(HDF5_file, "WaveDrift/sway", i);
-      sway.row(i) = data_sway;
-      auto data_yaw = ReadWaveDriftComponents(HDF5_file, "WaveDrift/yaw", i);
-      yaw.row(i) = data_yaw;
+      if (HDF5_file.exist("WaveDrift/surge")) {
+        auto data_surge = ReadWaveDriftComponents(HDF5_file, "WaveDrift/surge", i);
+        surge.row(i) = data_surge;
+      }
+      if (HDF5_file.exist("WaveDrift/sway")) {
+        auto data_sway = ReadWaveDriftComponents(HDF5_file, "WaveDrift/sway", i);
+        sway.row(i) = data_sway;
+      }
+      if (HDF5_file.exist("WaveDrift/yaw")) {
+        auto data_yaw = ReadWaveDriftComponents(HDF5_file, "WaveDrift/yaw", i);
+        yaw.row(i) = data_yaw;
+      }
     }
 
     std::vector<double> coeff_surge(&surge(0, 0), surge.data() + surge.size());
