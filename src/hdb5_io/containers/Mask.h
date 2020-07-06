@@ -135,6 +135,9 @@ namespace HDB5_io {
     std::vector<unsigned int> GetListDOF() const;
 
     std::vector<DOF> GetDOFs() const { return m_DOFs;}
+
+    Mask operator||(const Mask &otherMask) const;
+
   };
 
 
