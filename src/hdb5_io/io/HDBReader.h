@@ -87,7 +87,7 @@ namespace HDB5_io {
     /// \param radiationMask radiation mask
     /// \return matrix containing the components
     virtual std::vector<Eigen::MatrixXd> ReadComponents(const HighFive::File &file, const std::string &path,
-                                                        Eigen::MatrixXi radiationMask);
+                                                        Eigen::Matrix<bool,6,6> radiationMask);
 
     /// Read the wave drift data
     /// \param file file containing the hydrodynamic database

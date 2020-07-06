@@ -56,7 +56,7 @@ namespace HDB5_io {
 
     /// Define the mask on the force components
     /// \param mask Mask on the force components
-    void SetForceMask(mathutils::Vector6d<int> mask);
+    void SetForceMask(mathutils::Vector6d<bool> mask);
 
     /// Set the complex matrix of the diffraction coefficient
     /// \param iangle Corresponding wave direction
@@ -90,7 +90,7 @@ namespace HDB5_io {
     /// \param BodyMotion BEM body to which the motion is considered
     /// \param mask radiation mask of the BEM body with respect to the motion of another BEM body
 //    void SetRadiationMask(Body *BodyMotion, const mathutils::Matrix66<bool> &mask);
-    void SetRadiationMask(Body *BodyMotion, const mathutils::Matrix66<int> &mask);
+    void SetRadiationMask(Body *BodyMotion, const mathutils::Matrix66<bool> &mask);
 
     /// Set the complex matrix of the response amplitude operator
     /// \param iangle Corresponding wave direction

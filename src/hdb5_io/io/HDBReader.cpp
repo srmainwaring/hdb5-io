@@ -192,27 +192,28 @@ namespace HDB5_io {
       body->SetInfiniteAddedMass(bodyMotion, infiniteAddedMass);
 
       // Reading the radiation mask matrix for the body.
-      auto radiationMask = H5Easy::load<Eigen::MatrixXi>(HDF5_file, bodyMotionPath + "/RadiationMask");
-      body->SetRadiationMask(bodyMotion, radiationMask);
+      auto radiationMask = H5Easy::load<Eigen::Matrix<int,6,6>>(HDF5_file, bodyMotionPath + "/RadiationMask");
+      auto mask = radiationMask.cast<bool>();
+      body->SetRadiationMask(bodyMotion, mask);
 
       // Reading the impulse response functions.
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionK")) {
         auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK",
-                                                        radiationMask);
+                                                        mask);
         body->SetHDBInterpolator(Body::interpolatedData::IRF_K, bodyMotion, impulseResponseFunctionsK);
       }
 
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionKU")) {
         auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU",
-                                                   radiationMask);
+                                                   mask);
         body->SetHDBInterpolator(Body::interpolatedData::IRF_KU, bodyMotion, impulseResponseFunctionsK);
       }
 
       // Reading the added mass and radiation damping coefficients
-      auto addedMass = ReadComponents(HDF5_file, bodyMotionPath + "/AddedMass", radiationMask);
+      auto addedMass = ReadComponents(HDF5_file, bodyMotionPath + "/AddedMass", mask);
       body->SetHDBInterpolator(Body::interpolatedData::ADDED_MASS, bodyMotion, addedMass);
 
-      auto radiationDamping = ReadComponents(HDF5_file, bodyMotionPath + "/RadiationDamping", radiationMask);
+      auto radiationDamping = ReadComponents(HDF5_file, bodyMotionPath + "/RadiationDamping", mask);
       body->SetHDBInterpolator(Body::interpolatedData::RADIATION_DAMPING, bodyMotion, radiationDamping);
     }
 
@@ -260,7 +261,7 @@ namespace HDB5_io {
   }
 
   std::vector<Eigen::MatrixXd>
-  HDBReader::ReadComponents(const HighFive::File &HDF5_file, const std::string &path, Eigen::MatrixXi radiationMask) {
+  HDBReader::ReadComponents(const HighFive::File &HDF5_file, const std::string &path, Eigen::Matrix<bool,6,6> radiationMask) {
 
     std::vector<Eigen::MatrixXd> impulseResponseFunctionsK;
 
@@ -572,7 +573,7 @@ namespace HDB5_io {
     auto body =  HDBReader::ReadBodyBasics(file, path);
 
     // Force and Motion masks.
-    body->SetForceMask(H5Easy::load<Eigen::Matrix<int, 6, 1>>(file, path + "/Mask/ForceMask"));
+    body->SetForceMask(H5Easy::load<Eigen::Matrix<bool, 6, 1>>(file, path + "/Mask/ForceMask"));
 
     return body;
 
@@ -583,7 +584,7 @@ namespace HDB5_io {
     auto body =  HDBReader::ReadBodyBasics(file, path);
 
     // Force and Motion masks.
-    body->SetForceMask(H5Easy::load<Eigen::Matrix<int, 6, 1>>(file, path + "/Excitation/ForceMask"));
+    body->SetForceMask(H5Easy::load<Eigen::Matrix<bool, 6, 1>>(file, path + "/Excitation/ForceMask"));
 
     return body;
 
