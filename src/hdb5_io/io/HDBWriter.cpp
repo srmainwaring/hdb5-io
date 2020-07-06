@@ -475,7 +475,7 @@ namespace HDB5_io {
       Eigen::MatrixXcd coeff = body->GetRAO(iwaveDir);
 
       auto angleGroup = HDF5_file.createGroup(anglePath);
-      H5Easy::dump(HDF5_file, anglePath + "/Angle", angle);
+      H5Easy::dump(HDF5_file, anglePath + "/Angle", angle * MU_180_PI);
       angleGroup.getDataSet("Angle").createAttribute<std::string>("Description", "Wave direction.");
       angleGroup.getDataSet("Angle").createAttribute<std::string>("Unit", "deg");
 
@@ -484,7 +484,7 @@ namespace HDB5_io {
                                                                       "Amplitude of the RAO of body " +
                                                                       std::to_string(body->GetID()) +
                                                                       " for a wave direction of " + std::to_string(
-                                                                          angle) +
+                                                                          angle * MU_180_PI) +
                                                                       " deg.");
       angleGroup.getDataSet("Amplitude").createAttribute<std::string>("Unit", "");
 
@@ -493,7 +493,7 @@ namespace HDB5_io {
                                                                   "Phase of the RAO of body " +
                                                                   std::to_string(body->GetID()) +
                                                                   " for a wave direction of " + std::to_string(
-                                                                      angle) +
+                                                                      angle * MU_180_PI) +
                                                                   " deg.");
       angleGroup.getDataSet("Phase").createAttribute<std::string>("Unit", "rad");
 
