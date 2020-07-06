@@ -36,10 +36,6 @@ namespace HDB5_io {
     m_forceMask.SetMask(mask);
   }
 
-  void Body::SetMotionMask(mathutils::Vector6d<int> mask) {
-    m_motionMask.SetMask(mask);
-  }
-
   void Body::SetDiffraction(unsigned int iangle, const Eigen::MatrixXcd &diffractionMatrix) {
     assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
     assert(diffractionMatrix.rows() == 6);
@@ -271,10 +267,6 @@ namespace HDB5_io {
 
   mathutils::Vector3d<double> Body::GetPosition() const {
     return m_position;
-  }
-
-  Mask Body::GetMotionMask() const {
-    return m_motionMask;
   }
 
   Mask Body::GetForceMask() const {

@@ -174,11 +174,11 @@ namespace HDB5_io {
                                                                       "Center of gravity of the body in the absolute frame");
 
     // Mask.
-    bodyGroup.createGroup("Mask");
-    H5Easy::dump(file, path + "/Mask/ForceMask",
+    auto ExcitationGroup = bodyGroup.createGroup("Excitation");
+    ExcitationGroup.createGroup("Diffraction");
+    ExcitationGroup.createGroup("FroudeKrylov");
+    H5Easy::dump(file, path + "/Excitation/ForceMask",
                  static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetForceMask().GetMask()));
-    H5Easy::dump(file, path + "/Mask/MotionMask",
-                 static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetMotionMask().GetMask()));
 
     // Inertia matrix.
     if (body->HasInertia()) {

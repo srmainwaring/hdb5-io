@@ -58,10 +58,6 @@ namespace HDB5_io {
     /// \param mask Mask on the force components
     void SetForceMask(mathutils::Vector6d<int> mask);
 
-    /// Define the mask on the DOF of the body
-    /// \param mask Mask on the DOF of the body
-    void SetMotionMask(mathutils::Vector6d<int> mask);
-
     /// Set the complex matrix of the diffraction coefficient
     /// \param iangle Corresponding wave direction
     /// \param diffractionMatrix Complex matrix of the diffraction coefficient
@@ -158,11 +154,6 @@ namespace HDB5_io {
     /// Return the position of the body as stored in the HDB
     /// \return position of the body
     mathutils::Vector3d<double> GetPosition() const;
-
-    /// Return the mask value applied on a specific motion mode
-    /// \param imotion Index of motion
-    /// \return Mask on the motion mode
-    Mask GetMotionMask() const;
 
     /// Return the mask value applied on a specific motion mode
     /// \param iforce Index of force
@@ -289,7 +280,6 @@ namespace HDB5_io {
     mathutils::Vector3d<double> m_position;        ///< Position of the body COG
 
     Mask m_forceMask;                              ///< Mask applied on the force
-    Mask m_motionMask;                             ///< Mask applied on the DOF
 
     std::shared_ptr<Mesh> m_mesh;                  ///< mesh of the body
 

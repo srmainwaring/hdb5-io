@@ -104,10 +104,6 @@ namespace HDB5_io {
     // Position.
     body->SetPosition(H5Easy::load<Eigen::Vector3d>(file, path + "/BodyPosition"));
 
-    // Force and Motion masks.
-    body->SetForceMask(H5Easy::load<Eigen::Matrix<int, 6, 1>>(file, path + "/Mask/ForceMask"));
-    body->SetMotionMask(H5Easy::load<Eigen::Matrix<int, 6, 1>>(file, path + "/Mask/MotionMask"));
-
     // Hydrostatic matrix.
     if (file.exist(path + "/Hydrostatic")) {
       mathutils::Matrix66<double> stiffnessMatrix;
@@ -568,6 +564,28 @@ namespace HDB5_io {
       }
 
     }
+
+  }
+
+  Body *HDBReader_v2::ReadBodyBasics(const HighFive::File &file, const std::string &path) {
+
+    auto body =  HDBReader::ReadBodyBasics(file, path);
+
+    // Force and Motion masks.
+    body->SetForceMask(H5Easy::load<Eigen::Matrix<int, 6, 1>>(file, path + "/Mask/ForceMask"));
+
+    return body;
+
+  }
+
+  Body *HDBReader_v3::ReadBodyBasics(const HighFive::File &file, const std::string &path) {
+
+    auto body =  HDBReader::ReadBodyBasics(file, path);
+
+    // Force and Motion masks.
+    body->SetForceMask(H5Easy::load<Eigen::Matrix<int, 6, 1>>(file, path + "/Excitation/ForceMask"));
+
+    return body;
 
   }
 

@@ -137,6 +137,12 @@ namespace HDB5_io {
 
     void ReadDiscretizations(const HighFive::File &file) override;
 
+    /// Read basic information related to the body given in the path
+    /// \param file file containing the hydrodynamic database
+    /// \param path path to the body data in the hdb5
+    /// \return container of the body hydrodynamic data
+    Body *ReadBodyBasics(const HighFive::File &file, const std::string &path) override;
+
     /// Read the wave drift data
     /// \param file file containing the hydrodynamic database
     void ReadWaveDrift(HighFive::File &file) override;
@@ -159,6 +165,12 @@ namespace HDB5_io {
    protected:
 
     void ReadDiscretizations(const HighFive::File &file) override;
+
+    /// Read basic information related to the body given in the path
+    /// \param file file containing the hydrodynamic database
+    /// \param path path to the body data in the hdb5
+    /// \return container of the body hydrodynamic data
+    Body *ReadBodyBasics(const HighFive::File &file, const std::string &path) override;
 
     Eigen::VectorXd ReadWaveDriftComponents(HighFive::File &file, const std::string &path, unsigned int i) override;
 
