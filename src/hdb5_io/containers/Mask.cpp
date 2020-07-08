@@ -64,5 +64,17 @@ namespace HDB5_io {
     return newMask;
   }
 
+  Mask Mask::operator&&(const Mask &otherMask) const {
+    Mask newMask;
+
+    auto thisVectorMask = this->GetMask();
+
+    auto otherVectorMask = otherMask.GetMask();
+
+    newMask.SetMask(thisVectorMask&&otherVectorMask);
+
+    return newMask;
+  }
+
 
 } // namespace HDB5_io

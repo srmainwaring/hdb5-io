@@ -138,6 +138,8 @@ namespace HDB5_io {
 
     Mask operator||(const Mask &otherMask) const;
 
+    Mask operator&&(const Mask &otherMask) const;
+
   };
 
 
