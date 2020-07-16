@@ -177,7 +177,8 @@ namespace HDB5_io {
     auto ExcitationGroup = bodyGroup.createGroup("Excitation");
     ExcitationGroup.createGroup("Diffraction");
     ExcitationGroup.createGroup("FroudeKrylov");
-    H5Easy::dump(file, path + "/Excitation/ForceMask",
+    //TODO : move mask in Excitation folder once it has be done in HDB5Tool too
+    H5Easy::dump(file, path + "/Mask/ForceMask",
                  static_cast<Eigen::Matrix<bool, 6, 1>> (body->GetForceMask().GetMask()));
 
     // Inertia matrix.
