@@ -80,8 +80,8 @@ namespace HDB5_io {
 
   void HDBReader::ReadHDBBasics(const HighFive::File &HDF5_file) {
 
-//    m_hdb->SetCreationDate(H5Easy::load<std::string>(HDF5_file, "CreationDate"));
-//    m_hdb->SetSolver(H5Easy::load<std::string>(HDF5_file, "Solver"));
+    m_hdb->SetCreationDate(H5Easy::load<std::string>(HDF5_file, "CreationDate"));
+    m_hdb->SetSolver(H5Easy::load<std::string>(HDF5_file, "Solver"));
     m_hdb->SetNormalizationLength(H5Easy::load<double>(HDF5_file, "NormalizationLength"));
     m_hdb->SetGravityAcceleration(H5Easy::load<double>(HDF5_file, "GravityAcc"));
     m_hdb->SetWaterDensity(H5Easy::load<double>(HDF5_file, "WaterDensity"));
@@ -93,8 +93,8 @@ namespace HDB5_io {
   Body *HDBReader::ReadBodyBasics(const HighFive::File &file, const std::string &path) {
 
     // Name.
-    std::string name;
-//    auto name = H5Easy::load<std::string>(file, path + "/BodyName");
+//    std::string name;
+    auto name = H5Easy::load<std::string>(file, path + "/BodyName");
 
     // Index.
     auto id = H5Easy::load<unsigned int>(file, path + "/ID");
@@ -371,7 +371,7 @@ namespace HDB5_io {
     m_hdb->SetFrequencyDiscretization(mathutils::VectorN<double>::LinSpaced(nb, min, max));
 
     disc = file.getGroup("Discretizations").getGroup("Time");
-//    disc.getDataSet("TimeStep").read(min);
+    disc.getDataSet("TimeStep").read(min);
     disc.getDataSet("FinalTime").read(max);
     disc.getDataSet("NbTimeSample").read(nb);
 //    assert(abs(max/double(nb) - min) < 1E-5);
