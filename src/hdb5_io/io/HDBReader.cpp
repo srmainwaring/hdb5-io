@@ -95,13 +95,6 @@ namespace HDB5_io {
     // Name.
 //    std::string name;
     auto name = H5Easy::load<std::string>(file, path + "/BodyName");
-    if (name.empty())
-      std::cerr << "Empty body name in HDB file" << std::endl;
-    for (int i = 0; i < m_hdb->GetNbBodies(); i++) {
-      if (name == m_hdb->GetBody(i)->GetName())
-        std::cerr << "Two bodies with the same name in the hdb : body" << i << " and body " << m_hdb->GetNbBodies() + 1
-                  << std::endl;
-    }
 
     // Index.
     auto id = H5Easy::load<unsigned int>(file, path + "/ID");
