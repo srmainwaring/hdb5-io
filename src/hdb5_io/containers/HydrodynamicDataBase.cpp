@@ -70,12 +70,12 @@ namespace HDB5_io {
     auto bodyName = name;
     if (bodyName.empty()) {
       std::cerr<<"empty body name : " << id << std::endl;
-      bodyName = "body_0";
+      std::exit(EXIT_FAILURE);
     }
     for (auto & body : m_bodies) {
       if (bodyName == body->GetName()) {
         std::cerr << "body " << id << " and body " << body->GetID() << " have the same name !" << std::endl;
-        bodyName.append("_bis");
+        std::exit(EXIT_FAILURE);
       }
     }
     m_bodies.push_back(std::make_shared<Body>(id, bodyName, this));
