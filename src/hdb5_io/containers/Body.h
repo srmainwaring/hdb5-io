@@ -38,7 +38,7 @@ namespace HDB5_io {
     /// \param hdb pointer to the HDB
     Body(unsigned int id, const std::string &name, HydrodynamicDataBase *hdb);
 
-    void SetName(std::string name) {m_name = name;}
+//    void SetName(std::string name) {m_name = name;}
 
     /// Return the name of the BEM body database
     /// \return Name of the BEM body
