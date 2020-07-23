@@ -32,6 +32,10 @@ namespace HDB5_io {
       return m_residue;
     }
 
+    bool operator==(const PoleResiduePair<T> otherPair) const {
+      return m_pole == otherPair.m_pole && m_residue == otherPair.m_residue;
+    }
+
    private:
     T m_pole;
     T m_residue;
