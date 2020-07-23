@@ -111,7 +111,7 @@ namespace HDB5_io {
 
     /// Define the DOF mask from vector
     /// \param mask DOF Mask vector
-    void SetMask(mathutils::Vector6d<int> mask);
+    void SetMask(mathutils::Vector6d<bool> mask);
 
     /// Return the DOF Mask
     /// \return DOF Mask
@@ -135,6 +135,11 @@ namespace HDB5_io {
     std::vector<unsigned int> GetListDOF() const;
 
     std::vector<DOF> GetDOFs() const { return m_DOFs;}
+
+    Mask operator||(const Mask &otherMask) const;
+
+    Mask operator&&(const Mask &otherMask) const;
+
   };
 
 

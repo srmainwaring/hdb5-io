@@ -9,7 +9,7 @@ if (NOT highfive_FOUND)
     FetchContent_Declare(highfive
             GIT_REPOSITORY ${highfive_URL}
             GIT_TAG ${highfive_TAG}
-            PATCH_COMMAND patch < "${PROJECT_SOURCE_DIR}/cmake/patches/${highfive_PATCH}"
+#            PATCH_COMMAND patch < "${PROJECT_SOURCE_DIR}/cmake/patches/${highfive_PATCH}"
             )
 
     FetchContent_GetProperties(highfive)

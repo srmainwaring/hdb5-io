@@ -32,12 +32,8 @@ namespace HDB5_io {
     m_position = position;
   }
 
-  void Body::SetForceMask(mathutils::Vector6d<int> mask) {
+  void Body::SetForceMask(mathutils::Vector6d<bool> mask) {
     m_forceMask.SetMask(mask);
-  }
-
-  void Body::SetMotionMask(mathutils::Vector6d<int> mask) {
-    m_motionMask.SetMask(mask);
   }
 
   void Body::SetDiffraction(unsigned int iangle, const Eigen::MatrixXcd &diffractionMatrix) {
@@ -83,15 +79,16 @@ namespace HDB5_io {
 //    m_radiationMask[BodyMotion] = mask;
 //  }
 
-  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const mathutils::Matrix66<int> &mask) {
+  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const mathutils::Matrix66<bool> &mask) {
 
     assert(mask.maxCoeff() <= 1 and mask.minCoeff() >= 0);
+    m_radiationMask[BodyMotion] = mask;
 
-    for (unsigned int i = 0; i < 6; i++) {
-      for (unsigned int j = 0; j < 6; j++) {
-        m_radiationMask[BodyMotion](i, j) = mask(i, j) == 1;
-      }
-    }
+//    for (unsigned int i = 0; i < 6; i++) {
+//      for (unsigned int j = 0; j < 6; j++) {
+//        m_radiationMask[BodyMotion](i, j) = mask(i, j) == 1;
+//      }
+//    }
   }
 
   void Body::SetRAO(unsigned int iangle, const Eigen::MatrixXcd &RAO) {
@@ -271,10 +268,6 @@ namespace HDB5_io {
 
   mathutils::Vector3d<double> Body::GetPosition() const {
     return m_position;
-  }
-
-  Mask Body::GetMotionMask() const {
-    return m_motionMask;
   }
 
   Mask Body::GetForceMask() const {

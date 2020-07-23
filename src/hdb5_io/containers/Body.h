@@ -38,6 +38,8 @@ namespace HDB5_io {
     /// \param hdb pointer to the HDB
     Body(unsigned int id, const std::string &name, HydrodynamicDataBase *hdb);
 
+//    void SetName(std::string name) {m_name = name;}
+
     /// Return the name of the BEM body database
     /// \return Name of the BEM body
     std::string GetName() const { return m_name; }
@@ -56,11 +58,7 @@ namespace HDB5_io {
 
     /// Define the mask on the force components
     /// \param mask Mask on the force components
-    void SetForceMask(mathutils::Vector6d<int> mask);
-
-    /// Define the mask on the DOF of the body
-    /// \param mask Mask on the DOF of the body
-    void SetMotionMask(mathutils::Vector6d<int> mask);
+    void SetForceMask(mathutils::Vector6d<bool> mask);
 
     /// Set the complex matrix of the diffraction coefficient
     /// \param iangle Corresponding wave direction
@@ -94,7 +92,7 @@ namespace HDB5_io {
     /// \param BodyMotion BEM body to which the motion is considered
     /// \param mask radiation mask of the BEM body with respect to the motion of another BEM body
 //    void SetRadiationMask(Body *BodyMotion, const mathutils::Matrix66<bool> &mask);
-    void SetRadiationMask(Body *BodyMotion, const mathutils::Matrix66<int> &mask);
+    void SetRadiationMask(Body *BodyMotion, const mathutils::Matrix66<bool> &mask);
 
     /// Set the complex matrix of the response amplitude operator
     /// \param iangle Corresponding wave direction
@@ -158,11 +156,6 @@ namespace HDB5_io {
     /// Return the position of the body as stored in the HDB
     /// \return position of the body
     mathutils::Vector3d<double> GetPosition() const;
-
-    /// Return the mask value applied on a specific motion mode
-    /// \param imotion Index of motion
-    /// \return Mask on the motion mode
-    Mask GetMotionMask() const;
 
     /// Return the mask value applied on a specific motion mode
     /// \param iforce Index of force
@@ -289,7 +282,6 @@ namespace HDB5_io {
     mathutils::Vector3d<double> m_position;        ///< Position of the body COG
 
     Mask m_forceMask;                              ///< Mask applied on the force
-    Mask m_motionMask;                             ///< Mask applied on the DOF
 
     std::shared_ptr<Mesh> m_mesh;                  ///< mesh of the body
 

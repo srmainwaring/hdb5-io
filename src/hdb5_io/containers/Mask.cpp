@@ -6,20 +6,22 @@
 
 namespace HDB5_io {
 
-  void Mask::SetMask(mathutils::Vector6d<int> mask) {
+  void Mask::SetMask(mathutils::Vector6d<bool> mask) {
 
     for (unsigned int i = 0; i < 6; i++) { assert(mask(i) == 0 or mask(i) == 1); }
 
+    m_nbDOF = 0;
     for (unsigned int i = 0; i < 6; i++) {
-      if (mask(i) == 1) {
+      if (mask(i)) {
         m_mask(i) = true;
         m_DOFs.emplace_back(i);
+        m_nbDOF++;
       } else {
         m_mask(i) = false;
       }
     }
 
-    m_nbDOF = (unsigned int) mask.sum();
+//    m_nbDOF = (unsigned int) mask.sum();
 
     m_matrix = Eigen::MatrixXd::Zero(6, m_nbDOF);
     unsigned int j = 0;
@@ -48,6 +50,30 @@ namespace HDB5_io {
     }
 
     return DOFlist;
+  }
+
+  Mask Mask::operator||(const Mask &otherMask) const {
+    Mask newMask;
+
+    auto thisVectorMask = this->GetMask();
+
+    auto otherVectorMask = otherMask.GetMask();
+
+    newMask.SetMask(thisVectorMask||otherVectorMask);
+
+    return newMask;
+  }
+
+  Mask Mask::operator&&(const Mask &otherMask) const {
+    Mask newMask;
+
+    auto thisVectorMask = this->GetMask();
+
+    auto otherVectorMask = otherMask.GetMask();
+
+    newMask.SetMask(thisVectorMask&&otherVectorMask);
+
+    return newMask;
   }
 
 

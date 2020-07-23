@@ -93,6 +93,7 @@ namespace HDB5_io {
   Body *HDBReader::ReadBodyBasics(const HighFive::File &file, const std::string &path) {
 
     // Name.
+//    std::string name;
     auto name = H5Easy::load<std::string>(file, path + "/BodyName");
 
     // Index.
@@ -103,10 +104,6 @@ namespace HDB5_io {
 
     // Position.
     body->SetPosition(H5Easy::load<Eigen::Vector3d>(file, path + "/BodyPosition"));
-
-    // Force and Motion masks.
-    body->SetForceMask(H5Easy::load<Eigen::Matrix<int, 6, 1>>(file, path + "/Mask/ForceMask"));
-    body->SetMotionMask(H5Easy::load<Eigen::Matrix<int, 6, 1>>(file, path + "/Mask/MotionMask"));
 
     // Hydrostatic matrix.
     if (file.exist(path + "/Hydrostatic")) {
@@ -196,27 +193,28 @@ namespace HDB5_io {
       body->SetInfiniteAddedMass(bodyMotion, infiniteAddedMass);
 
       // Reading the radiation mask matrix for the body.
-      auto radiationMask = H5Easy::load<Eigen::MatrixXi>(HDF5_file, bodyMotionPath + "/RadiationMask");
-      body->SetRadiationMask(bodyMotion, radiationMask);
+      auto radiationMask = H5Easy::load<Eigen::Matrix<int, 6, 6>>(HDF5_file, bodyMotionPath + "/RadiationMask");
+      auto mask = radiationMask.cast<bool>();
+      body->SetRadiationMask(bodyMotion, mask);
 
       // Reading the impulse response functions.
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionK")) {
         auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK",
-                                                        radiationMask);
+                                                        mask);
         body->SetHDBInterpolator(Body::interpolatedData::IRF_K, bodyMotion, impulseResponseFunctionsK);
       }
 
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionKU")) {
         auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU",
-                                                   radiationMask);
+                                                        mask);
         body->SetHDBInterpolator(Body::interpolatedData::IRF_KU, bodyMotion, impulseResponseFunctionsK);
       }
 
       // Reading the added mass and radiation damping coefficients
-      auto addedMass = ReadComponents(HDF5_file, bodyMotionPath + "/AddedMass", radiationMask);
+      auto addedMass = ReadComponents(HDF5_file, bodyMotionPath + "/AddedMass", mask);
       body->SetHDBInterpolator(Body::interpolatedData::ADDED_MASS, bodyMotion, addedMass);
 
-      auto radiationDamping = ReadComponents(HDF5_file, bodyMotionPath + "/RadiationDamping", radiationMask);
+      auto radiationDamping = ReadComponents(HDF5_file, bodyMotionPath + "/RadiationDamping", mask);
       body->SetHDBInterpolator(Body::interpolatedData::RADIATION_DAMPING, bodyMotion, radiationDamping);
     }
 
@@ -264,7 +262,8 @@ namespace HDB5_io {
   }
 
   std::vector<Eigen::MatrixXd>
-  HDBReader::ReadComponents(const HighFive::File &HDF5_file, const std::string &path, Eigen::MatrixXi radiationMask) {
+  HDBReader::ReadComponents(const HighFive::File &HDF5_file, const std::string &path,
+                            Eigen::Matrix<bool, 6, 6> radiationMask) {
 
     std::vector<Eigen::MatrixXd> impulseResponseFunctionsK;
 
@@ -399,12 +398,12 @@ namespace HDB5_io {
 
     auto waveDrift = std::make_shared<WaveDrift>();
 
-//    auto frequency = H5Easy::load<Eigen::VectorXd>(HDF5_file, "WaveDrift/freq");
-    auto frequency = m_hdb->GetFrequencyDiscretization();
+    auto frequency = H5Easy::load<Eigen::VectorXd>(HDF5_file, "WaveDrift/freq");
+//    auto frequency = m_hdb->GetFrequencyDiscretization();
     auto waveDirection = m_hdb->GetWaveDirectionDiscretization();
 //    assert(frequency == GetFrequencyDiscretization().GetVectorN());
 
-    waveDrift->SetFrequencies(m_hdb->GetFrequencyDiscretization());
+    waveDrift->SetFrequencies(frequency);
     waveDrift->SetWaveDirections(waveDirection);
 
     auto sym_X = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_x");
@@ -417,12 +416,18 @@ namespace HDB5_io {
     Eigen::MatrixXd yaw(waveDirection.size(), frequency.size());
 
     for (unsigned int i = 0; i < waveDirection.size(); i++) {
-      auto data_surge = ReadWaveDriftComponents(HDF5_file, "WaveDrift/surge", i);
-      surge.row(i) = data_surge;
-      auto data_sway = ReadWaveDriftComponents(HDF5_file, "WaveDrift/sway", i);
-      sway.row(i) = data_sway;
-      auto data_yaw = ReadWaveDriftComponents(HDF5_file, "WaveDrift/yaw", i);
-      yaw.row(i) = data_yaw;
+      if (HDF5_file.exist("WaveDrift/surge")) {
+        auto data_surge = ReadWaveDriftComponents(HDF5_file, "WaveDrift/surge", i);
+        surge.row(i) = data_surge;
+      }
+      if (HDF5_file.exist("WaveDrift/sway")) {
+        auto data_sway = ReadWaveDriftComponents(HDF5_file, "WaveDrift/sway", i);
+        sway.row(i) = data_sway;
+      }
+      if (HDF5_file.exist("WaveDrift/yaw")) {
+        auto data_yaw = ReadWaveDriftComponents(HDF5_file, "WaveDrift/yaw", i);
+        yaw.row(i) = data_yaw;
+      }
     }
 
     std::vector<double> coeff_surge(&surge(0, 0), surge.data() + surge.size());
@@ -490,7 +495,8 @@ namespace HDB5_io {
     m_hdb->SetTimeDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/Time"));
 
     // The wave directions are read in degrees from the hdb5 file. The conversion degrees to radians is performed below.
-    m_hdb->SetWaveDirectionDiscretization(H5Easy::load<Eigen::VectorXd>(file, "Discretizations/WaveDirection") * MU_PI_180);
+    m_hdb->SetWaveDirectionDiscretization(
+        H5Easy::load<Eigen::VectorXd>(file, "Discretizations/WaveDirection") * MU_PI_180);
 
   }
 
@@ -519,7 +525,7 @@ namespace HDB5_io {
             // Real poles and residues.
             int nPoles_real = 0;
             Eigen::VectorXd poles, residues;
-            if(file.exist(forcePath + "/RealPoles")){
+            if (file.exist(forcePath + "/RealPoles")) {
               poles = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/RealPoles");
               nPoles_real = poles.size();
               residues = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/RealResidues");
@@ -529,7 +535,7 @@ namespace HDB5_io {
             // Complex poles and residues.
             int nPoles_cc = 0;
             Eigen::VectorXcd cplxPoles, cplxResidues;
-            if(file.exist(forcePath + "/ComplexPoles/RealCoeff")) {
+            if (file.exist(forcePath + "/ComplexPoles/RealCoeff")) {
               // Poles.
               auto realCoeff = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/ComplexPoles/RealCoeff");
               auto imagCoeff = H5Easy::load<Eigen::VectorXd>(file, forcePath + "/ComplexPoles/ImagCoeff");
@@ -546,10 +552,10 @@ namespace HDB5_io {
 
             // Adding to modalCoeff.
             PoleResidue pair;
-            for (int i=0; i < nPoles_real; i++) {
+            for (int i = 0; i < nPoles_real; i++) {
               pair.AddPoleResidue(poles(i), residues(i));
             }
-            for (int i=0; i < nPoles_cc; i++) {
+            for (int i = 0; i < nPoles_cc; i++) {
               pair.AddPoleResidue(cplxPoles(i), cplxResidues(i));
             }
             modalCoeff.emplace_back(pair);
@@ -562,6 +568,29 @@ namespace HDB5_io {
       }
 
     }
+
+  }
+
+  Body *HDBReader_v2::ReadBodyBasics(const HighFive::File &file, const std::string &path) {
+
+    auto body = HDBReader::ReadBodyBasics(file, path);
+
+    // Force and Motion masks.
+    body->SetForceMask(H5Easy::load<Eigen::Matrix<bool, 6, 1>>(file, path + "/Mask/ForceMask"));
+
+    return body;
+
+  }
+
+  Body *HDBReader_v3::ReadBodyBasics(const HighFive::File &file, const std::string &path) {
+
+    auto body = HDBReader::ReadBodyBasics(file, path);
+
+    // Force and Motion masks.
+    //TODO : move Mask to Excitation folder once it has be done in HDB5Tool too
+    body->SetForceMask(H5Easy::load<Eigen::Matrix<bool, 6, 1>>(file, path + "/Mask/ForceMask"));
+
+    return body;
 
   }
 
