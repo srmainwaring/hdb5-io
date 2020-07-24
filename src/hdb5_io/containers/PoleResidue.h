@@ -51,10 +51,10 @@ namespace HDB5_io {
     T m_state;
   };
 
-//  using RealPoleResiduePair = PoleResiduePair<double>;
-//  using CCPoleResiduePair = PoleResiduePair<std::complex<double>>;
-  using RealPoleResiduePair = std::pair<double, double>;
-  using CCPoleResiduePair = std::pair<std::complex<double>,std::complex<double>>;
+  using RealPoleResiduePair = PoleResiduePair<double>;
+  using CCPoleResiduePair = PoleResiduePair<std::complex<double>>;
+//  using RealPoleResiduePair = std::pair<double, double>;
+//  using CCPoleResiduePair = std::pair<std::complex<double>,std::complex<double>>;
 
   /**
   * \class PoleResidue
