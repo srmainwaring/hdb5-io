@@ -37,7 +37,7 @@ namespace HDB5_io {
       return m_state;
     }
 
-    inline void state(const T &state) {
+    inline void state(T state) {
       m_state = state;
     }
 
@@ -83,6 +83,15 @@ namespace HDB5_io {
     std::vector<double> GetRealPoles() const;
 
     std::vector<double> GetRealResidues() const;
+
+    Eigen::VectorXcd GetResidues() const;
+
+    Eigen::VectorXcd GetPoles() const;
+
+    Eigen::VectorXcd GetStates() const;
+
+    void SetStates(Eigen::VectorXcd states);
+
 
     /// Get the complex poles in a matrix form, where the real part is in the first row and the imaginary part in the
     /// second row. For writing purpose mostly
