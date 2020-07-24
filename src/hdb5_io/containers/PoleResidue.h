@@ -33,6 +33,14 @@ namespace HDB5_io {
       return m_residue;
     }
 
+    inline const T &state() const {
+      return m_state;
+    }
+
+    inline void state(const T &state) {
+      m_state = state;
+    }
+
     bool operator==(const PoleResiduePair<T> otherPair) const {
       return m_pole == otherPair.m_pole && m_residue == otherPair.m_residue;
     }
@@ -40,6 +48,7 @@ namespace HDB5_io {
    private:
     T m_pole;
     T m_residue;
+    T m_state;
   };
 
 //  using RealPoleResiduePair = PoleResiduePair<double>;
