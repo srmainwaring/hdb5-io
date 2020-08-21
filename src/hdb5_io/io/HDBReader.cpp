@@ -39,7 +39,9 @@ namespace HDB5_io {
     for (auto &body : bodies) {
 
       // Body mesh.
-      ReadMesh(file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Mesh", body);
+      if (file.getGroup("Bodies/Body_" + std::to_string(body->GetID())).exist("Mesh")) {
+        ReadMesh(file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Mesh", body);
+      }
 
       // Diffraction loads.
       ReadExcitation(Diffraction, file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Excitation/Diffraction",
@@ -297,6 +299,8 @@ namespace HDB5_io {
     auto nbVertices = H5Easy::load<int>(HDF5_file, path + "/NbVertices");
     auto nbFaces = H5Easy::load<int>(HDF5_file, path + "/NbFaces");
 
+    if (nbFaces ==0 && nbVertices==0) return;
+
     auto vertices_hdb = H5Easy::load<Eigen::MatrixXd>(HDF5_file, path + "/Vertices");
     auto faces_hdb = H5Easy::load<Eigen::MatrixXi>(HDF5_file, path + "/Faces");
 
@@ -458,7 +462,9 @@ namespace HDB5_io {
     waveDrift->SetFrequencies(m_hdb->GetFrequencyDiscretization());
     waveDrift->SetWaveDirections(waveDirection);
 
-    auto kochin_step = H5Easy::load<double>(HDF5_file, "WaveDrift/KochinStep"); // In degree.
+    double kochin_step = 0;
+    if (HDF5_file.exist("WaveDrift/KochinStep"))
+      kochin_step = H5Easy::load<double>(HDF5_file, "WaveDrift/KochinStep"); // In degree.
     auto sym_X = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_x");
     auto sym_Y = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_y");
 
