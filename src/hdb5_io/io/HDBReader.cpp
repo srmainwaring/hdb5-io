@@ -463,8 +463,7 @@ namespace HDB5_io {
     waveDrift->SetWaveDirections(waveDirection);
 
     double kochin_step = 0;
-    if (HDF5_file.exist("WaveDrift/KochinStep"))
-      kochin_step = H5Easy::load<double>(HDF5_file, "WaveDrift/KochinStep"); // In degree.
+    kochin_step = H5Easy::load<double>(HDF5_file, "WaveDrift/KochinStep"); // In degree.
     auto sym_X = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_x");
     auto sym_Y = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_y");
 
