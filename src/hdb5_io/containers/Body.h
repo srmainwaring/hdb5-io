@@ -117,6 +117,11 @@ namespace HDB5_io {
     /// \param RAO Complex matrix of the response amplitude operator
     void SetRAO(unsigned int iangle, const Eigen::MatrixXcd &RAO);
 
+    /// Set the complex vector of the response amplitude operator
+    /// \param iangle Corresponding wave direction
+    /// \param iw Corresponding wave frequency
+    /// \param RAO Complex vector of the response amplitude operator
+    void SetRAO(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &RAO);
 
     enum interpolatedData {
       IRF_K, IRF_KU, ADDED_MASS, RADIATION_DAMPING

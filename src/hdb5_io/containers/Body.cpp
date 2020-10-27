@@ -123,6 +123,15 @@ namespace HDB5_io {
     m_isRAO = true;
   }
 
+  void Body::SetRAO(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &RAO) {
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
+    assert(iw < m_HDB->GetFrequencyDiscretization().size());
+    assert(RAO.rows() == 6);
+    assert(RAO.cols() == 1);
+    m_RAO[iangle].col(iw) = RAO;
+    m_isRAO = true;
+  }
+
   void Body::SetHDBInterpolator(interpolatedData type, Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData) {
 
     unsigned int idof = 0;
