@@ -43,6 +43,14 @@ namespace HDB5_io {
     m_diffraction[iangle] = diffractionMatrix;
   }
 
+  void Body::SetDiffraction(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &diffractionVector){
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
+    assert(iw < m_HDB->GetFrequencyDiscretization().size());
+    assert(diffractionVector.rows() == 6);
+    assert(diffractionVector.cols() == 1);
+    m_diffraction[iangle].col(iw) = diffractionVector;
+  }
+
   void Body::SetFroudeKrylov(unsigned int iangle, const Eigen::MatrixXcd &froudeKrylovMatrix) {
     assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
     assert(froudeKrylovMatrix.rows() == 6);
@@ -50,11 +58,27 @@ namespace HDB5_io {
     m_froudeKrylov[iangle] = froudeKrylovMatrix;
   }
 
+  void Body::SetFroudeKrylov(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &froudeKrylovVector) {
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
+    assert(iw < m_HDB->GetFrequencyDiscretization().size());
+    assert(froudeKrylovVector.rows() == 6);
+    assert(froudeKrylovVector.cols() == 1);
+    m_froudeKrylov[iangle].col(iw) = froudeKrylovVector;
+  }
+
   void Body::SetExcitation(unsigned int iangle, const Eigen::MatrixXcd &excitationMatrix) {
     assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
     assert(excitationMatrix.rows() == 6);
     assert(excitationMatrix.cols() == m_HDB->GetFrequencyDiscretization().size());
     m_excitation[iangle] = excitationMatrix;
+  }
+
+  void Body::SetExcitation(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &excitationVector) {
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
+    assert(iw < m_HDB->GetFrequencyDiscretization().size());
+    assert(excitationVector.rows() == 6);
+    assert(excitationVector.cols() == 1);
+    m_excitation[iangle].col(iw) = excitationVector;
   }
 
   void Body::ComputeExcitation() {

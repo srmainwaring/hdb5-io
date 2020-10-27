@@ -65,15 +65,33 @@ namespace HDB5_io {
     /// \param diffractionMatrix Complex matrix of the diffraction coefficient
     void SetDiffraction(unsigned int iangle, const Eigen::MatrixXcd &diffractionMatrix);
 
-    /// Set the complex matrix of the froude-krylov coefficient
+    /// Set the complex vector of the diffraction coefficient
     /// \param iangle Corresponding wave direction
-    /// \param froudeKrylovMatrix Complex matrix of the diffraction coefficient
+    /// \param iw Corresponding wave frequency
+    /// \param diffractionVector Complex vector of the diffraction coefficient
+    void SetDiffraction(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &diffractionVector);
+
+    /// Set the complex matrix of the Froude-Krylov coefficient
+    /// \param iangle Corresponding wave direction
+    /// \param froudeKrylovMatrix Complex matrix of the Froude-Krylov coefficient
     void SetFroudeKrylov(unsigned int iangle, const Eigen::MatrixXcd &froudeKrylovMatrix);
+
+    /// Set the complex vector of the Froude-Krylov coefficient
+    /// \param iangle Corresponding wave direction
+    /// \param iw Corresponding wave frequency
+    /// \param froudeKrylovVector Complex vector of the Froude-Krylov coefficient
+    void SetFroudeKrylov(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &froudeKrylovMatrix);
 
     /// Set the complex matrix of the wave excitation coefficient
     /// \param iangle Corresponding wave direction
     /// \param excitationMatrix Complex matrix of the wave excitation coefficients
     void SetExcitation(unsigned int iangle, const Eigen::MatrixXcd &excitationMatrix);
+
+    /// Set the complex vector of the wave excitation coefficient
+    /// \param iangle Corresponding wave direction
+    /// \param iw Corresponding wave frequency
+    /// \param excitationVector Complex vector of the wave excitation coefficients
+    void SetExcitation(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &excitationVector);
 
     /// Compute the excitation loads from the diffraction loads and the Froude-Krylov loads.
     void ComputeExcitation();
@@ -286,12 +304,20 @@ namespace HDB5_io {
     std::shared_ptr<Mesh> m_mesh;                  ///< mesh of the body
 
     // TODO :replace these std::vector with 2D-interpolator, or at least unordered_map ?
-    std::vector<Eigen::MatrixXcd> m_excitation;    ///< Complex coefficient of the excitation force
-    std::vector<Eigen::MatrixXcd> m_froudeKrylov;  ///< Complex coefficient of the froude-krylov force
-    std::vector<Eigen::MatrixXcd> m_diffraction;   ///< Complex coefficient of the diffraction force
+
+    /// Excitation loads for all wave directions (std::vector), all dof (rows of Eigen::MatrixXcd) and all wave frequencies (cols of Eigen::MatrixXcd).
+    std::vector<Eigen::MatrixXcd> m_excitation;
+
+    /// Froude-Krylov loads for all wave directions (std::vector), all dof (rows of Eigen::MatrixXcd) and all wave frequencies (cols of Eigen::MatrixXcd).
+    std::vector<Eigen::MatrixXcd> m_froudeKrylov;
+
+    /// Diffraction loads for all wave directions (std::vector), all dof (rows of Eigen::MatrixXcd) and all wave frequencies (cols of Eigen::MatrixXcd).
+    std::vector<Eigen::MatrixXcd> m_diffraction;
 
     bool m_isRAO = false;
-    std::vector<Eigen::MatrixXcd> m_RAO;           ///< response amplitude operators
+
+    /// Response Amplitude Operators for all wave directions (std::vector), all dof (rows of Eigen::MatrixXcd) and all wave frequencies (cols of Eigen::MatrixXcd).
+    std::vector<Eigen::MatrixXcd> m_RAO;
 
     bool m_isHydrostatic = false;
     mathutils::Matrix33<double> m_hydrostaticStiffnessMatrix;   ///< Hydrostatic matrix
