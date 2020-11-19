@@ -203,21 +203,22 @@ namespace HDB5_io {
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionK")) {
         auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK",
                                                         mask);
-        body->SetHDBInterpolator(Body::interpolatedData::IRF_K, bodyMotion, impulseResponseFunctionsK);
+        body->SetHDBInterpolator(Body::HDBData::IRF_K, bodyMotion, impulseResponseFunctionsK);
+        body->SetFullHDBData(Body::HDBData::IRF_K, bodyMotion, impulseResponseFunctionsK);
       }
 
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionKU")) {
         auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU",
                                                         mask);
-        body->SetHDBInterpolator(Body::interpolatedData::IRF_KU, bodyMotion, impulseResponseFunctionsK);
+        body->SetHDBInterpolator(Body::HDBData::IRF_KU, bodyMotion, impulseResponseFunctionsK);
       }
 
       // Reading the added mass and radiation damping coefficients
       auto addedMass = ReadComponents(HDF5_file, bodyMotionPath + "/AddedMass", mask);
-      body->SetHDBInterpolator(Body::interpolatedData::ADDED_MASS, bodyMotion, addedMass);
+      body->SetHDBInterpolator(Body::HDBData::ADDED_MASS, bodyMotion, addedMass);
 
       auto radiationDamping = ReadComponents(HDF5_file, bodyMotionPath + "/RadiationDamping", mask);
-      body->SetHDBInterpolator(Body::interpolatedData::RADIATION_DAMPING, bodyMotion, radiationDamping);
+      body->SetHDBInterpolator(Body::HDBData::RADIATION_DAMPING, bodyMotion, radiationDamping);
     }
 
   }

@@ -99,7 +99,58 @@ namespace HDB5_io {
     m_isRAO = true;
   }
 
-  void Body::SetHDBInterpolator(interpolatedData type, Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData) {
+  void Body::SetFullHDBData(Body::HDBData type, Body *BodyMotion, const std::vector<mathutils::Matrix66<double>> &listData) {
+
+    switch (type) {
+      case IRF_K: {
+        assert(listData.size() == m_HDB->GetTimeDiscretization().size());
+        m_IRF.at(BodyMotion) = listData;
+        break;
+      }
+
+      case IRF_KU: {
+        assert(listData.size() == m_HDB->GetTimeDiscretization().size());
+        m_IRFKu.at(BodyMotion) = listData;
+        break;
+      }
+
+      case ADDED_MASS: {
+        assert(listData.size() == m_HDB->GetFrequencyDiscretization().size());
+        m_addedMass_.at(BodyMotion) = listData;
+        break;
+      }
+      case RADIATION_DAMPING: {
+        assert(listData.size() == m_HDB->GetFrequencyDiscretization().size());
+        m_radiationDamping_.at(BodyMotion) = listData;
+        break;
+      }
+
+    }
+
+  }
+
+  void Body::SetHDBData(Body::HDBData type, Body *BodyMotion, const mathutils::Matrix66<double> &Data) {
+    switch (type) {
+      case IRF_K: {
+          m_IRF.at(BodyMotion).push_back(Data);
+        break;
+      }
+      case IRF_KU: {
+        m_IRFKu.at(BodyMotion).push_back(Data);
+        break;
+      }
+      case ADDED_MASS: {
+        m_addedMass_.at(BodyMotion).push_back(Data);
+        break;
+      }
+      case RADIATION_DAMPING: {
+        m_radiationDamping_.at(BodyMotion).push_back(Data);
+        break;
+      }
+    }
+  }
+
+  void Body::SetHDBInterpolator(HDBData type, Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData) {
 
     unsigned int idof = 0;
 
@@ -354,7 +405,7 @@ namespace HDB5_io {
     return m_RAO[iangle].row(iforce);
   }
 
-  Body::HDBinterpolator *Body::GetHDBInterpolator(interpolatedData type) {
+  Body::HDBinterpolator *Body::GetHDBInterpolator(HDBData type) {
     switch (type) {
       case IRF_K:
         return m_interpK.get();
@@ -368,7 +419,7 @@ namespace HDB5_io {
   }
 
   Eigen::MatrixXd
-  Body::GetHDBInterpolatedData(interpolatedData type, Body *BodyMotion, unsigned int idof,
+  Body::GetHDBInterpolatedData(HDBData type, Body *BodyMotion, unsigned int idof,
                                mathutils::VectorN<double> frequencies) {
 
     Eigen::MatrixXd data(6, frequencies.size());
@@ -376,6 +427,41 @@ namespace HDB5_io {
       data.col(i) = GetHDBInterpolator(type)->at(idof)->Eval(BodyMotion->GetName(), frequencies(i));
     }
     return data;
+
+  }
+
+  Eigen::MatrixXd Body::GetHDBData(Body::HDBData type, Body *BodyMotion, unsigned int idof) {
+
+    switch (type) {
+      case IRF_K: {
+        Eigen::MatrixXd data(6, m_HDB->GetTimeDiscretization().size());
+        for (unsigned int i = 0; i < m_HDB->GetTimeDiscretization().size(); i++) {
+          data.col(i) = m_IRF.at(BodyMotion).at(i).col(idof);
+        }
+        return data;
+      }
+      case IRF_KU: {
+        Eigen::MatrixXd data(6, m_HDB->GetTimeDiscretization().size());
+        for (unsigned int i = 0; i < m_HDB->GetTimeDiscretization().size(); i++) {
+          data.col(i) = m_IRFKu.at(BodyMotion).at(i).col(idof);
+        }
+        return data;
+      }
+      case ADDED_MASS: {
+        Eigen::MatrixXd data(6, m_HDB->GetFrequencyDiscretization().size());
+        for (unsigned int i = 0; i < m_HDB->GetFrequencyDiscretization().size(); i++) {
+          data.col(i) = m_addedMass_.at(BodyMotion).at(i).col(idof);
+        }
+        return data;
+      }
+      case RADIATION_DAMPING: {
+        Eigen::MatrixXd data(6, m_HDB->GetFrequencyDiscretization().size());
+        for (unsigned int i = 0; i < m_HDB->GetFrequencyDiscretization().size(); i++) {
+          data.col(i) = m_radiationDamping_.at(BodyMotion).at(i).col(idof);
+        }
+        return data;
+      }
+    }
 
   }
 
@@ -398,6 +484,15 @@ namespace HDB5_io {
     m_froudeKrylov.reserve((unsigned long) nDirections);
     m_excitation.reserve((unsigned long) nDirections);
     m_RAO.reserve((unsigned long) nDirections);
+
+    auto nT = m_HDB->GetTimeDiscretization().size();
+    for (int i=0; i<m_HDB->GetNbBodies(); i++) {
+      auto body = m_HDB->GetBody(i);
+      m_IRF.at(body).reserve(nT);
+      m_IRFKu.at(body).reserve(nT);
+      m_addedMass_.at(body).reserve(nFrequencies);
+      m_radiationDamping_.at(body).reserve(nFrequencies);
+    }
 
 //    auto nbFreq = GetNbFrequencies();
     for (int i = 0; i < nDirections; ++i) {
