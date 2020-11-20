@@ -203,22 +203,43 @@ namespace HDB5_io {
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionK")) {
         auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK",
                                                         mask);
-        body->SetHDBInterpolator(Body::HDBData::IRF_K, bodyMotion, impulseResponseFunctionsK);
-        body->SetFullHDBData(Body::HDBData::IRF_K, bodyMotion, impulseResponseFunctionsK);
+        body->SetIRF(bodyMotion, impulseResponseFunctionsK);
       }
 
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionKU")) {
         auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU",
                                                         mask);
-        body->SetHDBInterpolator(Body::HDBData::IRF_KU, bodyMotion, impulseResponseFunctionsK);
+        body->SetIRF_Ku(bodyMotion, impulseResponseFunctionsK);
       }
 
       // Reading the added mass and radiation damping coefficients
       auto addedMass = ReadComponents(HDF5_file, bodyMotionPath + "/AddedMass", mask);
-      body->SetHDBInterpolator(Body::HDBData::ADDED_MASS, bodyMotion, addedMass);
+      std::vector<mathutils::Matrix66<double>> AM_tmp;
+      AM_tmp.reserve(m_hdb->GetFrequencyDiscretization().size());
+      for (int iw=0; iw < m_hdb->GetFrequencyDiscretization().size(); ++iw) {
+        mathutils::Matrix66<double> tmp_matrix;
+        for (int imotion = 0; imotion < 6; ++imotion) {
+          for (int iforce = 0; iforce < 6; ++iforce) {
+            tmp_matrix(iforce,imotion) = addedMass[iforce](imotion,iw);
+          }
+        }
+        AM_tmp.push_back(tmp_matrix);
+      }
+      body->SetAddedMass(bodyMotion, AM_tmp);
 
       auto radiationDamping = ReadComponents(HDF5_file, bodyMotionPath + "/RadiationDamping", mask);
-      body->SetHDBInterpolator(Body::HDBData::RADIATION_DAMPING, bodyMotion, radiationDamping);
+      std::vector<mathutils::Matrix66<double>> RD_tmp;
+      RD_tmp.reserve(m_hdb->GetFrequencyDiscretization().size());
+      for (int iw=0; iw < m_hdb->GetFrequencyDiscretization().size(); ++iw) {
+        mathutils::Matrix66<double> tmp_matrix;
+        for (int imotion = 0; imotion < 6; ++imotion) {
+          for (int iforce = 0; iforce < 6; ++iforce) {
+            tmp_matrix(iforce,imotion) = radiationDamping[iforce](imotion,iw);
+          }
+        }
+        RD_tmp.push_back(tmp_matrix);
+      }
+      body->SetRadiationDamping(bodyMotion, RD_tmp);
     }
 
   }

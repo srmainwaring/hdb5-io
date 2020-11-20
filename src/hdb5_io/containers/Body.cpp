@@ -19,8 +19,6 @@ namespace HDB5_io {
     m_mesh = std::make_shared<Mesh>();
     m_interpK = std::make_shared<HDBinterpolator>();
     m_interpKu = std::make_shared<HDBinterpolator>();
-    m_addedMass = std::make_shared<HDBinterpolator>();
-    m_radiationDamping = std::make_shared<HDBinterpolator>();
     AllocateAll();
   }
 
@@ -99,98 +97,47 @@ namespace HDB5_io {
     m_isRAO = true;
   }
 
-  void Body::SetFullHDBData(Body::HDBData type, Body *BodyMotion, const std::vector<mathutils::Matrix66<double>> &listData) {
-
-    switch (type) {
-      case IRF_K: {
-        assert(listData.size() == m_HDB->GetTimeDiscretization().size());
-        m_IRF.at(BodyMotion) = listData;
-        break;
-      }
-
-      case IRF_KU: {
-        assert(listData.size() == m_HDB->GetTimeDiscretization().size());
-        m_IRFKu.at(BodyMotion) = listData;
-        break;
-      }
-
-      case ADDED_MASS: {
-        assert(listData.size() == m_HDB->GetFrequencyDiscretization().size());
-        m_addedMass_.at(BodyMotion) = listData;
-        break;
-      }
-      case RADIATION_DAMPING: {
-        assert(listData.size() == m_HDB->GetFrequencyDiscretization().size());
-        m_radiationDamping_.at(BodyMotion) = listData;
-        break;
-      }
-
-    }
-
+  void Body::SetAddedMass(Body *body, const std::vector<mathutils::Matrix66<double>> &listData) {
+    assert(listData.size() == m_HDB->GetFrequencyDiscretization().size());
+//    m_addedMass.at(body) = listData;
+    m_addedMass.insert(std::make_pair(body,listData));
   }
 
-  void Body::SetHDBData(Body::HDBData type, Body *BodyMotion, const mathutils::Matrix66<double> &Data) {
-    switch (type) {
-      case IRF_K: {
-          m_IRF.at(BodyMotion).push_back(Data);
-        break;
-      }
-      case IRF_KU: {
-        m_IRFKu.at(BodyMotion).push_back(Data);
-        break;
-      }
-      case ADDED_MASS: {
-        m_addedMass_.at(BodyMotion).push_back(Data);
-        break;
-      }
-      case RADIATION_DAMPING: {
-        m_radiationDamping_.at(BodyMotion).push_back(Data);
-        break;
-      }
-    }
+  void Body::SetRadiationDamping(Body *body, const std::vector<mathutils::Matrix66<double>> &listData) {
+    assert(listData.size() == m_HDB->GetFrequencyDiscretization().size());
+//    m_radiationDamping.at(BodyMotion) = listData;
+    m_radiationDamping.insert(std::make_pair(body,listData));
   }
 
-  void Body::SetHDBInterpolator(HDBData type, Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData) {
+  void Body::AddAddedMass(Body *body, const mathutils::Matrix66<double> &Data) {
+    if (m_addedMass.count(body) == 0) {
+      m_addedMass.at(body).reserve(m_HDB->GetFrequencyDiscretization().size());
+    }
+    m_addedMass.at(body).push_back(Data);
+  }
+
+  void Body::AddRadiationDamping(Body *body, const mathutils::Matrix66<double> &Data) {
+    if (m_radiationDamping.count(body) == 0) {
+      m_radiationDamping.at(body).reserve(m_HDB->GetFrequencyDiscretization().size());
+    }
+    m_radiationDamping.at(body).push_back(Data);
+  }
+
+  void Body::SetIRF(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData) {
 
     unsigned int idof = 0;
 
-    if (GetHDBInterpolator(type)->count(idof) == 0) {
+    if (m_interpK->count(idof) == 0) {
 
       for (auto &data: listData) {
         assert(data.rows() == 6);
 
         auto table = std::make_shared<mathutils::LookupTable1D<double, mathutils::Vector6d<double>>>();
 
-        switch (type) {
-          case IRF_K: {
-            auto EigenTime = m_HDB->GetTimeDiscretization();
-            assert(data.cols() == EigenTime.size());
-            std::vector<double> time(&EigenTime(0, 0), EigenTime.data() + EigenTime.size());
-            table->SetX(time);
-            break;
-          }
-          case IRF_KU: {
-            auto EigenTime = m_HDB->GetTimeDiscretization();
-            assert(data.cols() == EigenTime.size());
-            std::vector<double> time(&EigenTime(0, 0), EigenTime.data() + EigenTime.size());
-            table->SetX(time);
-            break;
-          }
-          case ADDED_MASS: {
-            assert(data.cols() == m_HDB->GetFrequencyDiscretization().size());
-            auto EigenFreq = m_HDB->GetFrequencyDiscretization();
-            std::vector<double> freq(&EigenFreq(0, 0), EigenFreq.data() + EigenFreq.size());
-            table->SetX(freq);
-            break;
-          }
-          case RADIATION_DAMPING: {
-            assert(data.cols() == m_HDB->GetFrequencyDiscretization().size());
-            auto EigenFreq = m_HDB->GetFrequencyDiscretization();
-            std::vector<double> freq(&EigenFreq(0, 0), EigenFreq.data() + EigenFreq.size());
-            table->SetX(freq);
-            break;
-          }
-        }
+        auto EigenTime = m_HDB->GetTimeDiscretization();
+        assert(data.cols() == EigenTime.size());
+        std::vector<double> time(&EigenTime(0, 0), EigenTime.data() + EigenTime.size());
+        table->SetX(time);
 
         std::vector<mathutils::Vector6d<double>> vdata;
         for (unsigned int j = 0; j < data.cols(); ++j) {
@@ -198,24 +145,7 @@ namespace HDB5_io {
         }
         table->AddY(BodyMotion->GetName(), vdata);
 
-        switch (type) {
-          case IRF_K: {
-            m_interpK->insert(std::make_pair(idof, table));
-            break;
-          }
-          case IRF_KU: {
-            m_interpKu->insert(std::make_pair(idof, table));
-            break;
-          }
-          case ADDED_MASS: {
-            m_addedMass->insert(std::make_pair(idof, table));
-            break;
-          }
-          case RADIATION_DAMPING: {
-            m_radiationDamping->insert(std::make_pair(idof, table));
-            break;
-          }
-        }
+        m_interpK->insert(std::make_pair(idof, table));
 
         idof++;
       }
@@ -226,14 +156,54 @@ namespace HDB5_io {
         for (unsigned int j = 0; j < data.cols(); ++j) {
           vdata.emplace_back(data.col(j));
         }
-        GetHDBInterpolator(type)->at(idof)->AddY(BodyMotion->GetName(), vdata);
+        m_interpK->at(idof)->AddY(BodyMotion->GetName(), vdata);
         idof++;
       }
     }
 
-    if((type == IRF_K) or (type == IRF_KU)) {
-      m_isIRF = true;
+    m_isIRF = true;
+
+  }
+
+  void Body::SetIRF_Ku(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData) {
+
+    unsigned int idof = 0;
+
+    if (m_interpKu->count(idof) == 0) {
+
+      for (auto &data: listData) {
+        assert(data.rows() == 6);
+
+        auto table = std::make_shared<mathutils::LookupTable1D<double, mathutils::Vector6d<double>>>();
+
+        auto EigenTime = m_HDB->GetTimeDiscretization();
+        assert(data.cols() == EigenTime.size());
+        std::vector<double> time(&EigenTime(0, 0), EigenTime.data() + EigenTime.size());
+        table->SetX(time);
+
+        std::vector<mathutils::Vector6d<double>> vdata;
+        for (unsigned int j = 0; j < data.cols(); ++j) {
+          vdata.emplace_back(data.col(j));
+        }
+        table->AddY(BodyMotion->GetName(), vdata);
+
+        m_interpKu->insert(std::make_pair(idof, table));
+
+        idof++;
+      }
+    } else {
+      for (auto &data: listData) {
+        assert(data.rows() == 6);
+        std::vector<mathutils::Vector6d<double>> vdata;
+        for (unsigned int j = 0; j < data.cols(); ++j) {
+          vdata.emplace_back(data.col(j));
+        }
+        m_interpKu->at(idof)->AddY(BodyMotion->GetName(), vdata);
+        idof++;
+      }
     }
+
+    m_isIRF = true;
 
   }
 
@@ -405,63 +375,27 @@ namespace HDB5_io {
     return m_RAO[iangle].row(iforce);
   }
 
-  Body::HDBinterpolator *Body::GetHDBInterpolator(HDBData type) {
-    switch (type) {
-      case IRF_K:
-        return m_interpK.get();
-      case IRF_KU:
-        return m_interpKu.get();
-      case ADDED_MASS:
-        return m_addedMass.get();
-      case RADIATION_DAMPING:
-        return m_radiationDamping.get();
-    }
-  }
-
   Eigen::MatrixXd
-  Body::GetHDBInterpolatedData(HDBData type, Body *BodyMotion, unsigned int idof,
+  Body::GetIRFInterpolatedData(Body *BodyMotion, unsigned int idof,
                                mathutils::VectorN<double> frequencies) {
 
     Eigen::MatrixXd data(6, frequencies.size());
     for (unsigned int i = 0; i < frequencies.size(); i++) {
-      data.col(i) = GetHDBInterpolator(type)->at(idof)->Eval(BodyMotion->GetName(), frequencies(i));
+      data.col(i) = m_interpK->at(idof)->Eval(BodyMotion->GetName(), frequencies(i));
     }
     return data;
 
   }
 
-  Eigen::MatrixXd Body::GetHDBData(Body::HDBData type, Body *BodyMotion, unsigned int idof) {
+  Eigen::MatrixXd
+  Body::GetIRF_KuInterpolatedData(Body *BodyMotion, unsigned int idof,
+                               mathutils::VectorN<double> frequencies) {
 
-    switch (type) {
-      case IRF_K: {
-        Eigen::MatrixXd data(6, m_HDB->GetTimeDiscretization().size());
-        for (unsigned int i = 0; i < m_HDB->GetTimeDiscretization().size(); i++) {
-          data.col(i) = m_IRF.at(BodyMotion).at(i).col(idof);
-        }
-        return data;
-      }
-      case IRF_KU: {
-        Eigen::MatrixXd data(6, m_HDB->GetTimeDiscretization().size());
-        for (unsigned int i = 0; i < m_HDB->GetTimeDiscretization().size(); i++) {
-          data.col(i) = m_IRFKu.at(BodyMotion).at(i).col(idof);
-        }
-        return data;
-      }
-      case ADDED_MASS: {
-        Eigen::MatrixXd data(6, m_HDB->GetFrequencyDiscretization().size());
-        for (unsigned int i = 0; i < m_HDB->GetFrequencyDiscretization().size(); i++) {
-          data.col(i) = m_addedMass_.at(BodyMotion).at(i).col(idof);
-        }
-        return data;
-      }
-      case RADIATION_DAMPING: {
-        Eigen::MatrixXd data(6, m_HDB->GetFrequencyDiscretization().size());
-        for (unsigned int i = 0; i < m_HDB->GetFrequencyDiscretization().size(); i++) {
-          data.col(i) = m_radiationDamping_.at(BodyMotion).at(i).col(idof);
-        }
-        return data;
-      }
+    Eigen::MatrixXd data(6, frequencies.size());
+    for (unsigned int i = 0; i < frequencies.size(); i++) {
+      data.col(i) = m_interpKu->at(idof)->Eval(BodyMotion->GetName(), frequencies(i));
     }
+    return data;
 
   }
 
@@ -485,16 +419,6 @@ namespace HDB5_io {
     m_excitation.reserve((unsigned long) nDirections);
     m_RAO.reserve((unsigned long) nDirections);
 
-    auto nT = m_HDB->GetTimeDiscretization().size();
-    for (int i=0; i<m_HDB->GetNbBodies(); i++) {
-      auto body = m_HDB->GetBody(i);
-      m_IRF.at(body).reserve(nT);
-      m_IRFKu.at(body).reserve(nT);
-      m_addedMass_.at(body).reserve(nFrequencies);
-      m_radiationDamping_.at(body).reserve(nFrequencies);
-    }
-
-//    auto nbFreq = GetNbFrequencies();
     for (int i = 0; i < nDirections; ++i) {
       Eigen::MatrixXcd mat(6, nFrequencies);
       m_diffraction.push_back(mat);
@@ -506,6 +430,46 @@ namespace HDB5_io {
     /// --> Allocating arrays for radiation
     m_radiationMask.reserve(m_HDB->GetNbBodies());
 
+  }
+
+//  mathutils::Matrix66<double> Body::GetAddedMass(Body *body, double iOmega) const {
+//    return m_addedMass.at(body)[iOmega];
+//  }
+//
+//  mathutils::Matrix66<double> Body::GetRadiationDamping(Body *body, double iOmega) const {
+//    return m_radiationDamping.at(body)[iOmega];
+//  }
+
+  Body::HDBinterpolator *Body::GetIRFInterpolator() const {
+    return m_interpK.get();
+  }
+
+  Body::HDBinterpolator *Body::GetIRF_KuInterpolator() const {
+    return m_interpKu.get();
+  }
+
+  Eigen::MatrixXd Body::GetAddedMass(Body *body, unsigned int iforce) {
+    Eigen::MatrixXd AM = Eigen::MatrixXd::Zero(6,m_HDB->GetFrequencyDiscretization().size());
+
+    for (int imotion = 0; imotion < 6; ++imotion) {
+      for (int iw = 0; iw < m_HDB->GetFrequencyDiscretization().size(); ++iw) {
+        AM(imotion, iw) = m_addedMass.at(body)[iw](iforce, imotion);
+      }
+    }
+
+    return AM;
+  }
+
+  Eigen::MatrixXd Body::GetRadiationDamping(Body *body, unsigned int imotion) {
+    Eigen::MatrixXd RD = Eigen::MatrixXd::Zero(6, m_HDB->GetFrequencyDiscretization().size());
+
+    for (int iforce = 0; iforce < 6; ++iforce) {
+      for (int iw = 0; iw < m_HDB->GetFrequencyDiscretization().size(); ++iw) {
+        RD(iforce, iw) = m_radiationDamping.at(body)[iw](iforce, imotion);
+      }
+    }
+
+    return RD;
   }
 
 #ifdef H5_USE_VTK

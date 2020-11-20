@@ -31,7 +31,6 @@ namespace HDB5_io {
    public:
 
     typedef std::unordered_map<unsigned int, std::shared_ptr<mathutils::LookupTable1D<double, mathutils::Vector6d<double>>>> HDBinterpolator;
-    typedef std::unordered_map<Body *, std::vector<mathutils::Matrix66<double>>> HDBContainer;
 
     /// Constructor for a body
     /// \param id index of the body in the HDB
@@ -100,16 +99,14 @@ namespace HDB5_io {
     /// \param RAO Complex matrix of the response amplitude operator
     void SetRAO(unsigned int iangle, const Eigen::MatrixXcd &RAO);
 
+    void SetIRF(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData);
+    void SetIRF_Ku(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData);
 
-    enum HDBData {
-      IRF_K, IRF_KU, ADDED_MASS, RADIATION_DAMPING
-    };
+    void SetAddedMass(Body *body, const std::vector<mathutils::Matrix66<double>> &listData);
+    void SetRadiationDamping(Body *BodyMotion, const std::vector<mathutils::Matrix66<double>> &listData);
 
-    void SetFullHDBData(HDBData type, Body *BodyMotion, const std::vector<mathutils::Matrix66<double>> &listData);
-
-    void SetHDBData(HDBData type, Body *BodyMotion, const mathutils::Matrix66<double> &Data);
-
-    void SetHDBInterpolator(HDBData type, Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData);
+    void AddAddedMass(Body *BodyMotion, const mathutils::Matrix66<double> &Data);
+    void AddRadiationDamping(Body *BodyMotion, const mathutils::Matrix66<double> &Data);
 
     /// Set the hydrostatic stiffness Matrix
     /// \param hydrostaticStiffnessMatrix Hydrostatic stiffness matrix
@@ -251,10 +248,19 @@ namespace HDB5_io {
     /// \return 6x6 matrix added mass
     mathutils::Matrix66<double> GetSelfInfiniteAddedMass();
 
+//    mathutils::Matrix66<double> GetAddedMass(Body* body, double iOmega) const;
+//
+//    mathutils::Matrix66<double> GetRadiationDamping(Body* body, double iOmega) const;
+
+    Eigen::MatrixXd GetAddedMass(Body* body, unsigned int iforce);
+    Eigen::MatrixXd GetRadiationDamping(Body* body, unsigned int iforce);
+
     /// Get the interpolator corresponding to the data type given
     /// \param type type of the data interpolated (IRF_K, IRF_KU, ADDED_MASS, RADIATION_DAMPING)
     /// \return interpolator
-    HDBinterpolator *GetHDBInterpolator(HDBData type);
+    HDBinterpolator *GetIRFInterpolator() const;
+
+    HDBinterpolator *GetIRF_KuInterpolator() const;
 
     /// Get the interpolated data for the following parameters
     /// \param type type of the data interpolated (IRF_K, IRF_KU, ADDED_MASS, RADIATION_DAMPING)
@@ -263,10 +269,12 @@ namespace HDB5_io {
     /// \param frequencies set of frequencies for which the data are interpolated
     /// \return interpolated data in matrix form (6 x nfreq)
     Eigen::MatrixXd
-    GetHDBInterpolatedData(HDBData type, Body *BodyMotion, unsigned int idof,
+    GetIRFInterpolatedData(Body *BodyMotion, unsigned int idof,
                            mathutils::VectorN<double> frequencies);
 
-    Eigen::MatrixXd GetHDBData(HDBData type, Body *BodyMotion, unsigned int idof);
+    Eigen::MatrixXd
+    GetIRF_KuInterpolatedData(Body *BodyMotion, unsigned int idof,
+                           mathutils::VectorN<double> frequencies);
 
     /// Get the modal coefficients (poles and residues) for the 6DOFs
     /// \param BodyMotion body at the origin of the perturbation
@@ -313,19 +321,14 @@ namespace HDB5_io {
     std::unordered_map<Body *, mathutils::Matrix66<double>> m_infiniteAddedMass;    ///< Infinite added mass for each body
     std::unordered_map<Body *, mathutils::Matrix66<double>> m_zeroFreqAddedMass;    ///< Zero frequency added mass for each body
 
-    HDBContainer m_addedMass_;         ///< added mass
-    HDBContainer m_radiationDamping_;  ///< radiation damping
-    HDBContainer m_IRF;                ///< Impulse response function
-    HDBContainer m_IRFKu;              ///< Impulse response function speed dependent
+    std::unordered_map<Body *, std::vector<mathutils::Matrix66<double>>> m_addedMass;         ///< added mass
+    std::unordered_map<Body *, std::vector<mathutils::Matrix66<double>>> m_radiationDamping;  ///< radiation damping
 
     std::unordered_map<Body *, std::vector<std::vector<PoleResidue>>> m_modalCoefficients;       ///<
 
     std::shared_ptr<HDBinterpolator> m_interpK;                     ///< Impulse response function interpolator
     std::shared_ptr<HDBinterpolator> m_interpKu;                    ///< Impulse response function speed dependent interpolator
     bool m_isIRF = false;
-
-    std::shared_ptr<HDBinterpolator> m_addedMass;                   ///< added mass interpolator
-    std::shared_ptr<HDBinterpolator> m_radiationDamping;            ///< radiation damping interpolator
 //    std::vector<std::vector<mathutils::Interp1dLinear<double, std::complex<double>>>> m_waveDirInterpolators;   ///<
 
     /// Allocate the excitation containers
