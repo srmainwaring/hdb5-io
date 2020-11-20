@@ -463,7 +463,7 @@ namespace HDB5_io {
     return m_interpKu.get();
   }
 
-  Eigen::MatrixXd Body::GetAddedMass(Body *BodyMotion, unsigned int iforce) {
+  Eigen::MatrixXd Body::GetAddedMass(Body *BodyMotion, unsigned int iforce) const {
     Eigen::MatrixXd AM = Eigen::MatrixXd::Zero(6,m_HDB->GetFrequencyDiscretization().size());
 
     for (int imotion = 0; imotion < 6; ++imotion) {
@@ -471,11 +471,10 @@ namespace HDB5_io {
         AM(imotion, iw) = m_addedMass.at(BodyMotion)[iw](iforce, imotion);
       }
     }
-
     return AM;
   }
 
-  Eigen::MatrixXd Body::GetRadiationDamping(Body *BodyMotion, unsigned int imotion) {
+  Eigen::MatrixXd Body::GetRadiationDamping(Body *BodyMotion, unsigned int imotion) const {
     Eigen::MatrixXd RD = Eigen::MatrixXd::Zero(6, m_HDB->GetFrequencyDiscretization().size());
 
     for (int iforce = 0; iforce < 6; ++iforce) {
@@ -483,8 +482,15 @@ namespace HDB5_io {
         RD(iforce, iw) = m_radiationDamping.at(BodyMotion)[iw](iforce, imotion);
       }
     }
-
     return RD;
+  }
+
+  Matrix66 Body::GetAddedMassPerFrequency(Body *BodyMotion, unsigned int iomega) const {
+    return m_addedMass.at(BodyMotion)[iomega];
+  }
+
+  Matrix66 Body::GetRadiationDampingPerFrequency(Body *BodyMotion, unsigned int iomega) const {
+    return m_radiationDamping.at(BodyMotion)[iomega];
   }
 
 #ifdef H5_USE_VTK

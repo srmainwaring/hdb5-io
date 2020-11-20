@@ -330,13 +330,25 @@ namespace HDB5_io {
     /// \param BodyMotion body at the origin of the motion
     /// \param iforce this body dof
     /// \return matrix containing the added mass with dimensions : (imotion, iomega)
-    Eigen::MatrixXd GetAddedMass(Body* BodyMotion, unsigned int iforce);
+    Eigen::MatrixXd GetAddedMass(Body* BodyMotion, unsigned int iforce) const;
+
+    /// Get the added mass generated coefficients from the BodyMotion, for a given frequency
+    /// \param BodyMotion body at the origin of the motion
+    /// \param iomega frequency
+    /// \return matrix containing the added mass with dimensions : (iforce, imotion)
+    Matrix66 GetAddedMassPerFrequency(Body* BodyMotion, unsigned int iomega) const;
 
     /// Get the radiation damping generated coefficients from the BodyMotion, for this body iforce dof 
     /// \param BodyMotion body at the origin of the motion
     /// \param iforce this body dof
     /// \return matrix containing the radiation damping with dimensions : (imotion, iomega)
-    Eigen::MatrixXd GetRadiationDamping(Body* BodyMotion, unsigned int iforce);
+    Eigen::MatrixXd GetRadiationDamping(Body* BodyMotion, unsigned int iforce) const;
+
+    /// Get the radiation damping generated coefficients from the BodyMotion, for a given frequency
+    /// \param BodyMotion body at the origin of the motion
+    /// \param iomega frequency
+    /// \return matrix containing the radiation damping with dimensions : (iforce, imotion)
+    Matrix66 GetRadiationDampingPerFrequency(Body* BodyMotion, unsigned int iomega) const;
 
     /// Get the impulse response function interpolator
     /// \return interpolatorimpulse response function interpolator
