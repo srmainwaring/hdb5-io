@@ -65,28 +65,21 @@ namespace HDB5_io {
     }
   }
 
-  void Body::SetInfiniteAddedMass(Body *BodyMotion, const mathutils::Matrix66<double> &CMInf) {
+  void Body::SetInfiniteAddedMass(Body *BodyMotion, const Matrix66 &CMInf) {
     m_infiniteAddedMass[BodyMotion] = CMInf;
   }
 
-  void Body::SetZeroFreqAddedMass(Body *BodyMotion, const mathutils::Matrix66<double> &CMZero) {
+  void Body::SetZeroFreqAddedMass(Body *BodyMotion, const Matrix66 &CMZero) {
     m_zeroFreqAddedMass[BodyMotion] = CMZero;
   }
 
-//  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const mathutils::Matrix66<bool> &mask){
+//  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const Matrix66b &mask){
 //    m_radiationMask[BodyMotion] = mask;
 //  }
 
-  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const mathutils::Matrix66<bool> &mask) {
-
+  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const Matrix66b &mask) {
     assert(mask.maxCoeff() <= 1 and mask.minCoeff() >= 0);
     m_radiationMask[BodyMotion] = mask;
-
-//    for (unsigned int i = 0; i < 6; i++) {
-//      for (unsigned int j = 0; j < 6; j++) {
-//        m_radiationMask[BodyMotion](i, j) = mask(i, j) == 1;
-//      }
-//    }
   }
 
   void Body::SetRAO(unsigned int iangle, const Eigen::MatrixXcd &RAO) {
@@ -97,30 +90,28 @@ namespace HDB5_io {
     m_isRAO = true;
   }
 
-  void Body::SetAddedMass(Body *body, const std::vector<mathutils::Matrix66<double>> &listData) {
+  void Body::SetAddedMass(Body *BodyMotion, const std::vector<Matrix66> &listData) {
     assert(listData.size() == m_HDB->GetFrequencyDiscretization().size());
-//    m_addedMass.at(body) = listData;
-    m_addedMass.insert(std::make_pair(body,listData));
+    m_addedMass.insert(std::make_pair(BodyMotion,listData));
   }
 
-  void Body::SetRadiationDamping(Body *body, const std::vector<mathutils::Matrix66<double>> &listData) {
+  void Body::SetRadiationDamping(Body *BodyMotion, const std::vector<Matrix66> &listData) {
     assert(listData.size() == m_HDB->GetFrequencyDiscretization().size());
-//    m_radiationDamping.at(BodyMotion) = listData;
-    m_radiationDamping.insert(std::make_pair(body,listData));
+    m_radiationDamping.insert(std::make_pair(BodyMotion,listData));
   }
 
-  void Body::AddAddedMass(Body *body, const mathutils::Matrix66<double> &Data) {
-    if (m_addedMass.count(body) == 0) {
-      m_addedMass.at(body).reserve(m_HDB->GetFrequencyDiscretization().size());
+  void Body::AddAddedMass(Body *BodyMotion, const Matrix66 &Data) {
+    if (m_addedMass.count(BodyMotion) == 0) {
+      m_addedMass.at(BodyMotion).reserve(m_HDB->GetFrequencyDiscretization().size());
     }
-    m_addedMass.at(body).push_back(Data);
+    m_addedMass.at(BodyMotion).push_back(Data);
   }
 
-  void Body::AddRadiationDamping(Body *body, const mathutils::Matrix66<double> &Data) {
-    if (m_radiationDamping.count(body) == 0) {
-      m_radiationDamping.at(body).reserve(m_HDB->GetFrequencyDiscretization().size());
+  void Body::AddRadiationDamping(Body *BodyMotion, const Matrix66 &Data) {
+    if (m_radiationDamping.count(BodyMotion) == 0) {
+      m_radiationDamping.at(BodyMotion).reserve(m_HDB->GetFrequencyDiscretization().size());
     }
-    m_radiationDamping.at(body).push_back(Data);
+    m_radiationDamping.at(BodyMotion).push_back(Data);
   }
 
   void Body::SetIRF(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData) {
@@ -207,27 +198,27 @@ namespace HDB5_io {
 
   }
 
-  void Body::SetStiffnessMatrix(const mathutils::Matrix33<double> &hydrostaticStiffnessMatrix) {
+  void Body::SetStiffnessMatrix(const Matrix33 &hydrostaticStiffnessMatrix) {
     m_hydrostaticStiffnessMatrix = hydrostaticStiffnessMatrix;
     m_isHydrostatic = true;
   }
 
-  void Body::SetStiffnessMatrix(const mathutils::Matrix66<double> &hydrostaticStiffnessMatrix) {
+  void Body::SetStiffnessMatrix(const Matrix66 &hydrostaticStiffnessMatrix) {
     m_hydrostaticStiffnessMatrix = hydrostaticStiffnessMatrix.block<3, 3>(2, 2);
     m_isHydrostatic = true;
   }
 
-  void Body::SetInertia(const mathutils::Matrix66<double> &inertiaMatrix) {
+  void Body::SetInertia(const Matrix66 &inertiaMatrix) {
     m_inertia = inertiaMatrix;
     m_isInertia = true;
   }
 
-  void Body::SetMooring(const mathutils::Matrix66<double> &mooringMatrix) {
+  void Body::SetMooring(const Matrix66 &mooringMatrix) {
     m_mooringStiffnessMatrix = mooringMatrix;
     m_isMooring = true;
   }
 
-  void Body::SetLinearDamping(const mathutils::Matrix66<double> &linearDampingMatrix) {
+  void Body::SetLinearDamping(const Matrix66 &linearDampingMatrix) {
     m_linearDampingMatrix = linearDampingMatrix;
     m_isDamping = true;
   }
@@ -299,19 +290,19 @@ namespace HDB5_io {
     return m_mesh.get();
   }
 
-  mathutils::Matrix33<double> Body::GetHydrostaticStiffnessMatrix() const {
+  Matrix33 Body::GetHydrostaticStiffnessMatrix() const {
     return m_hydrostaticStiffnessMatrix;
   }
 
-  mathutils::Matrix66<double> Body::GetInertiaMatrix() const {
+  Matrix66 Body::GetInertiaMatrix() const {
     return m_inertia;
   }
 
-  mathutils::Matrix66<double> Body::GetMooringMatrix() const {
+  Matrix66 Body::GetMooringMatrix() const {
     return m_mooringStiffnessMatrix;
   }
 
-  mathutils::Matrix66<double> Body::GetDampingMatrix() const {
+  Matrix66 Body::GetDampingMatrix() const {
     return m_linearDampingMatrix;
   }
 
@@ -348,19 +339,19 @@ namespace HDB5_io {
     return m_excitation[iangle].row(iforce);
   }
 
-  mathutils::Matrix66<double> Body::GetInfiniteAddedMass(Body *BodyMotion) const {
+  Matrix66 Body::GetInfiniteAddedMass(Body *BodyMotion) const {
     return m_infiniteAddedMass.at(BodyMotion);
   }
 
-  mathutils::Matrix66<double> Body::GetZeroFreqAddedMass(HDB5_io::Body *BodyMotion) const {
+  Matrix66 Body::GetZeroFreqAddedMass(HDB5_io::Body *BodyMotion) const {
     return m_zeroFreqAddedMass.at(BodyMotion);
   }
 
-  mathutils::Matrix66<bool> Body::GetRadiationMask(Body *BodyMotion) const {
+  Matrix66b Body::GetRadiationMask(Body *BodyMotion) const {
     return m_radiationMask.at(BodyMotion);
   }
 
-  mathutils::Matrix66<double> Body::GetSelfInfiniteAddedMass() {
+  Matrix66 Body::GetSelfInfiniteAddedMass() {
     return m_infiniteAddedMass[this];
   }
 
@@ -432,14 +423,6 @@ namespace HDB5_io {
 
   }
 
-//  mathutils::Matrix66<double> Body::GetAddedMass(Body *body, double iOmega) const {
-//    return m_addedMass.at(body)[iOmega];
-//  }
-//
-//  mathutils::Matrix66<double> Body::GetRadiationDamping(Body *body, double iOmega) const {
-//    return m_radiationDamping.at(body)[iOmega];
-//  }
-
   Body::HDBinterpolator *Body::GetIRFInterpolator() const {
     return m_interpK.get();
   }
@@ -448,24 +431,24 @@ namespace HDB5_io {
     return m_interpKu.get();
   }
 
-  Eigen::MatrixXd Body::GetAddedMass(Body *body, unsigned int iforce) {
+  Eigen::MatrixXd Body::GetAddedMass(Body *BodyMotion, unsigned int iforce) {
     Eigen::MatrixXd AM = Eigen::MatrixXd::Zero(6,m_HDB->GetFrequencyDiscretization().size());
 
     for (int imotion = 0; imotion < 6; ++imotion) {
       for (int iw = 0; iw < m_HDB->GetFrequencyDiscretization().size(); ++iw) {
-        AM(imotion, iw) = m_addedMass.at(body)[iw](iforce, imotion);
+        AM(imotion, iw) = m_addedMass.at(BodyMotion)[iw](iforce, imotion);
       }
     }
 
     return AM;
   }
 
-  Eigen::MatrixXd Body::GetRadiationDamping(Body *body, unsigned int imotion) {
+  Eigen::MatrixXd Body::GetRadiationDamping(Body *BodyMotion, unsigned int imotion) {
     Eigen::MatrixXd RD = Eigen::MatrixXd::Zero(6, m_HDB->GetFrequencyDiscretization().size());
 
     for (int iforce = 0; iforce < 6; ++iforce) {
       for (int iw = 0; iw < m_HDB->GetFrequencyDiscretization().size(); ++iw) {
-        RD(iforce, iw) = m_radiationDamping.at(body)[iw](iforce, imotion);
+        RD(iforce, iw) = m_radiationDamping.at(BodyMotion)[iw](iforce, imotion);
       }
     }
 
