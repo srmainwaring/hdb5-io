@@ -30,7 +30,7 @@ namespace HDB5_io {
     m_position = position;
   }
 
-  void Body::SetForceMask(mathutils::Vector6d<bool> mask) {
+  void Body::SetForceMask(const mathutils::Vector6d<bool> &mask) {
     m_forceMask.SetMask(mask);
   }
 
@@ -41,6 +41,14 @@ namespace HDB5_io {
     m_diffraction[iangle] = diffractionMatrix;
   }
 
+  void Body::SetDiffraction(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &diffractionVector){
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
+    assert(iw < m_HDB->GetFrequencyDiscretization().size());
+    assert(diffractionVector.rows() == 6);
+    assert(diffractionVector.cols() == 1);
+    m_diffraction[iangle].col(iw) = diffractionVector;
+  }
+
   void Body::SetFroudeKrylov(unsigned int iangle, const Eigen::MatrixXcd &froudeKrylovMatrix) {
     assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
     assert(froudeKrylovMatrix.rows() == 6);
@@ -48,11 +56,27 @@ namespace HDB5_io {
     m_froudeKrylov[iangle] = froudeKrylovMatrix;
   }
 
+  void Body::SetFroudeKrylov(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &froudeKrylovVector) {
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
+    assert(iw < m_HDB->GetFrequencyDiscretization().size());
+    assert(froudeKrylovVector.rows() == 6);
+    assert(froudeKrylovVector.cols() == 1);
+    m_froudeKrylov[iangle].col(iw) = froudeKrylovVector;
+  }
+
   void Body::SetExcitation(unsigned int iangle, const Eigen::MatrixXcd &excitationMatrix) {
     assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
     assert(excitationMatrix.rows() == 6);
     assert(excitationMatrix.cols() == m_HDB->GetFrequencyDiscretization().size());
     m_excitation[iangle] = excitationMatrix;
+  }
+
+  void Body::SetExcitation(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &excitationVector) {
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
+    assert(iw < m_HDB->GetFrequencyDiscretization().size());
+    assert(excitationVector.rows() == 6);
+    assert(excitationVector.cols() == 1);
+    m_excitation[iangle].col(iw) = excitationVector;
   }
 
   void Body::ComputeExcitation() {
@@ -90,6 +114,14 @@ namespace HDB5_io {
     m_isRAO = true;
   }
 
+  void Body::SetRAO(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &RAO) {
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
+    assert(iw < m_HDB->GetFrequencyDiscretization().size());
+    assert(RAO.rows() == 6);
+    assert(RAO.cols() == 1);
+    m_RAO[iangle].col(iw) = RAO;
+    m_isRAO = true;
+  }
   void Body::SetAddedMass(Body *BodyMotion, const std::vector<Matrix66> &listData) {
     assert(listData.size() == m_HDB->GetFrequencyDiscretization().size());
     m_addedMass.insert(std::make_pair(BodyMotion,listData));
@@ -228,7 +260,7 @@ namespace HDB5_io {
     m_mesh->Load(vertices, faces);
   }
 
-  void Body::AddModalCoefficients(Body *BodyMotion, std::vector<PoleResidue> modalCoefficients) {
+  void Body::AddModalCoefficients(Body *BodyMotion, const std::vector<PoleResidue> &modalCoefficients) {
     if (m_modalCoefficients.count(BodyMotion)>0) {
       auto coeff = m_modalCoefficients.find(BodyMotion);
       coeff->second.emplace_back(modalCoefficients);
