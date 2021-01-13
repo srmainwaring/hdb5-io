@@ -134,14 +134,20 @@ namespace HDB5_io {
 
   void Body::AddAddedMass(Body *BodyMotion, const Matrix66 &Data) {
     if (m_addedMass.count(BodyMotion) == 0) {
-      m_addedMass.at(BodyMotion).reserve(m_HDB->GetFrequencyDiscretization().size());
+      std::vector<Matrix66> tempMat;
+      tempMat.reserve(m_HDB->GetFrequencyDiscretization().size());
+      m_addedMass.insert(std::make_pair(BodyMotion, tempMat));
+      //m_addedMass.at(BodyMotion).reserve(m_HDB->GetFrequencyDiscretization().size());
     }
     m_addedMass.at(BodyMotion).push_back(Data);
   }
 
   void Body::AddRadiationDamping(Body *BodyMotion, const Matrix66 &Data) {
     if (m_radiationDamping.count(BodyMotion) == 0) {
-      m_radiationDamping.at(BodyMotion).reserve(m_HDB->GetFrequencyDiscretization().size());
+      std::vector<Matrix66> tempMat;
+      tempMat.reserve(m_HDB->GetFrequencyDiscretization().size());
+      m_radiationDamping.insert(std::make_pair(BodyMotion, tempMat));
+      //m_radiationDamping.at(BodyMotion).reserve(m_HDB->GetFrequencyDiscretization().size());
     }
     m_radiationDamping.at(BodyMotion).push_back(Data);
   }
