@@ -16,6 +16,7 @@ namespace HDB5_io {
   // Forward declarations
 
   class WaveDrift;
+  class Kochin;
 
   class Body;
 
@@ -157,6 +158,7 @@ namespace HDB5_io {
     mathutils::VectorN<double> m_waveDirectionDiscretization;
 
     std::shared_ptr<WaveDrift> m_waveDrift;            ///< wave drift components
+    std::shared_ptr<Kochin> m_kochin;            ///< Kochin functions.
 
   };
 

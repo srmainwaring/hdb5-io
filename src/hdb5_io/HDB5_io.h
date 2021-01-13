@@ -11,6 +11,7 @@
 #include "hdb5_io/containers/Mesh.h"
 #include "hdb5_io/containers/WaveDrift.h"
 #include "hdb5_io/containers/PoleResidue.h"
+#include "hdb5_io/containers/Kochin.h"
 
 #include "io/HDBReader.h"
 #include "io/HDBWriter.h"

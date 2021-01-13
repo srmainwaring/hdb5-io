@@ -7,6 +7,7 @@ set(HDB5IO_SRC_FILES
         containers/Mesh.cpp
         containers/WaveDrift.cpp
         containers/PoleResidue.cpp
+        containers/Kochin.cpp
         io/HDBReader.cpp
         io/HDBWriter.cpp
         )
