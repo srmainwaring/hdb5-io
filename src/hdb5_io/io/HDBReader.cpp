@@ -7,6 +7,7 @@
 #include "hdb5_io/containers/HydrodynamicDataBase.h"
 #include "hdb5_io/containers/Body.h"
 #include "hdb5_io/containers/WaveDrift.h"
+#include "hdb5_io/containers/Kochin.h"
 
 #include <highfive/H5File.hpp>
 #include <highfive/H5Easy.hpp>
@@ -485,12 +486,11 @@ namespace HDB5_io {
     waveDrift->SetWaveDirections(waveDirection);
 
     double kochin_step = 0;
-    kochin_step = H5Easy::load<double>(HDF5_file, "WaveDrift/KochinStep"); // In degree.
+    kochin_step = H5Easy::load<double>(HDF5_file, "WaveDrift/KochinStep"); // In degrees.
     auto sym_X = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_x");
     auto sym_Y = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_y");
 
     waveDrift->SetSymmetries(sym_X == 1, sym_Y == 1);
-    waveDrift->SetKochinStep(kochin_step * MU_PI_180); // Conversion in radians.
 
     Eigen::MatrixXd surge(waveDirection.size(), frequency.size());
     Eigen::MatrixXd sway(waveDirection.size(), frequency.size());
@@ -512,6 +512,36 @@ namespace HDB5_io {
     std::vector<double> coeff_yaw(&yaw(0, 0), yaw.data() + yaw.size());
     waveDrift->AddData("yaw", coeff_yaw);
 
+    // Kochin functions.
+    if (HDF5_file.exist("WaveDrift/Kochin")) {
+
+      // Initialization.
+      auto kochin = std::make_shared<Kochin>(m_hdb, kochin_step * MU_PI_180); // Conversion in radians.
+
+      // Diffraction Kochin functions and their derivatives.
+      for (unsigned int iwaveDir = 0; iwaveDir < m_hdb->GetWaveDirectionDiscretization().size(); ++iwaveDir) {
+
+        // Kochin function.
+        auto diffraction_kochin = H5Easy::load<Eigen::MatrixXd>(
+            HDF5_file, "WaveDrift/Kochin/Diffraction/Angle_" + std::to_string(iwaveDir) + "/Function");
+        kochin->SetDiffractionKochin(iwaveDir, diffraction_kochin);
+
+        // Kochin function derivative.
+        auto diffraction_kochin_derivative = H5Easy::load<Eigen::MatrixXd>(
+            HDF5_file, "WaveDrift/Kochin/Diffraction/Angle_" + std::to_string(iwaveDir) + "/Derivative");
+        kochin->SetDiffractionKochinDerivative(iwaveDir, diffraction_kochin_derivative);
+
+      }
+
+      // Add to the hdb.
+      m_hdb->SetKochin(kochin);
+
+    }
+    else{
+      waveDrift->SetKochinStep(kochin_step * MU_PI_180); // Conversion in radians.
+    }
+
+    // Add to the hdb.
     m_hdb->SetWaveDrift(waveDrift);
 
   }

@@ -14,7 +14,7 @@ int main() {
   HDB->GetBody(0)->VisualizeMesh();
 #endif
 
-  // Number of real and complex coefficients.
+  // Add Poles and residues.
   Eigen::MatrixXi nb_real(6,6), nb_cc(6,6);
   nb_real <<  1, 0, 1, 2, 3, 6,
             1, 1, 0, 0, 0, 0,
@@ -58,6 +58,27 @@ int main() {
     }
     HDB->GetBody(0)->AddModalCoefficients(HDB->GetBody(0), modalCoeff);
   }
+
+  // Add Kochin angular step.
+  double kochin_step = 1.;
+  auto kochin = std::make_shared<Kochin>(HDB.get(), kochin_step * MU_PI_180);
+  int nAngles = kochin->GetNbKochinAngles();
+
+  // Add Diffraction Kochin functions.
+  for (unsigned int iwaveDir = 0; iwaveDir < HDB->GetWaveDirectionDiscretization().size(); ++iwaveDir) {
+
+    // Function.
+    Eigen::MatrixXd kochin_diffraction(nAngles, HDB->GetFrequencyDiscretization().size());
+    kochin_diffraction.setRandom();
+    kochin->SetDiffractionKochin(iwaveDir, kochin_diffraction);
+
+    // Derivative.
+    Eigen::MatrixXd kochin_diffraction_derivative(nAngles, HDB->GetFrequencyDiscretization().size());
+    kochin_diffraction_derivative.setRandom();
+    kochin->SetDiffractionKochinDerivative(iwaveDir, kochin_diffraction_derivative);
+
+  }
+  HDB->SetKochin(kochin);
 
   export_HDB("out.hdb5", HDB.get());
 

@@ -10,6 +10,7 @@
 #include "hdb5_io/containers/HydrodynamicDataBase.h"
 #include "hdb5_io/containers/Body.h"
 #include "hdb5_io/containers/WaveDrift.h"
+#include "hdb5_io/containers/Kochin.h"
 #include "hdb5_io/containers/PoleResidue.h"
 
 namespace HDB5_io {
@@ -539,7 +540,46 @@ namespace HDB5_io {
     dataSet.createAttribute<std::string>("Description", "Symmetry along y");
 
     // Kochin data.
-    auto kochin_step = m_hdb->GetWaveDrift()->GetKochinStep();
+    double kochin_step = 0.;
+    if (m_hdb->GetKochin()) {
+
+      // Kochin group.
+      auto KochinGroup = HDF5_file.createGroup("WaveDrift/Kochin");
+
+      // Kochin angular step.
+      kochin_step = m_hdb->GetKochin()->GetKochinStep();
+
+      // Wave directions.
+      auto angles = m_hdb->GetWaveDirectionDiscretization();
+
+      // Diffraction.
+      for (unsigned int iwaveDir = 0; iwaveDir < angles.size(); ++iwaveDir) {
+
+        //
+        auto anglePath = "WaveDrift/Kochin/Diffraction/Angle_" + std::to_string(iwaveDir);
+        auto angleGroup = HDF5_file.createGroup(anglePath);
+
+        // Wave direction.
+        auto angle = angles(iwaveDir);
+        H5Easy::dump(HDF5_file, anglePath + "/Angle", angle * MU_180_PI);
+        angleGroup.getDataSet("Angle").createAttribute<std::string>("Description", "Wave direction.");
+        angleGroup.getDataSet("Angle").createAttribute<std::string>("Unit", "deg");
+
+        // Kochin function.
+        Eigen::MatrixXd diffraction_kochin = m_hdb->GetKochin()->GetDiffractionKochin(iwaveDir);
+        H5Easy::dump(HDF5_file, anglePath + "/Function", static_cast<Eigen::MatrixXd>(diffraction_kochin));
+
+        // Kochin function derivative.
+        Eigen::MatrixXd diffraction_kochin_derivative = m_hdb->GetKochin()->GetDiffractionKochinDerivative(iwaveDir);
+        H5Easy::dump(HDF5_file, anglePath + "/Derivative", static_cast<Eigen::MatrixXd>(diffraction_kochin_derivative));
+
+      }
+
+    }
+    else {
+      // Kochin angular step.
+      kochin_step = m_hdb->GetWaveDrift()->GetKochinStep();
+    }
     dataSet = waveDriftGroup.createDataSet<double>("KochinStep", HighFive::DataSpace::From(kochin_step));
     dataSet.write(kochin_step * MU_180_PI); // Conversion in degrees.
     dataSet.createAttribute<std::string>("Description", "Angular discretization in degrees for the Kochin functions");

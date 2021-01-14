@@ -126,6 +126,14 @@ namespace HDB5_io {
     return m_waveDrift.get();
   }
 
+  void HydrodynamicDataBase::SetKochin(const std::shared_ptr<Kochin> &kochin) {
+    m_kochin = kochin;
+  }
+
+  Kochin* HydrodynamicDataBase::GetKochin() const {
+    return m_kochin.get();
+  }
+
   void HydrodynamicDataBase::SetVF() {
     m_isVF = true;
   }

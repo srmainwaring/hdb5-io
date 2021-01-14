@@ -90,6 +90,10 @@ namespace HDB5_io {
 
     WaveDrift* GetWaveDrift() const;
 
+    void SetKochin(const std::shared_ptr<Kochin> &kochin);
+
+    Kochin* GetKochin() const;
+
     void SetVF();
 
     bool GetVF() const;
