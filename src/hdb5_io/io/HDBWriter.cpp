@@ -555,7 +555,7 @@ namespace HDB5_io {
       // Diffraction.
       for (unsigned int iwaveDir = 0; iwaveDir < angles.size(); ++iwaveDir) {
 
-        //
+        // Group.
         auto anglePath = "WaveDrift/Kochin/Diffraction/Angle_" + std::to_string(iwaveDir);
         auto angleGroup = HDF5_file.createGroup(anglePath);
 
@@ -572,6 +572,31 @@ namespace HDB5_io {
         // Kochin function derivative.
         Eigen::MatrixXd diffraction_kochin_derivative = m_hdb->GetKochin()->GetDiffractionKochinDerivative(iwaveDir);
         H5Easy::dump(HDF5_file, anglePath + "/Derivative", static_cast<Eigen::MatrixXd>(diffraction_kochin_derivative));
+
+      }
+
+      // Radiation.
+      for (unsigned int ibody = 0; ibody < m_hdb->GetNbBodies(); ++ibody) {
+
+        // Body.
+        auto body = m_hdb->GetBody(ibody);
+
+        // Dof.
+        for (unsigned int idof = 0; idof < 6; idof++) {
+
+          // Group.
+          auto dofPath = "WaveDrift/Kochin/Radiation/Body_" + std::to_string(ibody) + "/DOF_" + std::to_string(idof);
+          auto dofGroup = HDF5_file.createGroup(dofPath);
+
+          // Kochin function.
+          Eigen::MatrixXd radiation_kochin = m_hdb->GetKochin()->GetRadiationKochin(body, idof);
+          H5Easy::dump(HDF5_file, dofPath + "/Function", static_cast<Eigen::MatrixXd>(radiation_kochin));
+
+          // Kochin function.
+          Eigen::MatrixXd radiation_kochin_derivative = m_hdb->GetKochin()->GetRadiationKochinDerivative(body, idof);
+          H5Easy::dump(HDF5_file, dofPath + "/Derivative", static_cast<Eigen::MatrixXd>(radiation_kochin_derivative));
+
+        }
 
       }
 

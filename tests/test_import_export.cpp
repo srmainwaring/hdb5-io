@@ -64,7 +64,7 @@ int main() {
   auto kochin = std::make_shared<Kochin>(HDB.get(), kochin_step * MU_PI_180);
   int nAngles = kochin->GetNbKochinAngles();
 
-  // Add Diffraction Kochin functions.
+  // Add diffraction Kochin functions.
   for (unsigned int iwaveDir = 0; iwaveDir < HDB->GetWaveDirectionDiscretization().size(); ++iwaveDir) {
 
     // Function.
@@ -78,6 +78,22 @@ int main() {
     kochin->SetDiffractionKochinDerivative(iwaveDir, kochin_diffraction_derivative);
 
   }
+
+  // Add radiation Kochin functions.
+  for (unsigned int idof = 0; idof < 6; ++idof) {
+
+    // Function.
+    Eigen::MatrixXd kochin_radiation(nAngles, HDB->GetFrequencyDiscretization().size());
+    kochin_radiation.setRandom();
+    kochin->SetRadiationKochin(HDB->GetBody(0), kochin_radiation);
+
+    // Derivative.
+    Eigen::MatrixXd kochin_radiation_derivative(nAngles, HDB->GetFrequencyDiscretization().size());
+    kochin_radiation_derivative.setRandom();
+    kochin->SetRadiationKochinDerivative(HDB->GetBody(0), kochin_radiation_derivative);
+
+  }
+
   HDB->SetKochin(kochin);
 
   export_HDB("out.hdb5", HDB.get());

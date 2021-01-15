@@ -50,14 +50,20 @@ namespace HDB5_io {
     /// Setter of the angular derivative of the diffraction Kochin function for all wave frequencies, all angles and single wave direction.
     void SetDiffractionKochinDerivative(unsigned int iwave, const Eigen::MatrixXd &diffractionKochinDerivativeMatrix);
 
-    /// Getter of angular derivative of the diffraction Kochin function for all single wave frequencies, all angles and a single wave direction.
+    /// Getter of the angular derivative of the diffraction Kochin function for all single wave frequencies, all angles and a single wave direction.
     Eigen::MatrixXd GetDiffractionKochinDerivative(unsigned int iwave);
 
-    /// Setter of the radiation Kochin function for a body, a single wave frequency and all angles.
-    void SetRadiationKochin(Body *Body, const Eigen::VectorXd &radiationKochinVector);
+    /// Setter of the radiation Kochin function for a single body, a single dof, all wave frequencies and all angles.
+    void SetRadiationKochin(Body *Body, const Eigen::MatrixXd &radiationKochinMatrix);
 
-    /// Setter of the radiation Kochin function for a body, a single wave frequency and all angles.
-    void SetRadiationKochinDerivative(Body *Body, const Eigen::VectorXd &radiationKochinDerivativeVector);
+    /// Getter of the radiation Kochin function for a single body, all single wave frequencies, a single dof and all angles.
+    Eigen::MatrixXd GetRadiationKochin(Body *Body, unsigned int idof);
+
+    /// Setter of the angular derivative of the radiation Kochin function for a single body, a single wave frequency, all dof and all angles.
+    void SetRadiationKochinDerivative(Body *Body, const Eigen::MatrixXd &radiationKochinDerivativeMatrix);
+
+    /// Getter of the angular derivative of the radiation Kochin function for a single body, all single wave frequencies, a single dof and all angles.
+    Eigen::MatrixXd GetRadiationKochinDerivative(Body *Body, unsigned int idof);
 
    private:
 
@@ -78,13 +84,13 @@ namespace HDB5_io {
     /// all angles (rows of Eigen::MatrixXd) and all wave frequencies (column of Eigen::MatrixXd).
     std::vector<Eigen::MatrixXd> m_kochin_diffraction_derivate;
 
-    /// Radiation elementary Kochin functions for all bodies (Body), all angles (rows of Eigen::VectorXd)
-    /// and all wave frequencies (std::vector).
-    std::unordered_map<Body *, std::vector<Eigen::VectorXd>> m_kochin_radiation;
+    /// Radiation elementary Kochin functions for all bodies (Body), all dof (std::vector), all angles (rows of Eigen::MatrixXd)
+    /// and all all wave frequencies (cols of Eigen::MatrixXd).
+    std::unordered_map<Body *, std::vector<Eigen::MatrixXd>> m_kochin_radiation;
 
-    /// Angular differentiation of the radiation elementary Kochin functions for all bodies (Body), all angles (rows of Eigen::VectorXd)
-    //    /// and all wave frequencies (std::vector).
-    std::unordered_map<Body *, std::vector<Eigen::VectorXd>> m_kochin_radiation_derivate;
+    /// Angular differentiation of the radiation elementary Kochin functions for all bodies (Body), all dof (std::vector), all angles (rows of Eigen::MatrixXd)
+    //    /// and all all wave frequencies (cols of Eigen::MatrixXd).
+    std::unordered_map<Body *, std::vector<Eigen::MatrixXd>> m_kochin_radiation_derivate;
 
   };
 

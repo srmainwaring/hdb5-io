@@ -533,6 +533,31 @@ namespace HDB5_io {
 
       }
 
+      // Radiation Kochin functions and their derivatives.
+      for (unsigned int ibody = 0; ibody < m_hdb->GetNbBodies(); ++ibody) {
+
+        // Body.
+        auto body = m_hdb->GetBody(ibody);
+
+        // Dof.
+        for (unsigned int idof = 0; idof < 6; idof++) {
+
+          // Kochin function.
+          auto radiation_kochin = H5Easy::load<Eigen::MatrixXd>(
+              HDF5_file, "WaveDrift/Kochin/Radiation/Body_" + std::to_string(ibody) + "/DOF_" + std::to_string(idof)
+              + "/Function");
+          kochin->SetRadiationKochin(body, radiation_kochin);
+
+          // Kochin function derivative.
+          auto radiation_kochin_derivative = H5Easy::load<Eigen::MatrixXd>(
+              HDF5_file, "WaveDrift/Kochin/Radiation/Body_" + std::to_string(ibody) + "/DOF_" + std::to_string(idof)
+              + "/Derivative");
+          kochin->SetRadiationKochinDerivative(body, radiation_kochin_derivative);
+
+        }
+
+      }
+
       // Add to the hdb.
       m_hdb->SetKochin(kochin);
 
