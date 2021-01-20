@@ -221,7 +221,7 @@ namespace HDB5_io {
         mathutils::Matrix66<double> tmp_matrix;
         for (int imotion = 0; imotion < 6; ++imotion) {
           for (int iforce = 0; iforce < 6; ++iforce) {
-            tmp_matrix(iforce,imotion) = addedMass[iforce](imotion,iw);
+            tmp_matrix(iforce,imotion) = addedMass[imotion](iforce,iw);
           }
         }
         AM_tmp.push_back(tmp_matrix);
@@ -235,7 +235,7 @@ namespace HDB5_io {
         mathutils::Matrix66<double> tmp_matrix;
         for (int imotion = 0; imotion < 6; ++imotion) {
           for (int iforce = 0; iforce < 6; ++iforce) {
-            tmp_matrix(iforce,imotion) = radiationDamping[iforce](imotion,iw);
+            tmp_matrix(iforce,imotion) = radiationDamping[imotion](iforce,iw);
           }
         }
         RD_tmp.push_back(tmp_matrix);
