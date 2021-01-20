@@ -333,11 +333,11 @@ namespace HDB5_io {
                                                     std::to_string(bodyMotion->GetID()) +
                                                     " that radiates waves and  generate force on body " +
                                                     std::to_string(body->GetID()) + ".");
-      for (unsigned int i = 0; i < 6; i++) {
+      for (unsigned int imotion = 0; imotion < 6; imotion++) {
 
-        H5Easy::dump(HDF5_file, bodyMotionPath + "/AddedMass/DOF_" + std::to_string(i),
-                     body->GetAddedMass(bodyMotion, i));
-        auto DOF = AddedMassGroup.getDataSet("DOF_" + std::to_string(i));
+        H5Easy::dump(HDF5_file, bodyMotionPath + "/AddedMass/DOF_" + std::to_string(imotion),
+                     body->GetAddedMass(bodyMotion, imotion));
+        auto DOF = AddedMassGroup.getDataSet("DOF_" + std::to_string(imotion));
         DOF.createAttribute("Description", "Added mass coefficients for an acceleration of body " +
                                            std::to_string(bodyMotion->GetID()) +
                                            " and force on body " +
@@ -352,10 +352,10 @@ namespace HDB5_io {
                                                            std::to_string(bodyMotion->GetID()) +
                                                            " that radiates waves and generates forces on body " +
                                                            std::to_string(body->GetID()) + ".");
-      for (unsigned int i = 0; i < 6; i++) {
-        H5Easy::dump(HDF5_file, bodyMotionPath + "/RadiationDamping/DOF_" + std::to_string(i),
-                     body->GetRadiationDamping(bodyMotion, i));
-        auto DOF = RadiationDampingGroup.getDataSet("DOF_" + std::to_string(i));
+      for (unsigned int imotion = 0; imotion < 6; imotion++) {
+        H5Easy::dump(HDF5_file, bodyMotionPath + "/RadiationDamping/DOF_" + std::to_string(imotion),
+                     body->GetRadiationDamping(bodyMotion, imotion));
+        auto DOF = RadiationDampingGroup.getDataSet("DOF_" + std::to_string(imotion));
         DOF.createAttribute("Description", "Wave damping coefficients for an acceleration of body " +
                                            std::to_string(bodyMotion->GetID()) +
                                            " and force on body " +
@@ -371,10 +371,10 @@ namespace HDB5_io {
                                               std::to_string(bodyMotion->GetID()) +
                                               " that radiates waves and generates forces on body " +
                                               std::to_string(body->GetID()) + ".");
-        for (unsigned int i = 0; i < 6; i++) {
-          H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK/DOF_" + std::to_string(i),
-                       body->GetIRFInterpolatedData(bodyMotion, i, time));
-          auto DOF = KGroup.getDataSet("DOF_" + std::to_string(i));
+        for (unsigned int imotion = 0; imotion < 6; imotion++) {
+          H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK/DOF_" + std::to_string(imotion),
+                       body->GetIRFInterpolatedData(bodyMotion, imotion, time));
+          auto DOF = KGroup.getDataSet("DOF_" + std::to_string(imotion));
           DOF.createAttribute("Description", "Impulse response functions K");
         }
 
@@ -384,10 +384,10 @@ namespace HDB5_io {
                                                std::to_string(bodyMotion->GetID()) +
                                                " that radiates waves and generates forces on body " +
                                                std::to_string(body->GetID()) + ".");
-        for (unsigned int i = 0; i < 6; i++) {
-          H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU/DOF_" + std::to_string(i),
-                       body->GetIRF_KuInterpolatedData(bodyMotion, i, time));
-          auto DOF = KUGroup.getDataSet("DOF_" + std::to_string(i));
+        for (unsigned int imotion = 0; imotion < 6; imotion++) {
+          H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU/DOF_" + std::to_string(imotion),
+                       body->GetIRF_KuInterpolatedData(bodyMotion, imotion, time));
+          auto DOF = KUGroup.getDataSet("DOF_" + std::to_string(imotion));
           DOF.createAttribute("Description", "Impulse response functions KU");
         }
       }
