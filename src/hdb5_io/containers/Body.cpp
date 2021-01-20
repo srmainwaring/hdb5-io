@@ -280,6 +280,14 @@ namespace HDB5_io {
 
   }
 
+  void Body::ClearModalCoefficients(Body *BodyMotion) {
+
+    // This method clears the modal coefficients of a body.
+
+    m_modalCoefficients[BodyMotion].clear();
+
+  }
+
   //
   // Getters
   //

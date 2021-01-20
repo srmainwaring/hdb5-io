@@ -189,6 +189,9 @@ namespace HDB5_io {
     /// \param modalCoefficients modal coefficients
     void AddModalCoefficients(Body *BodyMotion, const std::vector<PoleResidue> &modalCoefficients);
 
+    /// This method clears the modal coefficients of a body.
+    void ClearModalCoefficients(Body *BodyMotion);
+
     //
     // Getters
     //
