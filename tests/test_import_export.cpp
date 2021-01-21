@@ -68,12 +68,12 @@ int main() {
   for (unsigned int iwaveDir = 0; iwaveDir < HDB->GetWaveDirectionDiscretization().size(); ++iwaveDir) {
 
     // Function.
-    Eigen::MatrixXd kochin_diffraction(nAngles, HDB->GetFrequencyDiscretization().size());
+    Eigen::MatrixXcd kochin_diffraction(nAngles, HDB->GetFrequencyDiscretization().size());
     kochin_diffraction.setRandom();
     kochin->SetDiffractionKochin(iwaveDir, kochin_diffraction);
 
     // Derivative.
-    Eigen::MatrixXd kochin_diffraction_derivative(nAngles, HDB->GetFrequencyDiscretization().size());
+    Eigen::MatrixXcd kochin_diffraction_derivative(nAngles, HDB->GetFrequencyDiscretization().size());
     kochin_diffraction_derivative.setRandom();
     kochin->SetDiffractionKochinDerivative(iwaveDir, kochin_diffraction_derivative);
 
@@ -83,12 +83,12 @@ int main() {
   for (unsigned int idof = 0; idof < 6; ++idof) {
 
     // Function.
-    Eigen::MatrixXd kochin_radiation(nAngles, HDB->GetFrequencyDiscretization().size());
+    Eigen::MatrixXcd kochin_radiation(nAngles, HDB->GetFrequencyDiscretization().size());
     kochin_radiation.setRandom();
     kochin->SetRadiationKochin(HDB->GetBody(0), kochin_radiation);
 
     // Derivative.
-    Eigen::MatrixXd kochin_radiation_derivative(nAngles, HDB->GetFrequencyDiscretization().size());
+    Eigen::MatrixXcd kochin_radiation_derivative(nAngles, HDB->GetFrequencyDiscretization().size());
     kochin_radiation_derivative.setRandom();
     kochin->SetRadiationKochinDerivative(HDB->GetBody(0), kochin_radiation_derivative);
 

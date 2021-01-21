@@ -555,7 +555,7 @@ namespace HDB5_io {
       // Diffraction.
       for (unsigned int iwaveDir = 0; iwaveDir < angles.size(); ++iwaveDir) {
 
-        // Group.
+        // Groups.
         auto anglePath = "WaveDrift/Kochin/Diffraction/Angle_" + std::to_string(iwaveDir);
         auto angleGroup = HDF5_file.createGroup(anglePath);
 
@@ -565,13 +565,25 @@ namespace HDB5_io {
         angleGroup.getDataSet("Angle").createAttribute<std::string>("Description", "Wave direction.");
         angleGroup.getDataSet("Angle").createAttribute<std::string>("Unit", "deg");
 
-        // Kochin function.
-        Eigen::MatrixXd diffraction_kochin = m_hdb->GetKochin()->GetDiffractionKochin(iwaveDir);
-        H5Easy::dump(HDF5_file, anglePath + "/Function", static_cast<Eigen::MatrixXd>(diffraction_kochin));
+        // Kochin function group.
+        auto DiffractionKochinGroup = HDF5_file.createGroup(anglePath + "/Function");
+
+        // Kochin function - Real part.
+        auto diffraction_kochin = m_hdb->GetKochin()->GetDiffractionKochin(iwaveDir);
+        H5Easy::dump(HDF5_file, anglePath + "/Function/RealPart", static_cast<Eigen::MatrixXd>(diffraction_kochin.real()));
+
+        // Kochin function - Imaginary part.
+        H5Easy::dump(HDF5_file, anglePath + "/Function/ImagPart", static_cast<Eigen::MatrixXd>(diffraction_kochin.imag()));
+
+        // Derivative Kochin function group.
+        auto DiffractionDerivativeKochinGroup = HDF5_file.createGroup(anglePath + "/Derivative");
 
         // Kochin function derivative.
-        Eigen::MatrixXd diffraction_kochin_derivative = m_hdb->GetKochin()->GetDiffractionKochinDerivative(iwaveDir);
-        H5Easy::dump(HDF5_file, anglePath + "/Derivative", static_cast<Eigen::MatrixXd>(diffraction_kochin_derivative));
+        auto diffraction_kochin_derivative = m_hdb->GetKochin()->GetDiffractionKochinDerivative(iwaveDir);
+        H5Easy::dump(HDF5_file, anglePath + "/Derivative/RealPart", static_cast<Eigen::MatrixXd>(diffraction_kochin_derivative.real()));
+
+        // Kochin function derivative.
+        H5Easy::dump(HDF5_file, anglePath + "/Derivative/ImagPart", static_cast<Eigen::MatrixXd>(diffraction_kochin_derivative.imag()));
 
       }
 
@@ -588,13 +600,25 @@ namespace HDB5_io {
           auto dofPath = "WaveDrift/Kochin/Radiation/Body_" + std::to_string(ibody) + "/DOF_" + std::to_string(idof);
           auto dofGroup = HDF5_file.createGroup(dofPath);
 
-          // Kochin function.
-          Eigen::MatrixXd radiation_kochin = m_hdb->GetKochin()->GetRadiationKochin(body, idof);
-          H5Easy::dump(HDF5_file, dofPath + "/Function", static_cast<Eigen::MatrixXd>(radiation_kochin));
+          // Kochin function group.
+          auto RadiationKochinGroup = HDF5_file.createGroup(dofPath + "/Function");
 
-          // Kochin function.
-          Eigen::MatrixXd radiation_kochin_derivative = m_hdb->GetKochin()->GetRadiationKochinDerivative(body, idof);
-          H5Easy::dump(HDF5_file, dofPath + "/Derivative", static_cast<Eigen::MatrixXd>(radiation_kochin_derivative));
+          // Kochin function - Real part.
+          auto radiation_kochin = m_hdb->GetKochin()->GetRadiationKochin(body, idof);
+          H5Easy::dump(HDF5_file, dofPath + "/Function/RealPart", static_cast<Eigen::MatrixXd>(radiation_kochin.real()));
+
+          // Kochin function - Imaginary part.
+          H5Easy::dump(HDF5_file, dofPath + "/Function/ImagPart", static_cast<Eigen::MatrixXd>(radiation_kochin.imag()));
+
+          // Kochin function group.
+          auto RadiationKochinDerivativeGroup = HDF5_file.createGroup(dofPath + "/Derivative");
+
+          // Kochin function derivative - Real part.
+          auto radiation_kochin_derivative = m_hdb->GetKochin()->GetRadiationKochinDerivative(body, idof);
+          H5Easy::dump(HDF5_file, dofPath + "/Derivative/RealPart", static_cast<Eigen::MatrixXd>(radiation_kochin_derivative.real()));
+
+          // Kochin function derivative - Imaginary part.
+          H5Easy::dump(HDF5_file, dofPath + "/Derivative/ImagPart", static_cast<Eigen::MatrixXd>(radiation_kochin_derivative.imag()));
 
         }
 
