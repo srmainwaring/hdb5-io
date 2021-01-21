@@ -121,7 +121,7 @@ namespace HDB5_io {
     // Initialization.
     if (m_kochin_radiation.count(Body) == 0) {
       std::vector<Eigen::MatrixXcd> tempMat;
-      tempMat.reserve(m_HDB->GetFrequencyDiscretization().size());
+      tempMat.reserve(6);
       m_kochin_radiation.insert(std::make_pair(Body, tempMat));
     }
 
@@ -138,8 +138,12 @@ namespace HDB5_io {
     // Initialization.
     if (m_kochin_radiation.count(Body) == 0) {
       std::vector<Eigen::MatrixXcd> tempMat;
-      tempMat.reserve(m_HDB->GetFrequencyDiscretization().size());
+      tempMat.reserve(6);
       m_kochin_radiation.insert(std::make_pair(Body, tempMat));
+      for (int i = 0; i < 6; i++){
+        auto tmp = Eigen::MatrixXcd(m_nb_kochin_angle, m_HDB->GetFrequencyDiscretization().size());
+        m_kochin_radiation.at(Body).push_back(tmp);
+      }
     }
 
     assert(radiationKochinMatrix.rows() == m_nb_kochin_angle);
@@ -163,7 +167,7 @@ namespace HDB5_io {
     // Initialization.
     if (m_kochin_radiation_derivate.count(Body) == 0) {
       std::vector<Eigen::MatrixXcd> tempMat;
-      tempMat.reserve(m_HDB->GetFrequencyDiscretization().size());
+      tempMat.reserve(6);
       m_kochin_radiation_derivate.insert(std::make_pair(Body, tempMat));
     }
 
@@ -180,8 +184,12 @@ namespace HDB5_io {
     // Initialization.
     if (m_kochin_radiation_derivate.count(Body) == 0) {
       std::vector<Eigen::MatrixXcd> tempMat;
-      tempMat.reserve(m_HDB->GetFrequencyDiscretization().size());
+      tempMat.reserve(6);
       m_kochin_radiation_derivate.insert(std::make_pair(Body, tempMat));
+      for (int i = 0; i < 6; i++){
+        auto tmp = Eigen::MatrixXcd(m_nb_kochin_angle, m_HDB->GetFrequencyDiscretization().size());
+        m_kochin_radiation_derivate.at(Body).push_back(tmp);
+      }
     }
 
     assert(radiationKochinMatrix.rows() == m_nb_kochin_angle);
