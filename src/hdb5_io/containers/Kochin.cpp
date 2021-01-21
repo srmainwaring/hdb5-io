@@ -76,7 +76,7 @@ namespace HDB5_io {
 
   Eigen::MatrixXcd Kochin::GetDiffractionKochin(unsigned int iwave) {
 
-    // Getter of the diffraction Kochin function for all single wave frequencies, all angles and a single wave direction.
+    // Getter of the diffraction Kochin function for all wave frequencies, all angles and a single wave direction.
 
     return m_kochin_diffraction[iwave];
 
@@ -108,7 +108,7 @@ namespace HDB5_io {
 
   Eigen::MatrixXcd Kochin::GetDiffractionKochinDerivative(unsigned int iwave) {
 
-    // Getter of the angular derivative of the diffraction Kochin function for all single wave frequencies, all angles and a single wave direction.
+    // Getter of the angular derivative of the diffraction Kochin function for all wave frequencies, all angles and a single wave direction.
 
     return m_kochin_diffraction_derivate[iwave];
 
@@ -128,6 +128,23 @@ namespace HDB5_io {
     assert(radiationKochinMatrix.rows() == m_nb_kochin_angle);
     assert(radiationKochinMatrix.cols() == m_HDB->GetFrequencyDiscretization().size());
     m_kochin_radiation.at(Body).push_back(radiationKochinMatrix);
+
+  }
+
+  void Kochin::SetRadiationKochin(Body *Body, unsigned int iw, unsigned int idof, const Eigen::MatrixXcd &radiationKochinMatrix) {
+
+    // Setter of the radiation Kochin function for a single body, a single dof, a single wave frequency and all angles.
+
+    // Initialization.
+    if (m_kochin_radiation.count(Body) == 0) {
+      std::vector<Eigen::MatrixXcd> tempMat;
+      tempMat.reserve(m_HDB->GetFrequencyDiscretization().size());
+      m_kochin_radiation.insert(std::make_pair(Body, tempMat));
+    }
+
+    assert(radiationKochinMatrix.rows() == m_nb_kochin_angle);
+    assert(radiationKochinMatrix.cols() == 1);
+    m_kochin_radiation.at(Body)[idof].col(iw) = radiationKochinMatrix;
 
   }
 
@@ -153,6 +170,23 @@ namespace HDB5_io {
     assert(radiationKochinDerivativeMatrix.rows() == m_nb_kochin_angle);
     assert(radiationKochinDerivativeMatrix.cols() == m_HDB->GetFrequencyDiscretization().size());
     m_kochin_radiation_derivate.at(Body).push_back(radiationKochinDerivativeMatrix);
+
+  }
+
+  void Kochin::SetRadiationKochinDerivative(Body *Body, unsigned int iw, unsigned int idof, const Eigen::MatrixXcd &radiationKochinMatrix) {
+
+    // Setter of the radiation Kochin angular derivative of the function for a single body, a single dof, a single wave frequency and all angles.
+
+    // Initialization.
+    if (m_kochin_radiation_derivate.count(Body) == 0) {
+      std::vector<Eigen::MatrixXcd> tempMat;
+      tempMat.reserve(m_HDB->GetFrequencyDiscretization().size());
+      m_kochin_radiation_derivate.insert(std::make_pair(Body, tempMat));
+    }
+
+    assert(radiationKochinMatrix.rows() == m_nb_kochin_angle);
+    assert(radiationKochinMatrix.cols() == 1);
+    m_kochin_radiation_derivate.at(Body)[idof].col(iw) = radiationKochinMatrix;
 
   }
 
