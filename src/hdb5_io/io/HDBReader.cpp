@@ -261,6 +261,8 @@ namespace HDB5_io {
       auto DataSet = HDF5_file.getDataSet(WaveDirPath + "/Phase");
       std::string unit;
       DataSet.getAttribute("Unit").read<std::string>(unit);
+
+      // Converstion in rad.
       if (unit != "rad")
         phase = phase.array() * DEG2RAD;
 

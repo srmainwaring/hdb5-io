@@ -490,14 +490,14 @@ namespace HDB5_io {
                                                                       " deg.");
       angleGroup.getDataSet("Amplitude").createAttribute<std::string>("Unit", "");
 
-      H5Easy::dump(HDF5_file, anglePath + "/Phase", static_cast<Eigen::MatrixXd>(coeff.array().arg()));
+      H5Easy::dump(HDF5_file, anglePath + "/Phase", static_cast<Eigen::MatrixXd>(coeff.array().arg() * RAD2DEG)); // Conversion in deg.
       angleGroup.getDataSet("Phase").createAttribute<std::string>("Description",
-                                                                  "Phase of the RAO of body " +
+                                                                  "Phase in deg of the RAO of body " +
                                                                   std::to_string(body->GetID()) +
                                                                   " for a wave direction of " + std::to_string(
                                                                       angle * MU_180_PI) +
                                                                   " deg.");
-      angleGroup.getDataSet("Phase").createAttribute<std::string>("Unit", "rad");
+      angleGroup.getDataSet("Phase").createAttribute<std::string>("Unit", "deg");
 
 //      H5Easy::dump(HDF5_file, anglePath + "/RealCoeffs", static_cast<Eigen::MatrixXd>(coeff.real()));
 //      angleGroup.getDataSet("RealCoeffs").createAttribute<std::string>("Description",
