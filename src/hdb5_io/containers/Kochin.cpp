@@ -7,7 +7,7 @@
 
 namespace HDB5_io {
 
-  Kochin::Kochin(HydrodynamicDataBase *hdb, const double &kochin_step) : m_HDB(hdb), m_kochin_step(kochin_step){
+  Kochin::Kochin(HydrodynamicDataBase *hdb, const double &kochin_step, int NbDir) : m_HDB(hdb), m_kochin_step(kochin_step){
 
     // Constructor of the class.
 
@@ -15,12 +15,11 @@ namespace HDB5_io {
     ComputeNbKochinAngles();
 
     // Allocations.
-    auto nDirections = m_HDB->GetWaveDirectionDiscretization().size();
     auto nFrequencies = m_HDB->GetFrequencyDiscretization().size();
-    m_kochin_diffraction.reserve((unsigned long) nDirections);
-    m_kochin_diffraction_derivate.reserve((unsigned long) nDirections);
+    m_kochin_diffraction.reserve((unsigned long) NbDir);
+    m_kochin_diffraction_derivate.reserve((unsigned long) NbDir);
 
-    for (int i = 0; i < nDirections; ++i) {
+    for (int i = 0; i < NbDir; ++i) {
       Eigen::MatrixXcd mat(m_nb_kochin_angle, nFrequencies);
       m_kochin_diffraction.push_back(mat);
       m_kochin_diffraction_derivate.push_back(mat);

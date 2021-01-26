@@ -24,7 +24,7 @@ namespace HDB5_io {
    public:
 
     /// Constructor of the class.
-    Kochin(HydrodynamicDataBase *hdb, const double &kochin_step);
+    Kochin(HydrodynamicDataBase *hdb, const double &kochin_step, int nbDir);
 
     /// Getter for the Kochin angular step.
     double GetKochinStep() const;
@@ -34,6 +34,8 @@ namespace HDB5_io {
 
     /// Getter of the number of Kochin angles.
     int GetNbKochinAngles();
+
+    int GetNbKochinDirections() {return m_kochin_diffraction.size();}
 
     /// Setter of the diffraction Kochin function for a single wave frequency, all angles and a single wave direction.
     void SetDiffractionKochin(unsigned int iwave, unsigned int iw, const Eigen::VectorXcd &diffractionKochinVector);

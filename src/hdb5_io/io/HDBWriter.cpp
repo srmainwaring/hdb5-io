@@ -553,7 +553,8 @@ namespace HDB5_io {
       auto angles = m_hdb->GetWaveDirectionDiscretization();
 
       // Diffraction.
-      for (unsigned int iwaveDir = 0; iwaveDir < angles.size(); ++iwaveDir) {
+//      int iwaveDir=0
+      for (unsigned int iwaveDir = 0; iwaveDir < m_hdb->GetKochin()->GetNbKochinDirections(); ++iwaveDir) {
 
         // Groups.
         auto anglePath = "WaveDrift/Kochin/Diffraction/Angle_" + std::to_string(iwaveDir);

@@ -518,27 +518,28 @@ namespace HDB5_io {
     if (HDF5_file.exist("WaveDrift/Kochin")) {
 
       // Initialization.
-      auto kochin = std::make_shared<Kochin>(m_hdb, kochin_step * MU_PI_180); // Conversion in radians.
+      auto nbDir =  HDF5_file.getGroup("WaveDrift/Kochin/Diffraction/").getNumberObjects();
+      auto kochin = std::make_shared<Kochin>(m_hdb, kochin_step * MU_PI_180, nbDir); // Conversion in radians.
 
-      // Diffraction Kochin functions and their derivatives.
-      for (unsigned int iwaveDir = 0; iwaveDir < m_hdb->GetWaveDirectionDiscretization().size(); ++iwaveDir) {
-
-        // Kochin function.
+      int iwaveDir = 0;
+      auto root = "WaveDrift/Kochin/Diffraction/";
+      for (auto & obj : HDF5_file.getGroup(root).listObjectNames()) {
         auto diffraction_kochin_real_part = H5Easy::load<Eigen::MatrixXd>(
-            HDF5_file, "WaveDrift/Kochin/Diffraction/Angle_" + std::to_string(iwaveDir) + "/Function/RealPart");
+            HDF5_file, root + obj + "/Function/RealPart");
         auto diffraction_kochin_imag_part = H5Easy::load<Eigen::MatrixXd>(
-            HDF5_file, "WaveDrift/Kochin/Diffraction/Angle_" + std::to_string(iwaveDir) + "/Function/ImagPart");
+            HDF5_file, root + obj + "/Function/ImagPart");
         auto diffraction_kochin = diffraction_kochin_real_part + MU_JJ * diffraction_kochin_imag_part;
         kochin->SetDiffractionKochin(iwaveDir, diffraction_kochin);
 
         // Kochin function derivative.
         auto diffraction_kochin_derivative_real_part = H5Easy::load<Eigen::MatrixXd>(
-            HDF5_file, "WaveDrift/Kochin/Diffraction/Angle_" + std::to_string(iwaveDir) + "/Derivative/RealPart");
+            HDF5_file, root + obj + "/Derivative/RealPart");
         auto diffraction_kochin_derivative_imag_part = H5Easy::load<Eigen::MatrixXd>(
-            HDF5_file, "WaveDrift/Kochin/Diffraction/Angle_" + std::to_string(iwaveDir) + "/Derivative/ImagPart");
+            HDF5_file, root + obj + "/Derivative/ImagPart");
         auto diffraction_kochin_derivative = diffraction_kochin_derivative_real_part + MU_JJ * diffraction_kochin_derivative_imag_part;
         kochin->SetDiffractionKochinDerivative(iwaveDir, diffraction_kochin_derivative);
 
+        iwaveDir ++;
       }
 
       // Radiation Kochin functions and their derivatives.
