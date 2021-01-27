@@ -550,10 +550,9 @@ namespace HDB5_io {
       kochin_step = m_hdb->GetKochin()->GetKochinStep();
 
       // Wave directions.
-      auto angles = m_hdb->GetWaveDirectionDiscretization();
+      auto angles = m_hdb->GetKochin()->GetWaveDirectionKochin();
 
       // Diffraction.
-//      int iwaveDir=0
       for (unsigned int iwaveDir = 0; iwaveDir < m_hdb->GetKochin()->GetNbKochinDirections(); ++iwaveDir) {
 
         // Groups.
