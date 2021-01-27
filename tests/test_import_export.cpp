@@ -8,7 +8,7 @@ using namespace HDB5_io;
 
 int main() {
 
-  auto HDB = import_HDB("/mnt/Storage/Projects/2020/RDX-024-Total/HDB/ballast/La_Seine_Ballast_sym.hdb5");
+  auto HDB = import_HDB("../../../data/Boxbarge_Vertices_353_Faces_652.hdb5");
 
 #ifdef H5_USE_VTK
   HDB->GetBody(0)->VisualizeMesh();
