@@ -35,7 +35,14 @@ namespace HDB5_io {
     /// Getter of the number of Kochin angles.
     int GetNbKochinAngles() const;
 
-    int GetNbKochinDirections() {return m_kochin_diffraction.size();}
+    /// Getter for the Kochin wave direction vector.
+    mathutils::VectorN<double> GetWaveDirectionKochin() const;
+
+    /// Setter for the number of Kochin wave directions.
+    void SetWaveDirectionKochin(const mathutils::VectorN<double> &directions);
+
+    /// Getter for the number of Kochin wave directions.
+    int GetNbKochinDirections() const {return m_waveDirectionKochin.size();}
 
     /// Setter of the diffraction Kochin function for a single wave frequency, all angles and a single wave direction.
     void SetDiffractionKochin(unsigned int iwave, unsigned int iw, const Eigen::VectorXcd &diffractionKochinVector);
@@ -77,6 +84,9 @@ namespace HDB5_io {
 
     /// HDB containing this data container.
     HydrodynamicDataBase *m_HDB;
+
+    /// Wave directions, different from m_waveDirectionDiscretization in HydrodynamicDataBase in case of symmetry of the hdb.
+    mathutils::VectorN<double> m_waveDirectionKochin; // Rad.
 
     /// Kochin angular step.
     double m_kochin_step;

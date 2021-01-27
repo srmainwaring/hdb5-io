@@ -50,6 +50,21 @@ namespace HDB5_io {
 
   }
 
+  // Setter for the number of Kochin wave directions.
+  void Kochin::SetWaveDirectionKochin(const mathutils::VectorN<double> &directions) {
+
+    m_waveDirectionKochin = directions;
+
+  }
+
+  mathutils::VectorN<double> Kochin::GetWaveDirectionKochin() const {
+
+    // Getter for the Kochin wave direction vector.
+
+    return m_waveDirectionKochin;
+
+  }
+
   void Kochin::SetDiffractionKochin(unsigned int iwave, unsigned int iw, const Eigen::VectorXcd &diffractionKochinVector) {
 
     // Setter of the diffraction Kochin function for a single wave frequency, all angles and a single wave direction.
