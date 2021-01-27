@@ -560,8 +560,8 @@ namespace HDB5_io {
         auto angleGroup = HDF5_file.createGroup(anglePath);
 
         // Wave direction.
-        auto angle = angles(iwaveDir);
-        H5Easy::dump(HDF5_file, anglePath + "/Angle", angle * MU_180_PI);
+        auto angle = angles(iwaveDir); // In rad.
+        H5Easy::dump(HDF5_file, anglePath + "/Angle", angle * MU_180_PI); // In deg.
         angleGroup.getDataSet("Angle").createAttribute<std::string>("Description", "Wave direction.");
         angleGroup.getDataSet("Angle").createAttribute<std::string>("Unit", "deg");
 

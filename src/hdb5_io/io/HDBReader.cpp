@@ -520,7 +520,7 @@ namespace HDB5_io {
       // Number of wave directions for the Kochin functions (may be different from the wave directions of the hdb
       // in caase of symmetry).
       auto nbDirKochin =  HDF5_file.getGroup("WaveDrift/Kochin/Diffraction/").getNumberObjects();
-      auto wave_direction_kochin = mathutils::VectorN<double>(nbDirKochin);
+      auto wave_direction_kochin = mathutils::VectorN<double>(nbDirKochin); // In rad.
 
       // Initialization.
       auto kochin = std::make_shared<Kochin>(m_hdb, kochin_step * MU_PI_180, nbDirKochin); // Conversion in radians.
@@ -532,7 +532,7 @@ namespace HDB5_io {
 
         // Wave direction for Kochin functions.
         auto angle = H5Easy::load<double>(HDF5_file, root + obj + "/Angle");
-        wave_direction_kochin(iwaveDir) = angle;
+        wave_direction_kochin(iwaveDir) = angle * MU_PI_180; // In rad.
 
         auto diffraction_kochin_real_part = H5Easy::load<Eigen::MatrixXd>(HDF5_file, root + obj + "/Function/RealPart");
         auto diffraction_kochin_imag_part = H5Easy::load<Eigen::MatrixXd>(HDF5_file, root + obj + "/Function/ImagPart");
