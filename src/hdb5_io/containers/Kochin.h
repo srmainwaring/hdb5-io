@@ -33,7 +33,7 @@ namespace HDB5_io {
     void ComputeNbKochinAngles();
 
     /// Getter of the number of Kochin angles.
-    int GetNbKochinAngles();
+    int GetNbKochinAngles() const;
 
     int GetNbKochinDirections() {return m_kochin_diffraction.size();}
 
@@ -44,7 +44,7 @@ namespace HDB5_io {
     void SetDiffractionKochin(unsigned int iwave, const Eigen::MatrixXcd &diffractionKochinMatrix);
 
     /// Getter of the diffraction Kochin function for all wave frequencies, all angles and a single wave direction.
-    Eigen::MatrixXcd GetDiffractionKochin(unsigned int iwave);
+    Eigen::MatrixXcd GetDiffractionKochin(unsigned int iwave) const;
 
     /// Setter of the angular derivative of the diffraction Kochin function for a single wave frequency, all angles and a single wave direction.
     void SetDiffractionKochinDerivative(unsigned int iwave, unsigned int iw, const Eigen::VectorXcd &diffractionKochinDerivativeVector);
@@ -53,7 +53,7 @@ namespace HDB5_io {
     void SetDiffractionKochinDerivative(unsigned int iwave, const Eigen::MatrixXcd &diffractionKochinDerivativeMatrix);
 
     /// Getter of the angular derivative of the diffraction Kochin function for all wave frequencies, all angles and a single wave direction.
-    Eigen::MatrixXcd GetDiffractionKochinDerivative(unsigned int iwave);
+    Eigen::MatrixXcd GetDiffractionKochinDerivative(unsigned int iwave) const;
 
     /// Setter of the radiation Kochin function for a single body, a single dof, all wave frequencies and all angles.
     void SetRadiationKochin(Body *Body, const Eigen::MatrixXcd &radiationKochinMatrix);
@@ -62,7 +62,7 @@ namespace HDB5_io {
     void SetRadiationKochin(Body *Body, unsigned int iw, unsigned int idof, const Eigen::MatrixXcd &radiationKochinMatrix);
 
     /// Getter of the radiation Kochin function for a single body, all wave frequencies, a single dof and all angles.
-    Eigen::MatrixXcd GetRadiationKochin(Body *Body, unsigned int idof);
+    Eigen::MatrixXcd GetRadiationKochin(Body *Body, unsigned int idof) const;
 
     /// Setter of the angular derivative of the radiation Kochin function for a single body, a single wave frequency, all dof and all angles.
     void SetRadiationKochinDerivative(Body *Body, const Eigen::MatrixXcd &radiationKochinDerivativeMatrix);
@@ -71,7 +71,7 @@ namespace HDB5_io {
     void SetRadiationKochinDerivative(Body *Body, unsigned int iw, unsigned int idof, const Eigen::MatrixXcd &radiationKochinDerivativeMatrix);
 
     /// Getter of the angular derivative of the radiation Kochin function for a single body, all wave frequencies, a single dof and all angles.
-    Eigen::MatrixXcd GetRadiationKochinDerivative(Body *Body, unsigned int idof);
+    Eigen::MatrixXcd GetRadiationKochinDerivative(Body *Body, unsigned int idof) const;
 
    private:
 

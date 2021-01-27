@@ -42,7 +42,7 @@ namespace HDB5_io {
 
   }
 
-  int Kochin::GetNbKochinAngles() {
+  int Kochin::GetNbKochinAngles() const {
 
     // Getter of the number of Kochin angles.
 
@@ -73,7 +73,7 @@ namespace HDB5_io {
 
   }
 
-  Eigen::MatrixXcd Kochin::GetDiffractionKochin(unsigned int iwave) {
+  Eigen::MatrixXcd Kochin::GetDiffractionKochin(unsigned int iwave) const {
 
     // Getter of the diffraction Kochin function for all wave frequencies, all angles and a single wave direction.
 
@@ -105,7 +105,7 @@ namespace HDB5_io {
 
   }
 
-  Eigen::MatrixXcd Kochin::GetDiffractionKochinDerivative(unsigned int iwave) {
+  Eigen::MatrixXcd Kochin::GetDiffractionKochinDerivative(unsigned int iwave) const {
 
     // Getter of the angular derivative of the diffraction Kochin function for all wave frequencies, all angles and a single wave direction.
 
@@ -151,7 +151,7 @@ namespace HDB5_io {
 
   }
 
-  Eigen::MatrixXcd Kochin::GetRadiationKochin(Body *Body, unsigned int idof) {
+  Eigen::MatrixXcd Kochin::GetRadiationKochin(Body *Body, unsigned int idof) const {
 
     // Getter of the radiation Kochin function for a single body, a single wave frequency, all dof and all angles.
 
@@ -197,7 +197,7 @@ namespace HDB5_io {
 
   }
 
-  Eigen::MatrixXcd Kochin::GetRadiationKochinDerivative(Body *Body, unsigned int idof) {
+  Eigen::MatrixXcd Kochin::GetRadiationKochinDerivative(Body *Body, unsigned int idof) const {
 
     // Getter of the angular derivative of the radiation Kochin function for a single body, a single wave frequency, all dof and all angles.
 
