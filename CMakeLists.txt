@@ -66,7 +66,7 @@ message(STATUS "USE VTK : ${HDB5IO_USE_VTK}" )
 if (HDB5IO_USE_VTK)
     find_package(VTK 6.0 REQUIRED NO_MODULE)
     include(${VTK_USE_FILE})
-    add_definitions(-DH5_USE_VTK)
+#    add_definitions(-DH5_USE_VTK)
 endif()
 
 get_target_property(INC eigen INTERFACE_INCLUDE_DIRECTORIES)
