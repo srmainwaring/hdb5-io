@@ -517,30 +517,35 @@ namespace HDB5_io {
     // Kochin functions.
     if (HDF5_file.exist("WaveDrift/Kochin")) {
 
-      // Initialization.
-      auto nbDir =  HDF5_file.getGroup("WaveDrift/Kochin/Diffraction/").getNumberObjects();
-      auto kochin = std::make_shared<Kochin>(m_hdb, kochin_step * MU_PI_180, nbDir); // Conversion in radians.
+      // Number of wave directions for the Kochin functions (may be different from the wave directions of the hdb
+      // in caase of symmetry).
+      auto nbDirKochin =  HDF5_file.getGroup("WaveDrift/Kochin/Diffraction/").getNumberObjects();
+      auto wave_direction_kochin = mathutils::VectorN<double>(nbDirKochin); // In rad.
 
-      int iwaveDir = 0;
+      // Initialization.
+      auto kochin = std::make_shared<Kochin>(m_hdb, kochin_step * MU_PI_180, nbDirKochin); // Conversion in radians.
+
       auto root = "WaveDrift/Kochin/Diffraction/";
-      for (auto & obj : HDF5_file.getGroup(root).listObjectNames()) {
-        auto diffraction_kochin_real_part = H5Easy::load<Eigen::MatrixXd>(
-            HDF5_file, root + obj + "/Function/RealPart");
-        auto diffraction_kochin_imag_part = H5Easy::load<Eigen::MatrixXd>(
-            HDF5_file, root + obj + "/Function/ImagPart");
+      for (unsigned int iwaveDir = 0; iwaveDir < nbDirKochin; ++iwaveDir) {
+
+        auto obj = "Angle_" + std::to_string(iwaveDir);
+
+        // Wave direction for Kochin functions.
+        auto angle = H5Easy::load<double>(HDF5_file, root + obj + "/Angle");
+        wave_direction_kochin(iwaveDir) = angle * MU_PI_180; // In rad.
+
+        auto diffraction_kochin_real_part = H5Easy::load<Eigen::MatrixXd>(HDF5_file, root + obj + "/Function/RealPart");
+        auto diffraction_kochin_imag_part = H5Easy::load<Eigen::MatrixXd>(HDF5_file, root + obj + "/Function/ImagPart");
         auto diffraction_kochin = diffraction_kochin_real_part + MU_JJ * diffraction_kochin_imag_part;
         kochin->SetDiffractionKochin(iwaveDir, diffraction_kochin);
 
         // Kochin function derivative.
-        auto diffraction_kochin_derivative_real_part = H5Easy::load<Eigen::MatrixXd>(
-            HDF5_file, root + obj + "/Derivative/RealPart");
-        auto diffraction_kochin_derivative_imag_part = H5Easy::load<Eigen::MatrixXd>(
-            HDF5_file, root + obj + "/Derivative/ImagPart");
+        auto diffraction_kochin_derivative_real_part = H5Easy::load<Eigen::MatrixXd>(HDF5_file, root + obj + "/Derivative/RealPart");
+        auto diffraction_kochin_derivative_imag_part = H5Easy::load<Eigen::MatrixXd>(HDF5_file, root + obj + "/Derivative/ImagPart");
         auto diffraction_kochin_derivative = diffraction_kochin_derivative_real_part + MU_JJ * diffraction_kochin_derivative_imag_part;
         kochin->SetDiffractionKochinDerivative(iwaveDir, diffraction_kochin_derivative);
-
-        iwaveDir ++;
       }
+      kochin->SetWaveDirectionKochin(wave_direction_kochin);
 
       // Radiation Kochin functions and their derivatives.
       for (unsigned int ibody = 0; ibody < m_hdb->GetNbBodies(); ++ibody) {
