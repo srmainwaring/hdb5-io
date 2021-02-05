@@ -28,7 +28,7 @@ project(HDB5_IO)
 #set(CMAKE_BUILD_TYPE Debug)
 
 # OPTIONS
-set(USE_VTK OFF CACHE BOOL "Enable VTK Support" FORCE)
+set(USE_VTK OFF CACHE BOOL "Enable VTK Support")
 mark_as_advanced(USE_VTK)
 
 option(HDB5IO_USE_VTK "Enable VTK Support" ${USE_VTK})
