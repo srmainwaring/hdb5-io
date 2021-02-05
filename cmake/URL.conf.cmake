@@ -20,7 +20,7 @@ set(googletest_TAG release-1.8.1)
 
 # MeshOui
 set(meshoui_URL git@frydom-ce.org:ce/meshoui.git)
-set(meshoui_TAG feature/LL_HDB5IO_integration)
+set(meshoui_TAG develop)
 
 
 # HDF5
