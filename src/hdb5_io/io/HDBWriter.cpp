@@ -579,12 +579,15 @@ namespace HDB5_io {
         auto DiffractionDerivativeKochinGroup = HDF5_file.createGroup(anglePath + "/Derivative");
 
         // Kochin function derivative.
-        auto diffraction_kochin_derivative = m_hdb->GetKochin()->GetDiffractionKochinDerivative(iwaveDir);
-        H5Easy::dump(HDF5_file, anglePath + "/Derivative/RealPart", static_cast<Eigen::MatrixXd>(diffraction_kochin_derivative.real()));
+        if (m_hdb->GetSolver()=="Helios") {
+          auto diffraction_kochin_derivative = m_hdb->GetKochin()->GetDiffractionKochinDerivative(iwaveDir);
+          H5Easy::dump(HDF5_file, anglePath + "/Derivative/RealPart",
+                       static_cast<Eigen::MatrixXd>(diffraction_kochin_derivative.real()));
 
-        // Kochin function derivative.
-        H5Easy::dump(HDF5_file, anglePath + "/Derivative/ImagPart", static_cast<Eigen::MatrixXd>(diffraction_kochin_derivative.imag()));
-
+          // Kochin function derivative.
+          H5Easy::dump(HDF5_file, anglePath + "/Derivative/ImagPart",
+                       static_cast<Eigen::MatrixXd>(diffraction_kochin_derivative.imag()));
+        }
       }
 
       // Radiation.
@@ -611,15 +614,18 @@ namespace HDB5_io {
           H5Easy::dump(HDF5_file, dofPath + "/Function/ImagPart", static_cast<Eigen::MatrixXd>(radiation_kochin.imag()));
 
           // Kochin function group.
-          auto RadiationKochinDerivativeGroup = HDF5_file.createGroup(dofPath + "/Derivative");
+          if (m_hdb->GetSolver()=="Helios") {
+            auto RadiationKochinDerivativeGroup = HDF5_file.createGroup(dofPath + "/Derivative");
 
-          // Kochin function derivative - Real part.
-          auto radiation_kochin_derivative = m_hdb->GetKochin()->GetRadiationKochinDerivative(body, idof);
-          H5Easy::dump(HDF5_file, dofPath + "/Derivative/RealPart", static_cast<Eigen::MatrixXd>(radiation_kochin_derivative.real()));
+            // Kochin function derivative - Real part.
+            auto radiation_kochin_derivative = m_hdb->GetKochin()->GetRadiationKochinDerivative(body, idof);
+            H5Easy::dump(HDF5_file, dofPath + "/Derivative/RealPart",
+                         static_cast<Eigen::MatrixXd>(radiation_kochin_derivative.real()));
 
-          // Kochin function derivative - Imaginary part.
-          H5Easy::dump(HDF5_file, dofPath + "/Derivative/ImagPart", static_cast<Eigen::MatrixXd>(radiation_kochin_derivative.imag()));
-
+            // Kochin function derivative - Imaginary part.
+            H5Easy::dump(HDF5_file, dofPath + "/Derivative/ImagPart",
+                         static_cast<Eigen::MatrixXd>(radiation_kochin_derivative.imag()));
+          }
         }
 
       }

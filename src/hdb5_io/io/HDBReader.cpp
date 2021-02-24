@@ -540,10 +540,15 @@ namespace HDB5_io {
         kochin->SetDiffractionKochin(iwaveDir, diffraction_kochin);
 
         // Kochin function derivative.
-        auto diffraction_kochin_derivative_real_part = H5Easy::load<Eigen::MatrixXd>(HDF5_file, root + obj + "/Derivative/RealPart");
-        auto diffraction_kochin_derivative_imag_part = H5Easy::load<Eigen::MatrixXd>(HDF5_file, root + obj + "/Derivative/ImagPart");
-        auto diffraction_kochin_derivative = diffraction_kochin_derivative_real_part + MU_JJ * diffraction_kochin_derivative_imag_part;
-        kochin->SetDiffractionKochinDerivative(iwaveDir, diffraction_kochin_derivative);
+        if (m_hdb->GetSolver()=="Helios") {
+          auto diffraction_kochin_derivative_real_part = H5Easy::load<Eigen::MatrixXd>(HDF5_file, root + obj +
+                                                                                                  "/Derivative/RealPart");
+          auto diffraction_kochin_derivative_imag_part = H5Easy::load<Eigen::MatrixXd>(HDF5_file, root + obj +
+                                                                                                  "/Derivative/ImagPart");
+          auto diffraction_kochin_derivative =
+              diffraction_kochin_derivative_real_part + MU_JJ * diffraction_kochin_derivative_imag_part;
+          kochin->SetDiffractionKochinDerivative(iwaveDir, diffraction_kochin_derivative);
+        }
       }
       kochin->SetWaveDirectionKochin(wave_direction_kochin);
 
@@ -567,15 +572,17 @@ namespace HDB5_io {
           kochin->SetRadiationKochin(body, radiation_kochin);
 
           // Kochin function derivative.
-          auto radiation_kochin_derivative_real_part = H5Easy::load<Eigen::MatrixXd>(
-              HDF5_file, "WaveDrift/Kochin/Radiation/Body_" + std::to_string(ibody) + "/DOF_" + std::to_string(idof)
-              + "/Derivative/RealPart");
-          auto radiation_kochin_derivative_imag_part = H5Easy::load<Eigen::MatrixXd>(
-              HDF5_file, "WaveDrift/Kochin/Radiation/Body_" + std::to_string(ibody) + "/DOF_" + std::to_string(idof)
-                         + "/Derivative/ImagPart");
-          auto radiation_kochin_derivative = radiation_kochin_derivative_real_part + MU_JJ * radiation_kochin_derivative_imag_part;
-          kochin->SetRadiationKochinDerivative(body, radiation_kochin_derivative);
-
+          if (m_hdb->GetSolver()=="Helios") {
+            auto radiation_kochin_derivative_real_part = H5Easy::load<Eigen::MatrixXd>(
+                HDF5_file, "WaveDrift/Kochin/Radiation/Body_" + std::to_string(ibody) + "/DOF_" + std::to_string(idof)
+                           + "/Derivative/RealPart");
+            auto radiation_kochin_derivative_imag_part = H5Easy::load<Eigen::MatrixXd>(
+                HDF5_file, "WaveDrift/Kochin/Radiation/Body_" + std::to_string(ibody) + "/DOF_" + std::to_string(idof)
+                           + "/Derivative/ImagPart");
+            auto radiation_kochin_derivative =
+                radiation_kochin_derivative_real_part + MU_JJ * radiation_kochin_derivative_imag_part;
+            kochin->SetRadiationKochinDerivative(body, radiation_kochin_derivative);
+          }
         }
 
       }
