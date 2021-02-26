@@ -86,6 +86,10 @@ namespace HDB5_io {
 
     mathutils::VectorN<double> GetTimeDiscretization() const;
 
+    double GetMinFrequency() const;
+
+    double GetMaxFrequency() const;
+
     void SetWaveDrift(const std::shared_ptr<WaveDrift> &wavedrift);
 
     WaveDrift* GetWaveDrift() const;

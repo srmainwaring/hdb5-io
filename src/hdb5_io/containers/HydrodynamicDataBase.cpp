@@ -118,6 +118,14 @@ namespace HDB5_io {
     return m_timeDiscretization;
   }
 
+  double HydrodynamicDataBase::GetMinFrequency() const {
+    return m_frequencyDiscretization[0];
+  }
+
+  double HydrodynamicDataBase::GetMaxFrequency() const {
+    return m_frequencyDiscretization[m_frequencyDiscretization.size()-1];
+  }
+
   void HydrodynamicDataBase::SetWaveDrift(const std::shared_ptr<WaveDrift> &wavedrift) {
     m_waveDrift = wavedrift;
   }
