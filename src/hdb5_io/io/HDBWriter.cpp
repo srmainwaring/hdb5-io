@@ -528,14 +528,14 @@ namespace HDB5_io {
 
     // Write symmetries data
     auto symmetries = m_hdb->GetWaveDrift()->GetSymmetries();
-    auto sym_x = static_cast<unsigned int>(symmetries[0]);
-    auto sym_y = static_cast<unsigned int>(symmetries[1]);
+    auto sym_x = (int)symmetries[0];
+    auto sym_y = (int)symmetries[1];
 
-    HighFive::DataSet dataSet = waveDriftGroup.createDataSet<unsigned int>("sym_x", HighFive::DataSpace::From(sym_x));
+    HighFive::DataSet dataSet = waveDriftGroup.createDataSet<int>("sym_x", HighFive::DataSpace::From(sym_x));
     dataSet.write(sym_x);
     dataSet.createAttribute<std::string>("Description", "Symmetry along x");
 
-    dataSet = waveDriftGroup.createDataSet<unsigned int>("sym_y", HighFive::DataSpace::From(sym_y));
+    dataSet = waveDriftGroup.createDataSet<int>("sym_y", HighFive::DataSpace::From(sym_y));
     dataSet.write(sym_y);
     dataSet.createAttribute<std::string>("Description", "Symmetry along y");
 
