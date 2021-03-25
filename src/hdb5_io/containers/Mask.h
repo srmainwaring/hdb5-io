@@ -7,7 +7,9 @@
 
 #include "vector"
 
-#include "MathUtils/MathUtils.h"
+#include "MathUtils/Matrix.h"
+#include "MathUtils/Vector3d.h"
+#include "MathUtils/Vector6d.h"
 
 namespace HDB5_io {
 

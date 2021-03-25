@@ -5,7 +5,8 @@
 #ifndef HDB5_IO_BODY_H
 #define HDB5_IO_BODY_H
 
-#include "MathUtils/MathUtils.h"
+#include "MathUtils/Matrix.h"
+#include "MathUtils/LookupTable1D.h"
 #include <vector>
 #include <unordered_map>
 #include <memory>

@@ -5,7 +5,7 @@
 #ifndef HDB5_IO_KOCHIN_H
 #define HDB5_IO_KOCHIN_H
 
-#include "MathUtils/MathUtils.h"
+#include "MathUtils/Matrix.h"
 #include <vector>
 #include <unordered_map>
 
