@@ -4,7 +4,7 @@
 
 # MathUtils
 set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-set(mathutils_TAG v1.3)
+set(mathutils_TAG v1.4)
 
 
 # HighFive
@@ -20,7 +20,7 @@ set(googletest_TAG release-1.8.1)
 
 # MeshOui
 set(meshoui_URL git@frydom-ce.org:ce/meshoui.git)
-set(meshoui_TAG develop)
+set(meshoui_TAG v1.0.1)
 
 
 # HDF5
