@@ -5,8 +5,8 @@
 # MathUtils
 set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
 set(mathutils_TAG v1.5 CACHE STRING "MathUtils version")
-set(MATHUTILS_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(ADD_MATPLOTLIB_CPP OFF CACHE BOOL "" FORCE)
+set(MATHUTILS_BUILD_TESTS OFF CACHE BOOL "")
+set(ADD_MATPLOTLIB_CPP OFF CACHE BOOL "")
 
 
 # HighFive
