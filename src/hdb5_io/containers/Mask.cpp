@@ -4,7 +4,7 @@
 
 #include "Mask.h"
 
-namespace HDB5_io {
+namespace hdb5_io {
 
   void Mask::SetMask(mathutils::Vector6d<bool> mask) {
 
@@ -77,4 +77,4 @@ namespace HDB5_io {
   }
 
 
-} // namespace HDB5_io
+} // namespace hdb5_io

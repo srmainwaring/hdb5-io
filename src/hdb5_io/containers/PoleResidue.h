@@ -10,7 +10,7 @@
 
 #include <Eigen/Dense>
 
-namespace HDB5_io {
+namespace hdb5_io {
 
 
   /**
@@ -108,5 +108,5 @@ namespace HDB5_io {
 
   };
 
-} // end namespace HDB5_io
+} // end namespace hdb5_io
 #endif //HDB5_IO_POLERESIDUE_H

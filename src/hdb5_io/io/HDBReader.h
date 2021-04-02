@@ -10,7 +10,7 @@
 
 #include <highfive/H5Group.hpp>
 
-namespace HDB5_io {
+namespace hdb5_io {
 
   // Forward Declaration
   class HydrodynamicDataBase;
@@ -186,5 +186,5 @@ namespace HDB5_io {
 
   };
 
-} // end namespace HDB5_io
+} // end namespace hdb5_io
 #endif //HDB5_IO_HDBREADER_H

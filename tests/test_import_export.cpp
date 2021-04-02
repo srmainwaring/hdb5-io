@@ -2,9 +2,9 @@
 // Created by lletourn on 27/02/20.
 //
 
-#include "hdb5_io/HDB5_io.h"
+#include "hdb5_io/hdb5_io.h"
 
-using namespace HDB5_io;
+using namespace hdb5_io;
 
 int main() {
 

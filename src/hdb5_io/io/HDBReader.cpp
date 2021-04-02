@@ -12,7 +12,7 @@
 #include <highfive/H5File.hpp>
 #include <highfive/H5Easy.hpp>
 
-namespace HDB5_io {
+namespace hdb5_io {
 
   void HDBReader::Read(const std::string &filename) {
 
@@ -706,4 +706,4 @@ namespace HDB5_io {
   }
 
 
-} // end namespace HDB5_io
+} // end namespace hdb5_io

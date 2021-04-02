@@ -4,7 +4,7 @@
 
 #include "PoleResidue.h"
 
-namespace HDB5_io {
+namespace hdb5_io {
 
 
   std::vector<double> PoleResidue::GetRealPoles() const {

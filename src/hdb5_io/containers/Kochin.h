@@ -11,7 +11,7 @@
 
 #include "Body.h"
 
-namespace HDB5_io {
+namespace hdb5_io {
 
   // Forward declaration.
   class HydrodynamicDataBase;

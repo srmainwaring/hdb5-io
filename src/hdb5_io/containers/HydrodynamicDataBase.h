@@ -11,7 +11,7 @@
 #include "MathUtils/Vector3d.h"
 #include "MathUtils/VectorN.h"
 
-namespace HDB5_io {
+namespace hdb5_io {
 
   // Forward declarations
 
@@ -170,6 +170,6 @@ namespace HDB5_io {
 
   };
 
-} // namespace HDB5_io
+} // namespace hdb5_io
 
 #endif //HDB5_IO_HYDRODYNAMICDATABASE_H

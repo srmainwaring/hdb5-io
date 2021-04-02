@@ -5,7 +5,7 @@
 #include "Mesh.h"
 
 
-namespace HDB5_io {
+namespace hdb5_io {
 
 
   Eigen::MatrixXd Mesh::GetVertices() const {

@@ -5,7 +5,7 @@
 #include "Kochin.h"
 #include "HydrodynamicDataBase.h"
 
-namespace HDB5_io {
+namespace hdb5_io {
 
   Kochin::Kochin(HydrodynamicDataBase *hdb, const double &kochin_step, int NbDir) : m_HDB(hdb), m_kochin_step(kochin_step){
 

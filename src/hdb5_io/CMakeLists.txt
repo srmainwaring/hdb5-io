@@ -10,10 +10,12 @@ set(HDB5IO_SRC_FILES
         containers/Kochin.cpp
         io/HDBReader.cpp
         io/HDBWriter.cpp
+        ${CMAKE_CURRENT_BINARY_DIR}/version.cpp
         )
 
 
 add_library(hdb5io SHARED)
+add_dependencies(hdb5io check_git_${PROJECT_NAME}) # For git_watcher to fetch git informations before effective build
 
 target_sources(hdb5io PRIVATE ${HDB5IO_SRC_FILES})
 target_link_libraries(hdb5io PUBLIC

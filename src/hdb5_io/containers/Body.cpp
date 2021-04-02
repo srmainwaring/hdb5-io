@@ -13,7 +13,7 @@
 #include "HydrodynamicDataBase.h"
 
 
-namespace HDB5_io {
+namespace hdb5_io {
 
   Body::Body(unsigned int id, const std::string &name, HydrodynamicDataBase *hdb) : m_id(id), m_name(name), m_HDB(hdb) {
     m_mesh = std::make_shared<Mesh>();
@@ -97,11 +97,11 @@ namespace HDB5_io {
     m_zeroFreqAddedMass[BodyMotion] = CMZero;
   }
 
-//  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const Matrix66b &mask){
+//  void Body::SetRadiationMask(hdb5_io::Body *BodyMotion, const Matrix66b &mask){
 //    m_radiationMask[BodyMotion] = mask;
 //  }
 
-  void Body::SetRadiationMask(HDB5_io::Body *BodyMotion, const Matrix66b &mask) {
+  void Body::SetRadiationMask(hdb5_io::Body *BodyMotion, const Matrix66b &mask) {
     assert(mask.maxCoeff() <= 1 and mask.minCoeff() >= 0);
     m_radiationMask[BodyMotion] = mask;
   }
@@ -389,7 +389,7 @@ namespace HDB5_io {
     return m_infiniteAddedMass.at(BodyMotion);
   }
 
-  Matrix66 Body::GetZeroFreqAddedMass(HDB5_io::Body *BodyMotion) const {
+  Matrix66 Body::GetZeroFreqAddedMass(hdb5_io::Body *BodyMotion) const {
     return m_zeroFreqAddedMass.at(BodyMotion);
   }
 
