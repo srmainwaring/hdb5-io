@@ -22,7 +22,7 @@ set(googletest_TAG release-1.10.0 CACHE STRING "googletest version")
 
 # MeshOui
 set(meshoui_URL git@frydom-ce.org:ce/meshoui.git)
-set(meshoui_TAG v1.0.2 CACHE STRING "meshoui version")
+set(meshoui_TAG v1.1 CACHE STRING "meshoui version")
 
 
 # HDF5
