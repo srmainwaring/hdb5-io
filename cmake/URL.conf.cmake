@@ -4,14 +4,14 @@
 
 # MathUtils
 set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-set(mathutils_TAG develop CACHE STRING "MathUtils version")
+set(mathutils_TAG v1.5 CACHE STRING "MathUtils version")
 set(MATHUTILS_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ADD_MATPLOTLIB_CPP OFF CACHE BOOL "" FORCE)
 
 
 # HighFive
 set(highfive_URL https://github.com/BlueBrain/HighFive.git)
-set(highfive_TAG master)
+set(highfive_TAG v2.2.2)
 set(highfive_PATCH highfive.patch CACHE STRING "highfive version")
 
 
