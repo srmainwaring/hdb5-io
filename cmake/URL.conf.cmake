@@ -4,7 +4,7 @@
 
 # MathUtils
 set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-set(mathutils_TAG v1.4)
+set(mathutils_TAG v1.5)
 
 
 # HighFive

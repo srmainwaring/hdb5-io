@@ -1,13 +1,3 @@
-#find_package(HDF5 REQUIRED COMPONENTS CXX)
-#
-#message(STATUS ${HDF5_INCLUDE_DIRS})
-#message(STATUS ${HDF5_LIBRARIES})
-#
-#add_library(HDF5 INTERFACE)
-#target_include_directories(HDF5 INTERFACE ${HDF5_INCLUDE_DIRS})
-#target_link_libraries(HDF5 INTERFACE ${HDF5_LIBRARIES})
-
-
 include(FetchContent)
 
 FetchContent_Declare(HDF5
@@ -19,7 +9,7 @@ FetchContent_Declare(HDF5
 FetchContent_GetProperties(HDF5)
 
 if (NOT HDF5_POPULATED)
-    message(STATUS "Downloading, Configuring and Generating 'HDF5' dependency")
+    message(STATUS "******* FETCHING HDF5 dependency from ${PROJECT_NAME} (requested version: ${HDF5_TAG}) *******")
     FetchContent_Populate(HDF5)
 
     # HDF5 BUILD OPTIONS
@@ -36,34 +26,25 @@ if (NOT HDF5_POPULATED)
 
 
     add_subdirectory(${hdf5_SOURCE_DIR} ${hdf5_BINARY_DIR})
-else ()
-    message(STATUS "HDF5 already populated")
 endif ()
-
-#message(STATUS: HDF5 target ${HDF5_LIB_TARGET})
 
 
 if (TARGET hdf5-static)
-    message(STATUS "HDF5 TARGET FOUND")
     get_target_property(INC hdf5-static INCLUDE_DIRECTORIES)
     get_target_property(HDF5_C_LIBRARIES hdf5-static INCLUDE_DIRECTORIES)
-    #    target_include_directories(hdf5-static PUBLIC ${INC})
-    message(${INC})
     set(HDF5_C_LIBRARIES ${HDF5_C_LIBRARIES})
-else()
+else ()
     message(STATUS "hdf5-static target NOT FOUND")
-endif()
+endif ()
 
 if (TARGET hdf5_cpp-static)
-    message(STATUS "HDF5_CPP TARGET FOUND")
     get_target_property(INC hdf5_cpp-static INCLUDE_DIRECTORIES)
     get_target_property(HDF5_CXX_LIBRARIES hdf5_cpp-static INCLUDE_DIRECTORIES)
     #    target_include_directories(HDF5 PUBLIC ${INC})
-    message(${INC})
     set(HDF5_CXX_LIBRARIES ${HDF5_CXX_LIBRARIES})
-else()
+else ()
     message(STATUS "hdf5-static target NOT FOUND")
-endif()
+endif ()
 
 include_directories(${hdf5_BINARY_DIR}) # See why this directory is not included into the target...
 

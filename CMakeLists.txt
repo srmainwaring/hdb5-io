@@ -58,7 +58,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/URL.conf.cmake)
 
 include(Add_HDF5)
-include(Add_MathUtils)
+include(Add_mathutils)
 include(Add_meshoui)
 
 message(STATUS "USE VTK : ${HDB5IO_USE_VTK}" )
