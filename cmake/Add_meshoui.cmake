@@ -17,6 +17,7 @@ if (NOT meshoui_FOUND)
 
         # meshoui BUILD OPTIONS
         set(MESHOUI_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+        set(MESHOUI_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
         set(MESHOUI_USE_VTK ${HDB5IO_USE_VTK} CACHE BOOL "" FORCE)
 
         add_subdirectory(${meshoui_SOURCE_DIR} ${meshoui_BINARY_DIR})

@@ -32,7 +32,7 @@ set(USE_VTK OFF CACHE BOOL "Enable VTK Support")
 mark_as_advanced(USE_VTK)
 
 option(HDB5IO_USE_VTK "Enable VTK Support" ${USE_VTK})
-option(HDB5IO_build_tests "Activate build tests" ON)
+option(HDB5IO_BUILD_TESTS "Activate build tests" ON)
 
 #-----------------------------------------------------------------------------
 # C++ dialect
@@ -58,7 +58,6 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/URL.conf.cmake)
 
 include(Add_HDF5)
-include(Add_MathUtils)
 include(Add_meshoui)
 
 message(STATUS "USE VTK : ${HDB5IO_USE_VTK}" )
@@ -66,7 +65,6 @@ message(STATUS "USE VTK : ${HDB5IO_USE_VTK}" )
 if (HDB5IO_USE_VTK)
     find_package(VTK 6.0 REQUIRED NO_MODULE)
     include(${VTK_USE_FILE})
-#    add_definitions(-DH5_USE_VTK)
 endif()
 
 get_target_property(INC eigen INTERFACE_INCLUDE_DIRECTORIES)
@@ -85,7 +83,7 @@ add_subdirectory(src/hdb5_io)
 #=============================================================================
 # Adding tests
 #=============================================================================
-if (${HDB5IO_build_tests})
+if (${HDB5IO_BUILD_TESTS})
     enable_testing()
     include(Add_googletest)
     add_subdirectory(tests)
