@@ -11,10 +11,6 @@ TEST(hdb5_io, import_export) {
 
   auto HDB = import_HDB("Boxbarge_Vertices_353_Faces_652.hdb5");
 
-#ifdef USE_VTK
-  HDB->GetBody(0)->VisualizeMesh();
-#endif
-
   // Add Poles and residues.
   Eigen::MatrixXi nb_real(6, 6), nb_cc(6, 6);
   nb_real << 1, 0, 1, 2, 3, 6,
