@@ -11,9 +11,9 @@
         FetchContent_Populate(meshoui)
 
         # meshoui BUILD OPTIONS
-        set(MESHOUI_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-        set(MESHOUI_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
-        set(MESHOUI_USE_VTK ${HDB5IO_USE_VTK} CACHE BOOL "" FORCE)
+        set(MESHOUI_BUILD_TESTS OFF CACHE BOOL "")
+        set(MESHOUI_BUILD_TOOLS OFF CACHE BOOL "")
+        set(USE_VTK ${USE_VTK} CACHE BOOL "")
 
         add_subdirectory(${meshoui_SOURCE_DIR} ${meshoui_BINARY_DIR})
     endif()

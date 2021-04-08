@@ -4,7 +4,7 @@
 
 #include "Body.h"
 
-#ifdef H5_USE_VTK
+#ifdef USE_VTK
 
 #include "meshoui/vtkmesh.h"
 
@@ -507,7 +507,7 @@ namespace hdb5_io {
     return m_radiationDamping.at(BodyMotion)[iomega];
   }
 
-#ifdef H5_USE_VTK
+#ifdef USE_VTK
 
   void Body::VisualizeMesh() const {
     // Creation of a VTK mesh.

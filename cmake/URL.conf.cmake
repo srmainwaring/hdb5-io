@@ -22,10 +22,13 @@ set(googletest_TAG release-1.10.0 CACHE STRING "googletest version")
 
 # MeshOui
 set(meshoui_URL git@frydom-ce.org:ce/meshoui.git)
-set(meshoui_TAG v1.1 CACHE STRING "meshoui version")
+set(meshoui_TAG v1.2 CACHE STRING "meshoui version")
 
 
 # HDF5
 set(HDF5_URL https://github.com/HDFGroup/hdf5.git)
 set(HDF5_TAG hdf5-1_10_6 CACHE STRING "HDF5 version")
 set(HDF5_PATCH hdf5.patch)
+
+# VTK
+set(VTK_TAG 8.2 CACHE STRING "VTK version")

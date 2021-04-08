@@ -20,23 +20,23 @@ add_dependencies(hdb5_io check_git_${PROJECT_NAME}) # For git_watcher to fetch g
 target_sources(hdb5_io PRIVATE ${HDB5_IO_SRC_FILES})
 target_link_libraries(hdb5_io PUBLIC
         MathUtils::MathUtils
-#        HDF5  # when using the findHDF5 script into the Add_HDF5.cmake file
+        #        HDF5  # when using the findHDF5 script into the Add_HDF5.cmake file
         hdf5_cpp-static
         eigen
         HighFive
         meshoui
         )
 
-if (HDB5IO_USE_VTK)
+if (USE_VTK)
     target_link_libraries(hdb5_io PUBLIC ${VTK_LIBRARIES})
     target_compile_definitions(hdb5_io PUBLIC -DOMPI_SKIP_MPICXX)
-    target_compile_definitions(hdb5_io PUBLIC -DH5_USE_VTK)
+    target_compile_definitions(hdb5_io PUBLIC -DUSE_VTK)
 endif ()
 
 
 target_include_directories(hdb5_io PUBLIC ${CMAKE_CURRENT_LIST_DIR}/..)
 
-set_target_properties( hdb5_io
+set_target_properties(hdb5_io
         PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"

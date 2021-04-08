@@ -244,7 +244,7 @@ namespace hdb5_io {
     /// \return mesh of the body
     Mesh *GetMesh() const;
 
-#ifdef H5_USE_VTK
+#ifdef USE_VTK
 
     /// Visualize the mesh of the body
     void VisualizeMesh() const;
