@@ -17,4 +17,7 @@ build:
     - mkdir build
     - cd build
     - cmake .. -DUSE_VTK=ON
-    - make all test -j4
+    - cd tests
+    - ls
+    - ./test_import_export
+#    - make all test -j4
