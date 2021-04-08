@@ -20,9 +20,9 @@ set(googletest_URL https://github.com/google/googletest.git)
 set(googletest_TAG release-1.10.0 CACHE STRING "googletest version")
 
 
-# MeshOui
+# meshoui
 set(meshoui_URL git@frydom-ce.org:ce/meshoui.git)
-set(meshoui_TAG v1.2 CACHE STRING "meshoui version")
+set(meshoui_TAG v1.3 CACHE STRING "meshoui version")
 
 
 # HDF5

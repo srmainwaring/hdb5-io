@@ -1,6 +1,10 @@
+if (BUILD_SHARED_LIBS)
+    add_library(hdb5_io SHARED)
+else ()
+    add_library(hdb5_io STATIC)
+endif ()
 
-# TODO : ajouter les fichiers source cpp dans la variable suivante :
-set(HDB5_IO_SRC_FILES
+target_sources(hdb5_io PRIVATE
         containers/HydrodynamicDataBase.cpp
         containers/Body.cpp
         containers/Mask.cpp
@@ -13,32 +17,18 @@ set(HDB5_IO_SRC_FILES
         ${CMAKE_CURRENT_BINARY_DIR}/version.cpp
         )
 
-
-add_library(hdb5_io SHARED)
-add_dependencies(hdb5_io check_git_${PROJECT_NAME}) # For git_watcher to fetch git informations before effective build
-
-target_sources(hdb5_io PRIVATE ${HDB5_IO_SRC_FILES})
+target_include_directories(hdb5_io PUBLIC ${CMAKE_CURRENT_LIST_DIR}/..)
 target_link_libraries(hdb5_io PUBLIC
         MathUtils::MathUtils
-        #        HDF5  # when using the findHDF5 script into the Add_HDF5.cmake file
         hdf5_cpp-static
         eigen
         HighFive
         meshoui
         )
+add_dependencies(hdb5_io check_git_${PROJECT_NAME}) # For git_watcher to fetch git informations before effective build
 
 if (USE_VTK)
     target_link_libraries(hdb5_io PUBLIC ${VTK_LIBRARIES})
     target_compile_definitions(hdb5_io PUBLIC -DOMPI_SKIP_MPICXX)
     target_compile_definitions(hdb5_io PUBLIC -DUSE_VTK)
 endif ()
-
-
-target_include_directories(hdb5_io PUBLIC ${CMAKE_CURRENT_LIST_DIR}/..)
-
-set_target_properties(hdb5_io
-        PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/hdb5io"
-        )
