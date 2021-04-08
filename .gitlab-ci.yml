@@ -16,5 +16,5 @@ build:
     - rm -rf build
     - mkdir build
     - cd build
-    - cmake ..
+    - cmake .. -DUSE_VTK=ON
     - make all test -j4
