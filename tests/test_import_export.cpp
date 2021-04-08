@@ -7,7 +7,7 @@
 
 using namespace hdb5_io;
 
-int main() {
+TEST(hdb5_io, import_export) {
 
   auto HDB = import_HDB("Boxbarge_Vertices_353_Faces_652.hdb5");
 
@@ -105,5 +105,4 @@ int main() {
 
   export_HDB("out_2.hdb5", HDB_2.get());
 
-  return 0;
 }
