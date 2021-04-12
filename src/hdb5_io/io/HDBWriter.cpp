@@ -104,7 +104,7 @@ namespace hdb5_io {
       auto commit_hash = m_hdb->GetNormalizedVersionString();
       dataSet = file.createDataSet<std::string>("NormalizedCommitHash", HighFive::DataSpace::From(commit_hash));
       dataSet.write(commit_hash);
-      dataSet.createAttribute<std::string>("Description", "Tag - Branch - Date - Commit.");
+      dataSet.createAttribute<std::string>("Description", "Tag - Commit hash - Branch - Date.");
     }
 
     auto nbody = m_hdb->GetNbBodies();

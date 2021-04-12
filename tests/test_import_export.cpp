@@ -97,7 +97,7 @@ TEST(hdb5_io, import_export) {
 
   // Add Helios commit hash.
   HDB->SetSolver("Helios");
-  HDB->SetNormalizedVersionString("Blablabla");
+  HDB->SetNormalizedVersionString(git::GetNormalizedVersionString());
 
   export_HDB("out.hdb5", HDB.get());
 
