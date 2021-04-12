@@ -10,7 +10,7 @@
 #include "MathUtils/Matrix.h"
 #include "MathUtils/VectorN.h"
 
-namespace HDB5_io {
+namespace hdb5_io {
 
   class WaveDrift {
 

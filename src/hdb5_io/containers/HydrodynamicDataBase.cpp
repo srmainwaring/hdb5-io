@@ -8,7 +8,7 @@
 
 #include "Body.h"
 
-namespace HDB5_io {
+namespace hdb5_io {
 
   void HydrodynamicDataBase::SetCreationDate(std::string date) {
     m_creationDate = date;
@@ -222,4 +222,4 @@ namespace HDB5_io {
     return m_sym_yoz;
   }
 
-} // namespace HDB5_io
+} // namespace hdb5_io

@@ -11,7 +11,7 @@
 #include "MathUtils/Vector3d.h"
 #include "MathUtils/Vector6d.h"
 
-namespace HDB5_io {
+namespace hdb5_io {
 
   class DOF {
 
@@ -145,7 +145,7 @@ namespace HDB5_io {
   };
 
 
-} // namespace HDB5_io
+} // namespace hdb5_io
 
 
 #endif //HDB5_IO_MASK_H

@@ -15,7 +15,7 @@
 #include "Mesh.h"
 #include "PoleResidue.h"
 
-namespace HDB5_io {
+namespace hdb5_io {
 
   // Forward declaration
   class HydrodynamicDataBase;
@@ -244,7 +244,7 @@ namespace HDB5_io {
     /// \return mesh of the body
     Mesh *GetMesh() const;
 
-#ifdef H5_USE_VTK
+#ifdef USE_VTK
 
     /// Visualize the mesh of the body
     void VisualizeMesh() const;
@@ -447,6 +447,6 @@ namespace HDB5_io {
 
   };
 
-} // namespace HDB5_io
+} // namespace hdb5_io
 
 #endif //HDB5_IO_BODY_H

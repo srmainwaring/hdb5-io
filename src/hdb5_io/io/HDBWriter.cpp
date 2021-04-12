@@ -13,7 +13,9 @@
 #include "hdb5_io/containers/Kochin.h"
 #include "hdb5_io/containers/PoleResidue.h"
 
-namespace HDB5_io {
+#include "hdb5_io/version.h"
+
+namespace hdb5_io {
 
 
   void HDBWriter::Write(const std::string &filename) const {

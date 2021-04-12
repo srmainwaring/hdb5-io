@@ -1,9 +1,4 @@
-
-#find_package(meshoui QUIET)
-
-if (NOT meshoui_FOUND)
     include(FetchContent)
-
 
     FetchContent_Declare(meshoui
             GIT_REPOSITORY ${meshoui_URL}
@@ -12,23 +7,13 @@ if (NOT meshoui_FOUND)
 
     FetchContent_GetProperties(meshoui)
     if(NOT meshoui_POPULATED)
-        message(STATUS "Downloading, Configuring and Generating 'meshoui' dependency")
+        message(STATUS "******* FETCHING meshoui dependency from ${PROJECT_NAME} (requested version: ${meshoui_TAG}) *******")
         FetchContent_Populate(meshoui)
 
         # meshoui BUILD OPTIONS
-        set(MESHOUI_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-        set(MESHOUI_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
-        set(MESHOUI_USE_VTK ${HDB5IO_USE_VTK} CACHE BOOL "" FORCE)
+        set(MESHOUI_BUILD_TESTS OFF CACHE BOOL "")
+        set(MESHOUI_BUILD_TOOLS OFF CACHE BOOL "")
+        set(USE_VTK ${USE_VTK} CACHE BOOL "")
 
         add_subdirectory(${meshoui_SOURCE_DIR} ${meshoui_BINARY_DIR})
-    else()
-        message(STATUS "meshoui already populated")
     endif()
-endif()
-
-if (TARGET meshoui)
-    get_target_property(INC meshoui INTERFACE_INCLUDE_DIRECTORIES)
-    message(STATUS "Found meshoui : ${INC}")
-else()
-    message(STATUS "meshoui target NOT FOUND")
-endif()

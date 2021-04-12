@@ -8,7 +8,7 @@
 #include "meshoui/mesh.h"
 #include "MathUtils/Matrix.h"
 
-namespace HDB5_io {
+namespace hdb5_io {
 
   /**
   * \class Mesh

@@ -16,4 +16,6 @@
 #include "io/HDBReader.h"
 #include "io/HDBWriter.h"
 
+#include "version.h"
+
 #endif //HDB5_IO_HDB5_IO_H

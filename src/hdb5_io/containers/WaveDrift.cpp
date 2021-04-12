@@ -4,7 +4,7 @@
 
 #include "WaveDrift.h"
 
-namespace HDB5_io {
+namespace hdb5_io {
 
 
   WaveDrift::WaveDrift() : m_symmetry_X(false), m_symmetry_Y(false) {

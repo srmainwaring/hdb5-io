@@ -12,7 +12,9 @@
 #include <highfive/H5File.hpp>
 #include <highfive/H5Easy.hpp>
 
-namespace HDB5_io {
+#include <filesystem>
+
+namespace hdb5_io {
 
   void HDBReader::Read(const std::string &filename) {
 
@@ -189,7 +191,7 @@ namespace HDB5_io {
 
   void HDBReader::ReadRadiation(const HighFive::File &HDF5_file, const std::string &path, Body *body) {
 
-    for (unsigned int ibodyMotion = 0; ibodyMotion < m_hdb->GetNbBodies(); ++ibodyMotion) {
+    for (int ibodyMotion = 0; ibodyMotion < m_hdb->GetNbBodies(); ++ibodyMotion) {
 
       auto bodyMotion = m_hdb->GetBody(ibodyMotion);
       auto bodyMotionPath = path + "/BodyMotion_" + std::to_string(ibodyMotion);
@@ -374,6 +376,12 @@ namespace HDB5_io {
   }
 
   std::shared_ptr<HydrodynamicDataBase> import_HDB(const std::string &filename) {
+
+    if(not std::filesystem::is_regular_file(filename)) {
+      std::cerr << "File " << filename << " not FOUND." << std::endl;
+      exit(EXIT_FAILURE);
+    }
+
     auto hdb = std::make_shared<HydrodynamicDataBase>();
 
     HighFive::File file(filename, HighFive::File::ReadOnly);
@@ -490,8 +498,7 @@ namespace HDB5_io {
     waveDrift->SetFrequencies(m_hdb->GetFrequencyDiscretization());
     waveDrift->SetWaveDirections(waveDirection);
 
-    double kochin_step = 0;
-    kochin_step = H5Easy::load<double>(HDF5_file, "WaveDrift/KochinStep"); // In degrees.
+    auto kochin_step = H5Easy::load<double>(HDF5_file, "WaveDrift/KochinStep"); // In degrees.
     auto sym_X = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_x");
     auto sym_Y = H5Easy::load<int>(HDF5_file, "WaveDrift/sym_y");
 
@@ -556,7 +563,7 @@ namespace HDB5_io {
       kochin->SetWaveDirectionKochin(wave_direction_kochin);
 
       // Radiation Kochin functions and their derivatives.
-      for (unsigned int ibody = 0; ibody < m_hdb->GetNbBodies(); ++ibody) {
+      for (int ibody = 0; ibody < m_hdb->GetNbBodies(); ++ibody) {
 
         // Body.
         auto body = m_hdb->GetBody(ibody);
@@ -617,7 +624,7 @@ namespace HDB5_io {
   void HDBReader_v3::ReadRadiation(const HighFive::File &file, const std::string &path, Body *body) {
     HDBReader::ReadRadiation(file, path, body);
 
-    for (unsigned int ibodyMotion = 0; ibodyMotion < m_hdb->GetNbBodies(); ++ibodyMotion) {
+    for (int ibodyMotion = 0; ibodyMotion < m_hdb->GetNbBodies(); ++ibodyMotion) {
 
       auto bodyMotion = m_hdb->GetBody(ibodyMotion);
       auto bodyMotionPath = path + "/BodyMotion_" + std::to_string(ibodyMotion);
@@ -709,4 +716,4 @@ namespace HDB5_io {
   }
 
 
-} // end namespace HDB5_io
+} // end namespace hdb5_io

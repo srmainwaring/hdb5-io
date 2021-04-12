@@ -3,12 +3,10 @@
 # CMake configuration file for the HDB5_IO project
 #
 #=============================================================================
-
-
-#-----------------------------------------------------------------------------
-# Check backward compatibility
-#-----------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.11)
+
+project(hdb5_io)
+set(CMAKE_CXX_STANDARD 17)
 
 #-----------------------------------------------------------------------------
 # Prevent in-source builds
@@ -18,62 +16,41 @@ if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 
 #-----------------------------------------------------------------------------
-# Define project name and specify version information
-#-----------------------------------------------------------------------------
-project(HDB5_IO)
-
-#-----------------------------------------------------------------------------
-# Setting the configuration of the build (Debug, Release...)
-#-----------------------------------------------------------------------------
-#set(CMAKE_BUILD_TYPE Debug)
-
 # OPTIONS
-set(USE_VTK OFF CACHE BOOL "Enable VTK Support")
-mark_as_advanced(USE_VTK)
-
-option(HDB5IO_USE_VTK "Enable VTK Support" ${USE_VTK})
+#-----------------------------------------------------------------------------
+option(USE_VTK "Enable VTK Support" OFF)
 option(HDB5IO_BUILD_TESTS "Activate build tests" ON)
+option(BUILD_SHARED_LIBS "Shared lib version" OFF)
 
-#-----------------------------------------------------------------------------
-# C++ dialect
-#-----------------------------------------------------------------------------
-set(CMAKE_CXX_STANDARD 14)
-
-
-# Access to local cmake scripts
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #=============================================================================
 # Retrieving the current Git revision
 #=============================================================================
-#include(GetGitRevisionDescription)
-#get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-#set(FRYDOM_FLAVOR "FRyDoM-CE (Community Edition)" CACHE STRING "The FRyDoM flavor (CE or EE)")
-#configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/frydom/version.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/src/frydom/version.cpp")
+set(PRE_CONFIGURE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/hdb5_io/version.cpp.in CACHE FILEPATH "" FORCE)
+set(POST_CONFIGURE_FILE ${CMAKE_CURRENT_BINARY_DIR}/src/hdb5_io/version.cpp CACHE FILEPATH "" FORCE)
+set(GIT_WORKING_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE FILEPATH "" FORCE)
+set(GIT_STATE_FILE ${CMAKE_CURRENT_BINARY_DIR}/git-state-hash CACHE FILEPATH "" FORCE)
+include(cmake/git_watcher.cmake)
+
+if (NOT EXISTS ${POST_CONFIGURE_FILE})
+    configure_file(${PRE_CONFIGURE_FILE} ${POST_CONFIGURE_FILE})
+endif ()
 
 # =============================================================================
 # HDB5_IO DEPENDENCIES
 # =============================================================================
-
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/URL.conf.cmake)
 
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+if (USE_VTK)
+    include(Add_VTK)
+endif ()
+
+include(Add_mathutils)
 include(Add_HDF5)
-include(Add_meshoui)
-
-message(STATUS "USE VTK : ${HDB5IO_USE_VTK}" )
-
-if (HDB5IO_USE_VTK)
-    find_package(VTK 6.0 REQUIRED NO_MODULE)
-    include(${VTK_USE_FILE})
-endif()
-
-get_target_property(INC eigen INTERFACE_INCLUDE_DIRECTORIES)
-message(STATUS "Found eigen : ${INC}")
-
-set(EIGEN3_INCLUDE_DIRS ${INC})
-#set(EIGEN3_DIR ${INC})
-
 include(Add_HighFive)
+include(Add_meshoui)
 
 #=============================================================================
 # Adding the HDB5_IO project sources
@@ -88,12 +65,3 @@ if (${HDB5IO_BUILD_TESTS})
     include(Add_googletest)
     add_subdirectory(tests)
 endif ()
-
-
-#=============================================================================
-# Adding tools
-#=============================================================================
-#if (${HDB5IO_build_tools})
-#    include(add_cxxopts)
-#    add_subdirectory(tools)
-#endif ()
