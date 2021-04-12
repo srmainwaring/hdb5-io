@@ -98,6 +98,10 @@ int main() {
 
   HDB->SetKochin(kochin);
 
+  // Add Helios commit hash.
+  HDB->SetSolver("Helios");
+  HDB->SetNormalizedVersionString("Blablabla");
+
   export_HDB("out.hdb5", HDB.get());
 
   auto HDB_2 = import_HDB("out.hdb5");

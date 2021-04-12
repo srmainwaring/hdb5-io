@@ -98,6 +98,13 @@ namespace HDB5_io {
     dataSet.createAttribute<std::string>("Description",
                                          "Hydrodynamic solver used for computing the hydrodynamic database.");
 
+    if(m_hdb->GetSolver() == "Helios") {
+      auto commit_hash = m_hdb->GetNormalizedVersionString();
+      dataSet = file.createDataSet<std::string>("NormalizedCommitHash", HighFive::DataSpace::From(commit_hash));
+      dataSet.write(commit_hash);
+      dataSet.createAttribute<std::string>("Description", "Tag - Branch - Date - Commit.");
+    }
+
     auto nbody = m_hdb->GetNbBodies();
     dataSet = file.createDataSet<int>("NbBody", HighFive::DataSpace::From(nbody));
     dataSet.write(nbody);

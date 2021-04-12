@@ -26,6 +26,14 @@ namespace HDB5_io {
     return m_solver;
   }
 
+  void HydrodynamicDataBase::SetNormalizedVersionString(std::string commit_hash) {
+    m_commit_hash = commit_hash;
+  }
+
+  std::string HydrodynamicDataBase::GetNormalizedVersionString() const {
+    return m_commit_hash;
+  }
+
   void HydrodynamicDataBase::SetVersion(double version) {
     m_version = version;
   }

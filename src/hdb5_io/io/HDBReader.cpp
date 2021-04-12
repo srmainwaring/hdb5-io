@@ -85,6 +85,9 @@ namespace HDB5_io {
 
     m_hdb->SetCreationDate(H5Easy::load<std::string>(HDF5_file, "CreationDate"));
     m_hdb->SetSolver(H5Easy::load<std::string>(HDF5_file, "Solver"));
+    if(m_hdb->GetSolver() == "Helios") {
+      m_hdb->SetNormalizedVersionString(H5Easy::load<std::string>(HDF5_file, "NormalizedCommitHash"));
+    }
     m_hdb->SetNormalizationLength(H5Easy::load<double>(HDF5_file, "NormalizationLength"));
     m_hdb->SetGravityAcceleration(H5Easy::load<double>(HDF5_file, "GravityAcc"));
     m_hdb->SetWaterDensity(H5Easy::load<double>(HDF5_file, "WaterDensity"));
