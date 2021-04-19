@@ -1,5 +1,8 @@
 if (NOT BUILD_SHARED_LIBS)
+    message(STATUS "Using static libraries for HDF5")
     set(HDF5_USE_STATIC_LIBRARIES ON CACHE BOOL "Use static library for HDF5")
+else ()
+    message(STATUS "Using shared libraries for HDF5")
 endif ()
 
 message(STATUS "******* FINDING HDF5 dependency from ${PROJECT_NAME} (requested minimum version: ${HDF5_FIND_TAG}) *******")
@@ -9,10 +12,12 @@ if (HDF5_FOUND)
     message(STATUS "HDF5 ${HDF5_VERSION} found here: ${HDF5_INCLUDE_DIRS}")
 
     if (BUILD_SHARED_LIBS)
+        message(STATUS "Creating target hdf5_cpp-shared based on ${HDF5_LIBRARIES}")
         add_library(hdf5_cpp-shared INTERFACE IMPORTED)
         target_include_directories(hdf5_cpp-shared INTERFACE ${HDF5_CXX_INCLUDE_DIRS})
         target_link_libraries(hdf5_cpp-shared INTERFACE ${HDF5_LIBRARIES})
     else ()
+        message(STATUS "Creating target hdf5_cpp-static based on ${HDF5_LIBRARIES}")
         add_library(hdf5_cpp-static INTERFACE IMPORTED)
         target_include_directories(hdf5_cpp-static INTERFACE ${HDF5_CXX_INCLUDE_DIRS})
         target_link_libraries(hdf5_cpp-static INTERFACE ${HDF5_LIBRARIES})
@@ -31,7 +36,7 @@ else ()
 
     FetchContent_GetProperties(HDF5)
 
-    if (NOT HDF5_POPULATED)
+    if (NOT hdf5_POPULATED)
         message(STATUS "******* FETCHING HDF5 dependency from ${PROJECT_NAME} (requested version: ${HDF5_TAG}) *******")
         FetchContent_Populate(HDF5)
 

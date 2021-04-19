@@ -18,9 +18,15 @@ endif (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 #-----------------------------------------------------------------------------
 # OPTIONS
 #-----------------------------------------------------------------------------
+cmake_policy(SET CMP0077 NEW)
+
+option(BUILD_SHARED_LIBS "Shared lib version" OFF)
+message(STATUS "BUILD_SHARED_LIBS set to ${BUILD_SHARED_LIBS} in hdb5_io")
 option(USE_VTK "Enable VTK Support" OFF)
 option(HDB5IO_BUILD_TESTS "Activate build tests" ON)
-option(BUILD_SHARED_LIBS "Shared lib version" OFF)
+
+
+message(STATUS "SHARED_LIB set to ${BUILD_SHARED_LIBS} in hdb5_io")
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 

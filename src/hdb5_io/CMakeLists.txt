@@ -1,8 +1,4 @@
-if (BUILD_SHARED_LIBS)
-    add_library(hdb5_io SHARED)
-else ()
-    add_library(hdb5_io STATIC)
-endif ()
+add_library(hdb5_io)
 
 target_sources(hdb5_io PRIVATE
         containers/HydrodynamicDataBase.cpp
@@ -26,9 +22,12 @@ target_link_libraries(hdb5_io PUBLIC
         )
 
 if (BUILD_SHARED_LIBS)
+    message(STATUS "Using HDF5 SHARED lib into hdb5_io")
     target_link_libraries(hdb5_io PUBLIC hdf5_cpp-shared)
 else ()
+    message(STATUS "Using HDF5 STATIC lib into hdb5_io")
     target_link_libraries(hdb5_io PUBLIC hdf5_cpp-static)
+    set_property(TARGET hdb5_io PROPERTY POSITION_INDEPENDENT_CODE ON)
 endif ()
 
 add_dependencies(hdb5_io check_git_${PROJECT_NAME}) # For git_watcher to fetch git informations before effective build
