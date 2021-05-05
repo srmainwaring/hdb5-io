@@ -27,11 +27,16 @@ namespace hdb5_io {
   }
 
   void HydrodynamicDataBase::SetNormalizedVersionString(std::string commit_hash) {
+    m_is_commit_hash = true;
     m_commit_hash = commit_hash;
   }
 
   std::string HydrodynamicDataBase::GetNormalizedVersionString() const {
     return m_commit_hash;
+  }
+
+  bool HydrodynamicDataBase::IsNormalizedVersionString() const {
+    return m_is_commit_hash;
   }
 
   void HydrodynamicDataBase::SetVersion(double version) {

@@ -43,6 +43,8 @@ namespace hdb5_io {
 
     std::string GetNormalizedVersionString() const;
 
+    bool IsNormalizedVersionString() const;
+
     void SetVersion(double version);
 
     double GetVersion() const;
@@ -142,6 +144,7 @@ namespace hdb5_io {
 
     std::string m_creationDate;       ///< Creation date of the HDB
     std::string m_solver;             ///< Solver which computed the hydrodynamic data base (NEMOH/HELIOS)
+    bool m_is_commit_hash = false;
     std::string m_commit_hash;        ///< Normalized commit hash.
 
     double m_version;                 ///< Version of the HDB file
