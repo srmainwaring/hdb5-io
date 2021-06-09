@@ -140,6 +140,22 @@ namespace hdb5_io {
 
     bool GetSymYOZ() const;
 
+    void SetExpertParameters();
+
+    bool GetExpertParameters() const;
+
+    void SetSurfaceIntegrationOrder(const int &order);
+
+    int GetSurfaceIntegrationOrder() const;
+
+    void SetGreenFunction(const std::string &green_function);
+
+    std::string GetGreenFunction() const;
+
+    void SetCrmax(const int &crmax);
+
+    int GetCrmax() const;
+
    protected:
 
     std::string m_creationDate;       ///< Creation date of the HDB
@@ -164,6 +180,11 @@ namespace hdb5_io {
     bool m_sym_bottom; /// Bottom symmetry.
     bool m_sym_xoz; /// (xOz) symmetry.
     bool m_sym_yoz; /// (yOz) symmetry.
+
+    bool m_isExpertParameters = false;
+    int m_surface_integration_order; /// Surface integration order.
+    std::string m_Green_function; /// Method for evaluating the Green's function.
+    double m_Crmax; /// Distance criteria threshold for applying the far-field approximation for computing the influence coefficients.
 
     int m_nbody;                      ///< Number of bodies in interaction considered in the HDB
     // FIXME :: change the vector to unordered_map with index as key, to be sure which body to get with the GetBody method

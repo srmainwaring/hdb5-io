@@ -99,6 +99,12 @@ TEST(hdb5_io, import_export) {
   HDB->SetSolver("Helios");
   HDB->SetNormalizedVersionString(git::GetNormalizedVersionString());
 
+  // Expert numerical parameters.
+  HDB->SetExpertParameters();
+  HDB->SetSurfaceIntegrationOrder(4);
+  HDB->SetGreenFunction("newman");
+  HDB->SetCrmax(10);
+
   export_HDB("out.hdb5", HDB.get());
 
   auto HDB_2 = import_HDB("out.hdb5");

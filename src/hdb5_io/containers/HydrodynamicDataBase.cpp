@@ -227,4 +227,36 @@ namespace hdb5_io {
     return m_sym_yoz;
   }
 
+  void HydrodynamicDataBase::SetExpertParameters() {
+    m_isExpertParameters = true;
+  }
+
+  bool HydrodynamicDataBase::GetExpertParameters() const {
+    return m_isExpertParameters;
+  }
+
+  void HydrodynamicDataBase::SetSurfaceIntegrationOrder(const int &order) {
+    m_surface_integration_order = order;
+  }
+
+  int HydrodynamicDataBase::GetSurfaceIntegrationOrder() const {
+    return m_surface_integration_order;
+  }
+
+  void HydrodynamicDataBase::SetGreenFunction(const std::string &green_function) {
+    m_Green_function = green_function;
+  }
+
+  std::string HydrodynamicDataBase::GetGreenFunction() const {
+    return m_Green_function;
+  }
+
+  void HydrodynamicDataBase::SetCrmax(const int &crmax) {
+    m_Crmax = crmax;
+  }
+
+  int HydrodynamicDataBase::GetCrmax() const {
+    return m_Crmax;
+  }
+
 } // namespace hdb5_io

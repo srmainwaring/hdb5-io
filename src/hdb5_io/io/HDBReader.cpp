@@ -81,6 +81,11 @@ namespace hdb5_io {
       ReadVectorFitting(file);
     }
 
+    // Expert numerical paramaters.
+    if (file.exist("ExpertParameters")) {
+      ReadExpertNumericalParameters(file);
+    }
+
   }
 
   void HDBReader::ReadHDBBasics(const HighFive::File &HDF5_file) {
@@ -374,6 +379,17 @@ namespace hdb5_io {
     m_hdb->SetSymBottom(H5Easy::load<int>(file, "Symmetries/Bottom"));
     m_hdb->SetSymXOZ(H5Easy::load<int>(file, "Symmetries/xOz"));
     m_hdb->SetSymYOZ(H5Easy::load<int>(file, "Symmetries/yOz"));
+
+  }
+
+  void HDBReader::ReadExpertNumericalParameters(HighFive::File &file) {
+
+    // This method reads the expert numerical parameters.
+
+    m_hdb->SetExpertParameters();
+    m_hdb->SetSurfaceIntegrationOrder(H5Easy::load<int>(file, "ExpertParameters/SurfaceIntegrationOrder"));
+    m_hdb->SetGreenFunction(H5Easy::load<std::string>(file, "ExpertParameters/GreenFunction"));
+    m_hdb->SetCrmax(H5Easy::load<int>(file, "ExpertParameters/Crmax"));
 
   }
 

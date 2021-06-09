@@ -95,6 +95,9 @@ namespace hdb5_io {
     /// \param file file to export the hydrodynamic database
     virtual void WriteVF(HighFive::File &file) const;
 
+    /// This method writes the expert numerical parameters.
+    virtual void WriteExpertParameters(HighFive::File &file) const;
+
   };
 
   /// Export the hydrodynamic database given, in a .hdb5 file format

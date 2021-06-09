@@ -78,6 +78,11 @@ namespace hdb5_io {
       WriteVF(file);
     }
 
+    // Expert numerical parameters.
+    if (m_hdb->GetExpertParameters()) {
+      WriteExpertParameters(file);
+    }
+
   }
 
 
@@ -695,6 +700,24 @@ namespace hdb5_io {
     H5Easy::dump(file, "VectorFitting/Relaxed", static_cast<int> (m_hdb->GetVFRelaxed()));
     H5Easy::dump(file, "VectorFitting/MaxOrder", static_cast<int> (m_hdb->GetVFMaxOrder()));
     H5Easy::dump(file, "VectorFitting/Tolerance", static_cast<double> (m_hdb->GetVFTolerance()));
+
+  }
+
+  void HDBWriter::WriteExpertParameters(HighFive::File &file) const {
+
+    // This method writes the expert numerical parameters.
+
+    auto ExpertParameters = file.createGroup("ExpertParameters");
+
+    std::cout << m_hdb->GetGreenFunction() << std::endl;
+    H5Easy::dump(file, "ExpertParameters/SurfaceIntegrationOrder", static_cast<int> (m_hdb->GetSurfaceIntegrationOrder()));
+
+    auto green_function = m_hdb->GetGreenFunction();
+    HighFive::DataSet dataSet = file.createDataSet<std::string>("ExpertParameters/GreenFunction", HighFive::DataSpace::From(green_function));
+    dataSet.write(green_function);
+    dataSet.createAttribute<std::string>("Description", "Green function.");
+
+    H5Easy::dump(file, "ExpertParameters/Crmax", static_cast<int> (m_hdb->GetCrmax()));
 
   }
 
