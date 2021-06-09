@@ -104,6 +104,7 @@ TEST(hdb5_io, import_export) {
   HDB->SetSurfaceIntegrationOrder(4);
   HDB->SetGreenFunction("newman");
   HDB->SetCrmax(10);
+  HDB->SetWaveReferencePoint(3, 4);
 
   export_HDB("out.hdb5", HDB.get());
 

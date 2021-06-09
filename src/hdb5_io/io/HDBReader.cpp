@@ -390,6 +390,9 @@ namespace hdb5_io {
     m_hdb->SetSurfaceIntegrationOrder(H5Easy::load<int>(file, "ExpertParameters/SurfaceIntegrationOrder"));
     m_hdb->SetGreenFunction(H5Easy::load<std::string>(file, "ExpertParameters/GreenFunction"));
     m_hdb->SetCrmax(H5Easy::load<int>(file, "ExpertParameters/Crmax"));
+    auto x = H5Easy::load<double>(file, "ExpertParameters/WaveReferencePoint/x");
+    auto y = H5Easy::load<double>(file, "ExpertParameters/WaveReferencePoint/y");
+    m_hdb->SetWaveReferencePoint(x, y);
 
   }
 

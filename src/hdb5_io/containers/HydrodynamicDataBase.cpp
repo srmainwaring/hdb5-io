@@ -259,4 +259,14 @@ namespace hdb5_io {
     return m_Crmax;
   }
 
+  void HydrodynamicDataBase::SetWaveReferencePoint(const double &x, const double &y) {
+    m_wave_reference_point_x = x;
+    m_wave_reference_point_y = y;
+  }
+
+  void HydrodynamicDataBase::GetWaveReferencePoint(double &x, double &y) const {
+    y = m_wave_reference_point_x;
+    x = m_wave_reference_point_y;
+  }
+
 } // namespace hdb5_io

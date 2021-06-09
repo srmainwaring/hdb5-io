@@ -709,7 +709,6 @@ namespace hdb5_io {
 
     auto ExpertParameters = file.createGroup("ExpertParameters");
 
-    std::cout << m_hdb->GetGreenFunction() << std::endl;
     H5Easy::dump(file, "ExpertParameters/SurfaceIntegrationOrder", static_cast<int> (m_hdb->GetSurfaceIntegrationOrder()));
 
     auto green_function = m_hdb->GetGreenFunction();
@@ -718,6 +717,12 @@ namespace hdb5_io {
     dataSet.createAttribute<std::string>("Description", "Green function.");
 
     H5Easy::dump(file, "ExpertParameters/Crmax", static_cast<int> (m_hdb->GetCrmax()));
+
+    auto WaveReferencePoint = file.createGroup("ExpertParameters/WaveReferencePoint");
+    double x, y;
+    m_hdb->GetWaveReferencePoint(x, y);
+    H5Easy::dump(file, "ExpertParameters/WaveReferencePoint/x", static_cast<double> (x));
+    H5Easy::dump(file, "ExpertParameters/WaveReferencePoint/y", static_cast<double> (y));
 
   }
 
