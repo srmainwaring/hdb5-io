@@ -26,8 +26,12 @@ namespace hdb5_io {
   // Setters
   //
 
-  void Body::SetPosition(const mathutils::Vector3d<double> &position) {
-    m_position = position;
+  void Body::SetHorizontalPositionInWorld(const mathutils::Vector3d<double> &horizontal_position) {
+    m_horizontal_position = horizontal_position;
+  }
+
+  void Body::SetComputationPointInBodyFrame(const mathutils::Vector3d<double> &computation_point) {
+    m_computation_point = computation_point;
   }
 
   void Body::SetForceMask(const mathutils::Vector6d<bool> &mask) {
@@ -324,8 +328,12 @@ namespace hdb5_io {
     return m_zeroFreqAddedMass.count(BodyMotion) > 0;
   }
 
-  mathutils::Vector3d<double> Body::GetPosition() const {
-    return m_position;
+  mathutils::Vector3d<double> Body::GetHorizontalPositionInWorld() const {
+    return m_horizontal_position;
+  }
+
+  mathutils::Vector3d<double> Body::GetComputationPointInBodyFrame() const {
+    return m_computation_point;
   }
 
   Mask Body::GetForceMask() const {

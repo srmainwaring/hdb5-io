@@ -55,9 +55,13 @@ namespace hdb5_io {
     // Setters
     //
 
-    /// Define the position of body stored in BEM body database
+    /// Define the horizontal position of body in world.
     /// \param position Position of the body
-    void SetPosition(const mathutils::Vector3d<double> &position);
+    void SetHorizontalPositionInWorld(const mathutils::Vector3d<double> &horizontal_position);
+
+    /// Define the computation point in the body frame.
+    /// \param position Position of the body
+    void SetComputationPointInBodyFrame(const mathutils::Vector3d<double> &computation_point);
 
     /// Define the mask on the force components
     /// \param mask Mask on the force components
@@ -231,9 +235,13 @@ namespace hdb5_io {
     /// \return true if the body contains the zero frequency added mass coefficients
     bool HasZeroFreqAddedMass(Body *BodyMotion) const;
 
-    /// Return the position of the body as stored in the HDB
+    /// Return the horizontal position of the body in world.
     /// \return position of the body
-    mathutils::Vector3d<double> GetPosition() const;
+    mathutils::Vector3d<double> GetHorizontalPositionInWorld() const;
+
+    /// Return the computation point position of the body in the body frame.
+    /// \return position of the body
+    mathutils::Vector3d<double> GetComputationPointInBodyFrame() const;
 
     /// Return the mask value applied on a specific motion mode
     /// \param iforce Index of force
@@ -398,7 +406,8 @@ namespace hdb5_io {
     HydrodynamicDataBase *m_HDB;                   ///< HDB containing this data container
     unsigned int m_id;                             ///< ID of the BEM Body
     std::string m_name;                            ///< Name of the body
-    mathutils::Vector3d<double> m_position;        ///< Position of the body COG
+    mathutils::Vector3d<double> m_horizontal_position;   ///< Horizontal position of the body (x, y, psi).
+    mathutils::Vector3d<double> m_computation_point;   ///< Computation point in body frame.
 
     Mask m_forceMask;                              ///< Mask applied on the force
 

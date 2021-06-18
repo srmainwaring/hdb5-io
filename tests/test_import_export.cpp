@@ -106,6 +106,12 @@ TEST(hdb5_io, import_export) {
   HDB->SetCrmax(10);
   HDB->SetWaveReferencePoint(3, 4);
 
+  // Horizontal position.
+  HDB->GetBody(0)->SetHorizontalPositionInWorld(Eigen::Vector3d(4, 5, 90));
+
+  // Computation point.
+  HDB->GetBody(0)->SetComputationPointInBodyFrame(Eigen::Vector3d(1, 2, 3));
+
   export_HDB("out.hdb5", HDB.get());
 
   auto HDB_2 = import_HDB("out.hdb5");

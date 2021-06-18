@@ -186,9 +186,13 @@ namespace hdb5_io {
     dataSet.createAttribute<std::string>("Description", "Body name");
 
     // Position.
-    H5Easy::dump(file, path + "/BodyPosition", static_cast<Eigen::Vector3d> (body->GetPosition()));
-    bodyGroup.getDataSet("BodyPosition").createAttribute<std::string>("Description",
-                                                                      "Center of gravity of the body in the absolute frame");
+    auto BodyPosition = body->GetHorizontalPositionInWorld();
+    H5Easy::dump(file, path + "/HorizontalPosition/x", static_cast<double> (BodyPosition(0)));
+    H5Easy::dump(file, path + "/HorizontalPosition/y", static_cast<double> (BodyPosition(1)));
+    H5Easy::dump(file, path + "/HorizontalPosition/psi", static_cast<double> (BodyPosition(2))); // Degrees.
+
+    // Computation point.
+    H5Easy::dump(file, path + "/ComputationPoint", static_cast<Eigen::Vector3d> (body->GetComputationPointInBodyFrame()));
 
     // Mask.
     auto ExcitationGroup = bodyGroup.createGroup("Excitation");

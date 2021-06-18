@@ -117,8 +117,32 @@ namespace hdb5_io {
     // New body.
     auto body = m_hdb->NewBody(id, name);
 
-    // Position.
-    body->SetPosition(H5Easy::load<Eigen::Vector3d>(file, path + "/BodyPosition"));
+    // Horizontal position in world.
+    if (file.exist(path + "/BodyPosition")) {
+      auto BodyPosition = H5Easy::load<Eigen::Vector3d>(file, path + "/BodyPosition");
+      Eigen::Vector3d HorizontalPosition = Eigen::Vector3d::Zero();
+      HorizontalPosition(0) = BodyPosition(0);
+      HorizontalPosition(1) = BodyPosition(1);
+      HorizontalPosition(2) = 0.;
+      body->SetHorizontalPositionInWorld(HorizontalPosition);
+    } else if(file.exist(path + "/HorizontalPosition/x") and file.exist(path + "/HorizontalPosition/y") and
+    file.exist(path + "/HorizontalPosition/psi")) {
+      auto x = H5Easy::load<double>(file, path + "/HorizontalPosition/x");
+      auto y = H5Easy::load<double>(file, path + "/HorizontalPosition/y");
+      auto psi = H5Easy::load<double>(file, path + "/HorizontalPosition/psi"); // Degrees.
+      Eigen::Vector3d HorizontalPosition = Eigen::Vector3d::Zero();
+      HorizontalPosition(0) = x;
+      HorizontalPosition(1) = y;
+      HorizontalPosition(2) = psi;
+      body->SetHorizontalPositionInWorld(HorizontalPosition);
+    }
+
+    // Computation point in body frame.
+    if (file.exist(path + "/ComputationPoint")) {
+      body->SetComputationPointInBodyFrame(H5Easy::load<Eigen::Vector3d>(file, path + "/ComputationPoint"));
+    } else {
+      body->SetComputationPointInBodyFrame(Eigen::Vector3d::Zero());
+    }
 
     // Hydrostatic matrix.
     if (file.exist(path + "/Hydrostatic")) {
