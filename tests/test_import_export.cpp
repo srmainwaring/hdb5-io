@@ -9,7 +9,7 @@ using namespace hdb5_io;
 
 TEST(hdb5_io, import_export) {
 
-  auto HDB = import_HDB("Boxbarge_Vertices_353_Faces_652.hdb5");
+  auto HDB = import_HDB("../../data/Boxbarge_Vertices_353_Faces_652.hdb5");
 
   // Add Poles and residues.
   Eigen::MatrixXi nb_real(6, 6), nb_cc(6, 6);
