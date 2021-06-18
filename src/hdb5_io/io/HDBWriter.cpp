@@ -555,12 +555,12 @@ namespace hdb5_io {
     dataSet.write(sym_y);
     dataSet.createAttribute<std::string>("Description", "Symmetry along y");
 
+    // Kochin group.
+    auto KochinGroup = HDF5_file.createGroup("WaveDrift/Kochin");
+
     // Kochin data.
     double kochin_step = 0.;
     if (m_hdb->GetKochin()) {
-
-      // Kochin group.
-      auto KochinGroup = HDF5_file.createGroup("WaveDrift/Kochin");
 
       // Kochin angular step.
       kochin_step = m_hdb->GetKochin()->GetKochinStep();
@@ -651,7 +651,7 @@ namespace hdb5_io {
       // Kochin angular step.
       kochin_step = m_hdb->GetWaveDrift()->GetKochinStep();
     }
-    dataSet = waveDriftGroup.createDataSet<double>("KochinStep", HighFive::DataSpace::From(kochin_step));
+    dataSet = KochinGroup.createDataSet<double>("KochinStep", HighFive::DataSpace::From(kochin_step));
     dataSet.write(kochin_step * MU_180_PI); // Conversion in degrees.
     dataSet.createAttribute<std::string>("Description", "Angular discretization in degrees for the Kochin functions");
 
