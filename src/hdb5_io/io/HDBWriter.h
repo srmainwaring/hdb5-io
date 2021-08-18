@@ -35,7 +35,7 @@ namespace hdb5_io {
    protected:
 
     enum excitationType {
-      Diffraction, Froude_Krylov
+      Diffraction, DiffractionXDerivative, Froude_Krylov, Froude_KrylovXDerivative
     };
 
     HydrodynamicDataBase *m_hdb;  ///< hydrodynamic database containing the data

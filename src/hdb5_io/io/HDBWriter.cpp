@@ -51,10 +51,20 @@ namespace hdb5_io {
       // Diffraction loads.
       WriteExcitation(excitationType::Diffraction, file, bodyPath + "/Excitation/Diffraction", body);
 
+      // x-derivative of the diffraction loads.
+      if (m_hdb->GetIsXDerivative()) {
+        WriteExcitation(excitationType::DiffractionXDerivative, file, bodyPath + "/Excitation/DiffractionXDerivative", body);
+      }
+
       // Froude-Krylov loads.
       WriteExcitation(excitationType::Froude_Krylov, file, bodyPath + "/Excitation/FroudeKrylov", body);
 
-      // Added mass, damping, IRF, poles and residues.
+      // x-derivative of the Froude-Krylov loads.
+      if (m_hdb->GetIsXDerivative()) {
+        WriteExcitation(excitationType::Froude_KrylovXDerivative, file, bodyPath + "/Excitation/FroudeKrylovXDerivative", body);
+      }
+
+      // Added mass, damping, IRF, poles and residues and the x-derivatives.
       WriteRadiation(file, bodyPath + "/Radiation", body);
 
       // RAOs.
@@ -268,8 +278,16 @@ namespace hdb5_io {
           coeff = body->GetDiffraction(iwaveDir);
           break;
         }
+        case DiffractionXDerivative : {
+          coeff = body->GetXDerivativeDiffraction(iwaveDir);
+          break;
+        }
         case Froude_Krylov : {
           coeff = body->GetFroudeKrylov(iwaveDir);
+          break;
+        }
+        case Froude_KrylovXDerivative : {
+          coeff = body->GetXDerivativeFroudeKrylov(iwaveDir);
           break;
         }
       }
@@ -315,7 +333,7 @@ namespace hdb5_io {
                                                      " that radiates waves and  generate force on body " +
                                                      std::to_string(body->GetID()) + ".");
 
-      // Writing the infinite added mass matrix for the body.
+      // Writing the infinite frequency added mass matrix for the body.
       H5Easy::dump(HDF5_file, bodyMotionPath + "/InfiniteAddedMass",
                    static_cast<Eigen::MatrixXd>(body->GetInfiniteAddedMass(bodyMotion)));
       auto InfiniteAddedMass = bodyMotionGroup.getDataSet("InfiniteAddedMass");
@@ -325,7 +343,18 @@ namespace hdb5_io {
                                         " from acceleration of body  " +
                                         std::to_string(body->GetID()) + ".");
 
-      // Writing the infinite added mass matrix for the body.
+      if (m_hdb->GetIsXDerivative()) {
+        H5Easy::dump(HDF5_file, bodyMotionPath + "/InfiniteAddedMassXDerivative",
+                     static_cast<Eigen::MatrixXd>(body->GetXDerivativeInfiniteAddedMass(bodyMotion)));
+        auto InfiniteAddedMassXDerivative = bodyMotionGroup.getDataSet("InfiniteAddedMassXDerivative");
+        InfiniteAddedMassXDerivative.createAttribute("Description",
+                                          "x-derivative of the infinite added mass matrix that modifies the apparent mass of body " +
+                                          std::to_string(bodyMotion->GetID()) +
+                                          " from acceleration of body  " +
+                                          std::to_string(body->GetID()) + ".");
+      }
+
+      // Writing the zero frequency added mass matrix for the body.
       if (body->HasZeroFreqAddedMass(bodyMotion)) {
         H5Easy::dump(HDF5_file, bodyMotionPath + "/ZeroFreqAddedMass",
                      static_cast<Eigen::MatrixXd>(body->GetZeroFreqAddedMass(bodyMotion)));
@@ -335,6 +364,19 @@ namespace hdb5_io {
                                           std::to_string(bodyMotion->GetID()) +
                                           " from acceleration of body  " +
                                           std::to_string(body->GetID()) + ".");
+      }
+
+      if (m_hdb->GetIsXDerivative()) {
+        if (body->HasZeroFreqAddedMass(bodyMotion)) {
+          H5Easy::dump(HDF5_file, bodyMotionPath + "/ZeroFreqAddedMassXDerivative",
+                       static_cast<Eigen::MatrixXd>(body->GetXDerivativeZeroFreqAddedMass(bodyMotion)));
+          auto ZeroFreqAddedMassXDerivative = bodyMotionGroup.getDataSet("ZeroFreqAddedMassXDerivative");
+          ZeroFreqAddedMassXDerivative.createAttribute("Description",
+                                            "x-derivative of the zero frequency added mass matrix that modifies the apparent mass of body " +
+                                            std::to_string(bodyMotion->GetID()) +
+                                            " from acceleration of body  " +
+                                            std::to_string(body->GetID()) + ".");
+        }
       }
 
       // Writing the radiation mask matrix for the body.
@@ -354,7 +396,6 @@ namespace hdb5_io {
                                                     " that radiates waves and  generate force on body " +
                                                     std::to_string(body->GetID()) + ".");
       for (unsigned int imotion = 0; imotion < 6; imotion++) {
-
         H5Easy::dump(HDF5_file, bodyMotionPath + "/AddedMass/DOF_" + std::to_string(imotion),
                      body->GetAddedMass(bodyMotion, imotion));
         auto DOF = AddedMassGroup.getDataSet("DOF_" + std::to_string(imotion));
@@ -382,6 +423,44 @@ namespace hdb5_io {
                                            std::to_string(body->GetID()) + ".");
         //TODO : complete units, depending on DOF, bodyMotion, etc.
         DOF.createAttribute("Unit", "");
+      }
+
+      // Writing of the x-derivative of the radiation coefficients.
+      if (m_hdb->GetIsXDerivative()) {
+        auto AddedMassXDerivativeGroup = bodyMotionGroup.createGroup("AddedMassXDerivative");
+        AddedMassXDerivativeGroup.createAttribute("Description", "x-derivative of the added mass coefficients for acceleration of body " +
+        std::to_string(bodyMotion->GetID()) +
+        " that radiates waves and  generate force on body " +
+        std::to_string(body->GetID()) + ".");
+        for (unsigned int imotion = 0; imotion < 6; imotion++) {
+          H5Easy::dump(HDF5_file, bodyMotionPath + "/AddedMassXDerivative/DOF_" + std::to_string(imotion),
+                       body->GetXDerivativeAddedMass(bodyMotion, imotion));
+          auto DOF = AddedMassXDerivativeGroup.getDataSet("DOF_" + std::to_string(imotion));
+          DOF.createAttribute("Description", "x-derivative of the added mass coefficients for an acceleration of body " +
+          std::to_string(bodyMotion->GetID()) +
+          " and force on body " +
+          std::to_string(body->GetID()) + ".");
+          //TODO : complete units, depending on DOF, bodyMotion, etc.
+          DOF.createAttribute("Unit", "");
+        }
+
+        // Writing the radiation damping matrix for the body.
+        auto RadiationDampingXDerivativeGroup = bodyMotionGroup.createGroup("RadiationDampingXDerivative");
+        RadiationDampingXDerivativeGroup.createAttribute("Description", "x-derivative of the damping coefficients for velocity of body " +
+        std::to_string(bodyMotion->GetID()) +
+        " that radiates waves and generates forces on body " +
+        std::to_string(body->GetID()) + ".");
+        for (unsigned int imotion = 0; imotion < 6; imotion++) {
+          H5Easy::dump(HDF5_file, bodyMotionPath + "/RadiationDampingXDerivative/DOF_" + std::to_string(imotion),
+                       body->GetXDerivativeRadiationDamping(bodyMotion, imotion));
+          auto DOF = RadiationDampingXDerivativeGroup.getDataSet("DOF_" + std::to_string(imotion));
+          DOF.createAttribute("Description", "x-derivative of the wave damping coefficients for an acceleration of body " +
+          std::to_string(bodyMotion->GetID()) +
+          " and force on body " +
+          std::to_string(body->GetID()) + ".");
+          //TODO : complete units, depending on DOF, bodyMotion, etc.
+          DOF.createAttribute("Unit", "");
+        }
       }
 
       if(body->HasIRF()) {
