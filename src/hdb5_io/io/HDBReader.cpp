@@ -47,17 +47,31 @@ namespace hdb5_io {
       }
 
       // Diffraction loads.
-      ReadExcitation(Diffraction, file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Excitation/Diffraction",
-                     body);
+      ReadExcitation(Diffraction, file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Excitation/Diffraction", body);
+
+      // x-derivative of the diffraction loads.
+      if (file.getGroup("Bodies/Body_" + std::to_string(body->GetID()) + "/Excitation").exist("DiffractionXDerivative")) {
+        m_hdb->IsXDerivative();
+        ReadExcitation(DiffractionXDerivative, file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Excitation/DiffractionXDerivative", body);
+      }
 
       // Froude-Krylov loads.
-      ReadExcitation(Froude_Krylov, file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Excitation/FroudeKrylov",
-                     body);
+      ReadExcitation(Froude_Krylov, file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Excitation/FroudeKrylov", body);
+
+      // x-derivative of the diffraction loads.
+      if (m_hdb->GetIsXDerivative()) {
+        ReadExcitation(Froude_KrylovXDerivative, file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Excitation/FroudeKrylovXDerivative", body);
+      }
 
       // Excitation loads.
       body->ComputeExcitation();
 
-      // Added mass, damping, IRF, poles and residues.
+      // x-derivative of the excitation loads.
+      if (m_hdb->GetIsXDerivative()) {
+        body->ComputeXDerivativeExcitation();
+      }
+
+      // Added mass, damping, IRF, poles and residues and the x-derivatives.
       ReadRadiation(file, "Bodies/Body_" + std::to_string(body->GetID()) + "/Radiation", body);
 
       // RAOs.
@@ -210,8 +224,16 @@ namespace hdb5_io {
           body->SetDiffraction(iwaveDir, ExcitationCoeffs);
           break;
         }
+        case DiffractionXDerivative : {
+          body->SetXDerivativeDiffraction(iwaveDir, ExcitationCoeffs);
+          break;
+        }
         case Froude_Krylov : {
           body->SetFroudeKrylov(iwaveDir, ExcitationCoeffs);
+          break;
+        }
+        case Froude_KrylovXDerivative : {
+          body->SetXDerivativeFroudeKrylov(iwaveDir, ExcitationCoeffs);
           break;
         }
       }
@@ -230,6 +252,11 @@ namespace hdb5_io {
       // Reading the infinite added mass matrix for the body.
       auto infiniteAddedMass = H5Easy::load<Eigen::MatrixXd>(HDF5_file, bodyMotionPath + "/InfiniteAddedMass");
       body->SetInfiniteAddedMass(bodyMotion, infiniteAddedMass);
+
+      if (m_hdb->GetIsXDerivative()) {
+        auto infiniteAddedMassXDerivative = H5Easy::load<Eigen::MatrixXd>(HDF5_file, bodyMotionPath + "/InfiniteAddedMassXDerivative");
+        body->SetXDerivativeInfiniteAddedMass(bodyMotion, infiniteAddedMassXDerivative);
+      }
 
       // Reading the radiation mask matrix for the body.
       auto radiationMask = H5Easy::load<Eigen::Matrix<int, 6, 6>>(HDF5_file, bodyMotionPath + "/RadiationMask");
@@ -277,6 +304,38 @@ namespace hdb5_io {
         RD_tmp.push_back(tmp_matrix);
       }
       body->SetRadiationDamping(bodyMotion, RD_tmp);
+
+      // x-derivative of the radiation coefficients.
+      if (m_hdb->GetIsXDerivative()) {
+        auto addedMassXDerivative = ReadComponents(HDF5_file, bodyMotionPath + "/AddedMassXDerivative", mask);
+        std::vector<mathutils::Matrix66<double>> AMXDerivative_tmp;
+        AMXDerivative_tmp.reserve(m_hdb->GetFrequencyDiscretization().size());
+        for (int iw=0; iw < m_hdb->GetFrequencyDiscretization().size(); ++iw) {
+          mathutils::Matrix66<double> tmp_matrix;
+          for (int imotion = 0; imotion < 6; ++imotion) {
+            for (int iforce = 0; iforce < 6; ++iforce) {
+              tmp_matrix(iforce,imotion) = addedMassXDerivative[imotion](iforce,iw);
+            }
+          }
+          AMXDerivative_tmp.push_back(tmp_matrix);
+        }
+        body->SetXDerivativeAddedMass(bodyMotion, AMXDerivative_tmp);
+
+        auto radiationDampingXDerivative = ReadComponents(HDF5_file, bodyMotionPath + "/RadiationDampingXDerivative", mask);
+        std::vector<mathutils::Matrix66<double>> RDXDerivative_tmp;
+        RDXDerivative_tmp.reserve(m_hdb->GetFrequencyDiscretization().size());
+        for (int iw=0; iw < m_hdb->GetFrequencyDiscretization().size(); ++iw) {
+          mathutils::Matrix66<double> tmp_matrix;
+          for (int imotion = 0; imotion < 6; ++imotion) {
+            for (int iforce = 0; iforce < 6; ++iforce) {
+              tmp_matrix(iforce,imotion) = radiationDampingXDerivative[imotion](iforce,iw);
+            }
+          }
+          RDXDerivative_tmp.push_back(tmp_matrix);
+        }
+        body->SetXDerivativeRadiationDamping(bodyMotion, RDXDerivative_tmp);
+      }
+
     }
 
   }
