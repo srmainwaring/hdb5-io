@@ -269,4 +269,12 @@ namespace hdb5_io {
     x = m_wave_reference_point_y;
   }
 
+  void HydrodynamicDataBase::IsXDerivative() {
+    m_is_x_derivative = true;
+  }
+
+  bool HydrodynamicDataBase::GetIsXDerivative() const {
+    return m_is_x_derivative;
+  }
+
 } // namespace hdb5_io

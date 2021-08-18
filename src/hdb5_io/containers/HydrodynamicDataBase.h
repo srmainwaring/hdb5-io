@@ -160,6 +160,10 @@ namespace hdb5_io {
 
     void GetWaveReferencePoint(double &x, double &y) const;
 
+    void IsXDerivative();
+
+    bool GetIsXDerivative() const;
+
    protected:
 
     std::string m_creationDate;       ///< Creation date of the HDB
@@ -202,6 +206,8 @@ namespace hdb5_io {
 
     std::shared_ptr<WaveDrift> m_waveDrift;            ///< wave drift components
     std::shared_ptr<Kochin> m_kochin;            ///< Kochin functions.
+
+    bool m_is_x_derivative = false; /// Presence if the x-derivative of the physical quantities.
 
   };
 
