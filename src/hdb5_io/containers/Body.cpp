@@ -586,15 +586,21 @@ namespace hdb5_io {
     auto nDirections = m_HDB->GetWaveDirectionDiscretization().size();
     auto nFrequencies = m_HDB->GetFrequencyDiscretization().size();
     m_diffraction.reserve((unsigned long) nDirections);
+    m_diffraction_x_derivative.reserve((unsigned long) nDirections);
     m_froudeKrylov.reserve((unsigned long) nDirections);
+    m_froudeKrylov_x_derivative.reserve((unsigned long) nDirections);
     m_excitation.reserve((unsigned long) nDirections);
+    m_excitation_x_derivative.reserve((unsigned long) nDirections);
     m_RAO.reserve((unsigned long) nDirections);
 
     for (int i = 0; i < nDirections; ++i) {
       Eigen::MatrixXcd mat(6, nFrequencies);
       m_diffraction.push_back(mat);
+      m_diffraction_x_derivative.push_back(mat);
       m_froudeKrylov.push_back(mat);
+      m_froudeKrylov_x_derivative.push_back(mat);
       m_excitation.push_back(mat);
+      m_excitation_x_derivative.push_back(mat);
       m_RAO.push_back(mat);
     }
 
