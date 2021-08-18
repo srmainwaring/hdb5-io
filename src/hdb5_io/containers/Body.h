@@ -78,6 +78,17 @@ namespace hdb5_io {
     /// \param diffractionVector Complex vector of the diffraction coefficient
     void SetDiffraction(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &diffractionVector);
 
+    /// Set the complex matrix of the x-derivative of the diffraction coefficient
+    /// \param iangle Corresponding wave direction
+    /// \param diffractionMatrix Complex matrix of the x-derivative of the diffraction coefficient
+    void SetXDerivativeDiffraction(unsigned int iangle, const Eigen::MatrixXcd &diffractionXDerivativeMatrix);
+
+    /// Set the complex matrix of the x-derivative of the diffraction coefficient
+    /// \param iangle Corresponding wave direction
+    /// \param iw Corresponding wave frequency
+    /// \param diffractionVector Complex vector of the x-derivative of the diffraction coefficient
+    void SetXDerivativeDiffraction(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &diffractionXDerivativeVector);
+
     /// Set the complex matrix of the Froude-Krylov coefficient
     /// \param iangle Corresponding wave direction
     /// \param froudeKrylovMatrix Complex matrix of the Froude-Krylov coefficient
@@ -88,6 +99,17 @@ namespace hdb5_io {
     /// \param iw Corresponding wave frequency
     /// \param froudeKrylovVector Complex vector of the Froude-Krylov coefficient
     void SetFroudeKrylov(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &froudeKrylovMatrix);
+
+    /// Set the complex matrix of the x-derivative of the Froude-Krylov coefficient
+    /// \param iangle Corresponding wave direction
+    /// \param froudeKrylovMatrix Complex matrix of the x-derivative of the Froude-Krylov coefficient
+    void SetXDerivativeFroudeKrylov(unsigned int iangle, const Eigen::MatrixXcd &froudeKrylovXDerivativeMatrix);
+
+    /// Set the complex vector of the x-derivative of the Froude-Krylov coefficient
+    /// \param iangle Corresponding wave direction
+    /// \param iw Corresponding wave frequency
+    /// \param froudeKrylovVector Complex vector of the x-derivative of the Froude-Krylov coefficient
+    void SetXDerivativeFroudeKrylov(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &froudeKrylovXDerivativeMatrix);
 
     /// Set the complex matrix of the wave excitation coefficient
     /// \param iangle Corresponding wave direction
@@ -100,18 +122,42 @@ namespace hdb5_io {
     /// \param excitationVector Complex vector of the wave excitation coefficients
     void SetExcitation(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &excitationVector);
 
+    /// Set the complex matrix of the x-derivative of the wave excitation coefficient
+    /// \param iangle Corresponding wave direction
+    /// \param excitationMatrix Complex matrix of the x-derivative of the wave excitation coefficients
+    void SetXDerivativeExcitation(unsigned int iangle, const Eigen::MatrixXcd &excitationXDerivativeMatrix);
+
+    /// Set the complex vector of the x-derivative of the wave excitation coefficient
+    /// \param iangle Corresponding wave direction
+    /// \param iw Corresponding wave frequency
+    /// \param excitationVector Complex vector of the x-derivative of the wave excitation coefficients
+    void SetXDerivativeExcitation(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &excitationXDerivativeVector);
+
     /// Compute the excitation loads from the diffraction loads and the Froude-Krylov loads.
     void ComputeExcitation();
+
+    /// Compute the x-derivative of the excitation loads from the x-derivative of both the diffraction loads and the Froude-Krylov loads.
+    void ComputeXDerivativeExcitation();
 
     /// Set the infinite added mass of the BEM body with respect to the motion of another BEM body
     /// \param BodyMotion BEM body to which the motion is considered
     /// \param CMInf Infinite added mass matrix
     void SetInfiniteAddedMass(Body *BodyMotion, const Matrix66 &CMInf);
 
+    /// Set the x-derivative of the infinite added mass of the BEM body with respect to the motion of another BEM body
+    /// \param BodyMotion BEM body to which the motion is considered
+    /// \param CMInf x-derivative of the infinite added mass matrix
+    void SetXDerivativeInfiniteAddedMass(Body *BodyMotion, const Matrix66 &XDerivativeCMInf);
+
     /// Set the zero frequency added mass of the BEM body with respect to the motion of another BEM body
     /// \param BodyMotion BEM body to which the motion is considered
     /// \param CMInf zero frequency added mass matrix
     void SetZeroFreqAddedMass(Body *BodyMotion, const Matrix66 &CMZero);
+
+    /// Set the x-deriative of the zero frequency added mass of the BEM body with respect to the motion of another BEM body
+    /// \param BodyMotion BEM body to which the motion is considered
+    /// \param CMInf x-derivative of the zero frequency added mass matrix
+    void SetXDerivativeZeroFreqAddedMass(Body *BodyMotion, const Matrix66 &XDerivativeCMZero);
 
     /// Set the radiation mask of the BEM body with respect to the motion of another BEM body
     /// \param BodyMotion BEM body to which the motion is considered
@@ -147,21 +193,43 @@ namespace hdb5_io {
     ///         Matrix66s are of dimensions iforce (for this body) x imotion (from the bodyMotion body)
     void SetAddedMass(Body *BodyMotion, const std::vector<Matrix66> &listData);
 
+    /// Set the x-derivative of the added mass for current body iforce dof, from BodyMotion imotion dof, for a set of frequencies
+    /// \param BodyMotion body at the origin of the motion
+    /// \param listData data with format iomega x (iforce, imotion) : std::vector is for the frequencies dimension, while
+    ///         Matrix66s are of dimensions iforce (for this body) x imotion (from the bodyMotion body)
+    void SetXDerivativeAddedMass(Body *BodyMotion, const std::vector<Matrix66> &listData);
+
     /// Set the radiation damping for current body iforce dof, from BodyMotion imotion dof, for a set of frequencies
     /// \param BodyMotion body at the origin of the motion
     /// \param listData data with format iomega x (iforce, imotion) : std::vector is for the frequencies dimension, while
     ///         Matrix66s are of dimensions iforce (for this body) x imotion (from the bodyMotion body)
     void SetRadiationDamping(Body *BodyMotion, const std::vector<Matrix66> &listData);
 
+    /// Set the x-derivative of the radiation damping for current body iforce dof, from BodyMotion imotion dof, for a set of frequencies
+    /// \param BodyMotion body at the origin of the motion
+    /// \param listData data with format iomega x (iforce, imotion) : std::vector is for the frequencies dimension, while
+    ///         Matrix66s are of dimensions iforce (for this body) x imotion (from the bodyMotion body)
+    void SetXDerivativeRadiationDamping(Body *BodyMotion, const std::vector<Matrix66> &listData);
+
     /// Add added mass data for current body iforce dof, from BodyMotion imotion dof, for a frequency
     /// \param BodyMotion body at the origin of the motion
     /// \param Data data with format (iforce, imotion)
     void AddAddedMass(Body *BodyMotion, const Matrix66 &Data);
 
+    /// Add x-derivative of the added mass data for current body iforce dof, from BodyMotion imotion dof, for a frequency
+    /// \param BodyMotion body at the origin of the motion
+    /// \param Data data with format (iforce, imotion)
+    void AddXDerivativeAddedMass(Body *BodyMotion, const Matrix66 &Data);
+
     /// Add radiation damping for current body iforce dof, from BodyMotion imotion dof, for a frequency
     /// \param BodyMotion body at the origin of the motion
     /// \param Data data with format (iforce, imotion)
     void AddRadiationDamping(Body *BodyMotion, const Matrix66 &Data);
+
+    /// Add x-derivative of the radiation damping for current body iforce dof, from BodyMotion imotion dof, for a frequency
+    /// \param BodyMotion body at the origin of the motion
+    /// \param Data data with format (iforce, imotion)
+    void AddXDerivativeRadiationDamping(Body *BodyMotion, const Matrix66 &Data);
 
     /// Set the hydrostatic stiffness Matrix
     /// \param hydrostaticStiffnessMatrix Hydrostatic stiffness matrix
@@ -286,6 +354,17 @@ namespace hdb5_io {
     /// \return matrix containing the diffraction component for the given angle
     Eigen::VectorXcd GetDiffraction(unsigned int iangle, unsigned int iforce) const;
 
+    /// Get the x-derivative of the diffraction components for this body
+    /// \param iangle index of the angle
+    /// \return matrix containing the x-derivative of the diffraction component for the given angle
+    Eigen::MatrixXcd GetXDerivativeDiffraction(unsigned int iangle) const;
+
+    /// Get the x-derivative of the diffraction components for this body
+    /// \param iangle index of the angle
+    /// \param iforce index of the force dof
+    /// \return matrix containing the x-derivative of the x-derivative of the diffraction component for the given angle
+    Eigen::VectorXcd GetXDerivativeDiffraction(unsigned int iangle, unsigned int iforce) const;
+
     /// Get the Froude-Krylov components for this body
     /// \param iangle index of the angle
     /// \return matrix containing the Froude-Krylov component for the given angle
@@ -296,6 +375,17 @@ namespace hdb5_io {
     /// \param iforce index of the force dof
     /// \return matrix containing the Froude-Krylov component for the given angle
     Eigen::VectorXcd GetFroudeKrylov(unsigned int iangle, unsigned int iforce) const;
+
+    /// Get the x-derivative of the Froude-Krylov components for this body
+    /// \param iangle index of the angle
+    /// \return matrix containing the x-derivative of the Froude-Krylov component for the given angle
+    Eigen::MatrixXcd GetXDerivativeFroudeKrylov(unsigned int iangle) const;
+
+    /// Get the x-derivative of the Froude-Krylov components for this body
+    /// \param iangle index of the angle
+    /// \param iforce index of the force dof
+    /// \return matrix containing the x-derivative of the Froude-Krylov component for the given angle
+    Eigen::VectorXcd GetXDerivativeFroudeKrylov(unsigned int iangle, unsigned int iforce) const;
 
     /// Get the excitation components for this body
     /// \param iangle index of the angle
@@ -308,15 +398,36 @@ namespace hdb5_io {
     /// \return matrix containing the excitation component for the given angle
     Eigen::VectorXcd GetExcitation(unsigned int iangle, unsigned int iforce) const;
 
+    /// Get the x-derivative of the excitation components for this body
+    /// \param iangle index of the angle
+    /// \return matrix containing the x-derivative of the excitation component for the given angle
+    Eigen::MatrixXcd GetXDerivativeExcitation(unsigned int iangle) const;
+
+    /// Get the x-derivative of the excitation components for this body
+    /// \param iangle index of the angle
+    /// \param iforce index of the force dof
+    /// \return matrix containing the x-derivative excitation component for the given angle
+    Eigen::VectorXcd GetXDerivativeExcitation(unsigned int iangle, unsigned int iforce) const;
+
     /// Get the infinite added mass, resulting from a motion of body BodyMotion
     /// \param BodyMotion body which motion create added mass on this body
     /// \return 6x6 matrix added mass
     Matrix66 GetInfiniteAddedMass(Body *BodyMotion) const;
 
+    /// Get the x-derivative of the infinite added mass, resulting from a motion of body BodyMotion
+    /// \param BodyMotion body which motion create added mass on this body
+    /// \return 6x6 matrix added mass
+    Matrix66 GetXDerivativeInfiniteAddedMass(Body *BodyMotion) const;
+
     /// Get the zero frequency added mass, resulting from a motion of body BodyMotion
     /// \param BodyMotion body which motion create added mass on this body
     /// \return 6x6 matrix added mass
     Matrix66 GetZeroFreqAddedMass(Body *BodyMotion) const;
+
+    /// Get the x-derivative of the zero frequency added mass, resulting from a motion of body BodyMotion
+    /// \param BodyMotion body which motion create added mass on this body
+    /// \return 6x6 matrix added mass
+    Matrix66 GetXDerivativeZeroFreqAddedMass(Body *BodyMotion) const;
 
     /// Get the radiation mask, between this body and BodyMotion body
     /// \param BodyMotion body
@@ -338,11 +449,21 @@ namespace hdb5_io {
     /// \return 6x6 matrix added mass
     Matrix66 GetSelfInfiniteAddedMass();
 
+    /// Get the x-derivative infinite added mass, resulting from a motion of this body
+    /// \return 6x6 matrix added mass
+    Matrix66 GetSelfXDerivativeInfiniteAddedMass();
+
     /// Get the added mass generated coefficients from the BodyMotion, for this body iforce dof 
     /// \param BodyMotion body at the origin of the motion
     /// \param iforce this body dof
     /// \return matrix containing the added mass with dimensions : (imotion, iomega)
     Eigen::MatrixXd GetAddedMass(Body* BodyMotion, unsigned int iforce) const;
+
+    /// Get the x-derivative of the added mass generated coefficients from the BodyMotion, for this body iforce dof
+    /// \param BodyMotion body at the origin of the motion
+    /// \param iforce this body dof
+    /// \return matrix containing the added mass with dimensions : (imotion, iomega)
+    Eigen::MatrixXd GetXDerivativeAddedMass(Body* BodyMotion, unsigned int iforce) const;
 
     /// Get the added mass generated coefficients from the BodyMotion, for a given frequency
     /// \param BodyMotion body at the origin of the motion
@@ -350,17 +471,35 @@ namespace hdb5_io {
     /// \return matrix containing the added mass with dimensions : (iforce, imotion)
     Matrix66 GetAddedMassPerFrequency(Body* BodyMotion, unsigned int iomega) const;
 
+    /// Get the x-derivative added mass generated coefficients from the BodyMotion, for a given frequency
+    /// \param BodyMotion body at the origin of the motion
+    /// \param iomega frequency
+    /// \return matrix containing the added mass with dimensions : (iforce, imotion)
+    Matrix66 GetXDerivativeAddedMassPerFrequency(Body* BodyMotion, unsigned int iomega) const;
+
     /// Get the radiation damping generated coefficients from the BodyMotion, for this body iforce dof 
     /// \param BodyMotion body at the origin of the motion
     /// \param iforce this body dof
     /// \return matrix containing the radiation damping with dimensions : (imotion, iomega)
     Eigen::MatrixXd GetRadiationDamping(Body* BodyMotion, unsigned int iforce) const;
 
+    /// Get the x-derivative of the radiation damping generated coefficients from the BodyMotion, for this body iforce dof
+    /// \param BodyMotion body at the origin of the motion
+    /// \param iforce this body dof
+    /// \return matrix containing the radiation damping with dimensions : (imotion, iomega)
+    Eigen::MatrixXd GetXDerivativeRadiationDamping(Body* BodyMotion, unsigned int iforce) const;
+
     /// Get the radiation damping generated coefficients from the BodyMotion, for a given frequency
     /// \param BodyMotion body at the origin of the motion
     /// \param iomega frequency
     /// \return matrix containing the radiation damping with dimensions : (iforce, imotion)
     Matrix66 GetRadiationDampingPerFrequency(Body* BodyMotion, unsigned int iomega) const;
+
+    /// Get the x-derivative of the radiation damping generated coefficients from the BodyMotion, for a given frequency
+    /// \param BodyMotion body at the origin of the motion
+    /// \param iomega frequency
+    /// \return matrix containing the radiation damping with dimensions : (iforce, imotion)
+    Matrix66 GetXDerivativeRadiationDampingPerFrequency(Body* BodyMotion, unsigned int iomega) const;
 
     /// Get the impulse response function interpolator
     /// \return interpolatorimpulse response function interpolator
@@ -418,11 +557,20 @@ namespace hdb5_io {
     /// Excitation loads for all wave directions (std::vector), all dof (rows of Eigen::MatrixXcd) and all wave frequencies (cols of Eigen::MatrixXcd).
     std::vector<Eigen::MatrixXcd> m_excitation;
 
+    /// x-derivative of the excitation loads for all wave directions (std::vector), all dof (rows of Eigen::MatrixXcd) and all wave frequencies (cols of Eigen::MatrixXcd).
+    std::vector<Eigen::MatrixXcd> m_excitation_x_derivative;
+
     /// Froude-Krylov loads for all wave directions (std::vector), all dof (rows of Eigen::MatrixXcd) and all wave frequencies (cols of Eigen::MatrixXcd).
     std::vector<Eigen::MatrixXcd> m_froudeKrylov;
 
+    /// x-derivative of the Froude-Krylov loads for all wave directions (std::vector), all dof (rows of Eigen::MatrixXcd) and all wave frequencies (cols of Eigen::MatrixXcd).
+    std::vector<Eigen::MatrixXcd> m_froudeKrylov_x_derivative;
+
     /// Diffraction loads for all wave directions (std::vector), all dof (rows of Eigen::MatrixXcd) and all wave frequencies (cols of Eigen::MatrixXcd).
     std::vector<Eigen::MatrixXcd> m_diffraction;
+
+    /// x-derivative of the diffraction loads for all wave directions (std::vector), all dof (rows of Eigen::MatrixXcd) and all wave frequencies (cols of Eigen::MatrixXcd).
+    std::vector<Eigen::MatrixXcd> m_diffraction_x_derivative;
 
     bool m_isRAO = false;
 
@@ -439,11 +587,30 @@ namespace hdb5_io {
     Matrix66 m_linearDampingMatrix;                ///< Linear damping matrix (not radiation).
 
     std::unordered_map<Body *, Matrix66b> m_radiationMask;       ///< Radiation mask
-    std::unordered_map<Body *, Matrix66> m_infiniteAddedMass;    ///< Infinite added mass for each body
-    std::unordered_map<Body *, Matrix66> m_zeroFreqAddedMass;    ///< Zero frequency added mass for each body
 
-    std::unordered_map<Body *, std::vector<Matrix66>> m_addedMass;         ///< added mass
-    std::unordered_map<Body *, std::vector<Matrix66>> m_radiationDamping;  ///< radiation damping
+    // Infinite frequency added mass.
+    std::unordered_map<Body *, Matrix66> m_infiniteAddedMass;
+
+    // x-derivative of the infinite frequency added mass.
+    std::unordered_map<Body *, Matrix66> m_infiniteAddedMass_x_derivative;
+
+    // Zero frequency added mass.
+    std::unordered_map<Body *, Matrix66> m_zeroFreqAddedMass;
+
+    // x-derivative of the zero frequency added mass.
+    std::unordered_map<Body *, Matrix66> m_zeroFreqAddedMass_x_derivative;
+
+    /// Added mass.
+    std::unordered_map<Body *, std::vector<Matrix66>> m_addedMass;
+
+    // x-deriative of the added mass.
+    std::unordered_map<Body *, std::vector<Matrix66>> m_addedMass_x_derivative;
+
+    // Radiation damping.
+    std::unordered_map<Body *, std::vector<Matrix66>> m_radiationDamping;
+
+    // X-derivative of the radiation damping.
+    std::unordered_map<Body *, std::vector<Matrix66>> m_radiationDamping_x_damping;
 
     std::unordered_map<Body *, std::vector<std::vector<PoleResidue>>> m_modalCoefficients;  ///< modal coefficients
 

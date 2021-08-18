@@ -53,6 +53,21 @@ namespace hdb5_io {
     m_diffraction[iangle].col(iw) = diffractionVector;
   }
 
+  void Body::SetXDerivativeDiffraction(unsigned int iangle, const Eigen::MatrixXcd &diffractionXDerivativeMatrix) {
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
+    assert(diffractionXDerivativeMatrix.rows() == 6);
+    assert(diffractionXDerivativeMatrix.cols() == m_HDB->GetFrequencyDiscretization().size());
+    m_diffraction_x_derivative[iangle] = diffractionXDerivativeMatrix;
+  }
+
+  void Body::SetXDerivativeDiffraction(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &diffractionXDerivativeVector){
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
+    assert(iw < m_HDB->GetFrequencyDiscretization().size());
+    assert(diffractionXDerivativeVector.rows() == 6);
+    assert(diffractionXDerivativeVector.cols() == 1);
+    m_diffraction_x_derivative[iangle].col(iw) = diffractionXDerivativeVector;
+  }
+
   void Body::SetFroudeKrylov(unsigned int iangle, const Eigen::MatrixXcd &froudeKrylovMatrix) {
     assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
     assert(froudeKrylovMatrix.rows() == 6);
@@ -66,6 +81,21 @@ namespace hdb5_io {
     assert(froudeKrylovVector.rows() == 6);
     assert(froudeKrylovVector.cols() == 1);
     m_froudeKrylov[iangle].col(iw) = froudeKrylovVector;
+  }
+
+  void Body::SetXDerivativeFroudeKrylov(unsigned int iangle, const Eigen::MatrixXcd &froudeKrylovXDerivativeMatrix) {
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
+    assert(froudeKrylovXDerivativeMatrix.rows() == 6);
+    assert(froudeKrylovXDerivativeMatrix.cols() == m_HDB->GetFrequencyDiscretization().size());
+    m_froudeKrylov_x_derivative[iangle] = froudeKrylovXDerivativeMatrix;
+  }
+
+  void Body::SetXDerivativeFroudeKrylov(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &froudeKrylovXDerivativeVector) {
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
+    assert(iw < m_HDB->GetFrequencyDiscretization().size());
+    assert(froudeKrylovXDerivativeVector.rows() == 6);
+    assert(froudeKrylovXDerivativeVector.cols() == 1);
+    m_froudeKrylov_x_derivative[iangle].col(iw) = froudeKrylovXDerivativeVector;
   }
 
   void Body::SetExcitation(unsigned int iangle, const Eigen::MatrixXcd &excitationMatrix) {
@@ -83,6 +113,21 @@ namespace hdb5_io {
     m_excitation[iangle].col(iw) = excitationVector;
   }
 
+  void Body::SetXDerivativeExcitation(unsigned int iangle, const Eigen::MatrixXcd &excitationXDerivativeMatrix) {
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
+    assert(excitationXDerivativeMatrix.rows() == 6);
+    assert(excitationXDerivativeMatrix.cols() == m_HDB->GetFrequencyDiscretization().size());
+    m_excitation_x_derivative[iangle] = excitationXDerivativeMatrix;
+  }
+
+  void Body::SetXDerivativeExcitation(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &excitationXDerivativeVector) {
+    assert(iangle < m_HDB->GetWaveDirectionDiscretization().size());
+    assert(iw < m_HDB->GetFrequencyDiscretization().size());
+    assert(excitationXDerivativeVector.rows() == 6);
+    assert(excitationXDerivativeVector.cols() == 1);
+    m_excitation_x_derivative[iangle].col(iw) = excitationXDerivativeVector;
+  }
+
   void Body::ComputeExcitation() {
 
     // This method computes the excitation loads from the diffraction loads and the Froude-Krylov loads.
@@ -93,12 +138,30 @@ namespace hdb5_io {
     }
   }
 
+  void Body::ComputeXDerivativeExcitation() {
+
+    // This method computes the x-derivative of the excitation loads from x-derivative of both the diffraction loads and the Froude-Krylov loads.
+
+    assert(m_diffraction_x_derivative.size() == m_froudeKrylov_x_derivative.size());
+    for (unsigned int iangle = 0; iangle < m_diffraction_x_derivative.size(); ++iangle) {
+      m_excitation_x_derivative[iangle] = m_diffraction_x_derivative[iangle] + m_froudeKrylov_x_derivative[iangle];
+    }
+  }
+
   void Body::SetInfiniteAddedMass(Body *BodyMotion, const Matrix66 &CMInf) {
     m_infiniteAddedMass[BodyMotion] = CMInf;
   }
 
+  void Body::SetXDerivativeInfiniteAddedMass(Body *BodyMotion, const Matrix66 &XDerivativeCMInf) {
+    m_infiniteAddedMass_x_derivative[BodyMotion] = XDerivativeCMInf;
+  }
+
   void Body::SetZeroFreqAddedMass(Body *BodyMotion, const Matrix66 &CMZero) {
     m_zeroFreqAddedMass[BodyMotion] = CMZero;
+  }
+
+  void Body::SetXDerivativeZeroFreqAddedMass(Body *BodyMotion, const Matrix66 &XDerivativeCMZero) {
+    m_zeroFreqAddedMass_x_derivative[BodyMotion] = XDerivativeCMZero;
   }
 
 //  void Body::SetRadiationMask(hdb5_io::Body *BodyMotion, const Matrix66b &mask){
@@ -126,9 +189,15 @@ namespace hdb5_io {
     m_RAO[iangle].col(iw) = RAO;
     m_isRAO = true;
   }
+
   void Body::SetAddedMass(Body *BodyMotion, const std::vector<Matrix66> &listData) {
     assert(listData.size() == m_HDB->GetFrequencyDiscretization().size());
     m_addedMass.insert(std::make_pair(BodyMotion,listData));
+  }
+
+  void Body::SetXDerivativeAddedMass(Body *BodyMotion, const std::vector<Matrix66> &listData) {
+    assert(listData.size() == m_HDB->GetFrequencyDiscretization().size());
+    m_addedMass_x_derivative.insert(std::make_pair(BodyMotion,listData));
   }
 
   void Body::SetRadiationDamping(Body *BodyMotion, const std::vector<Matrix66> &listData) {
@@ -136,14 +205,27 @@ namespace hdb5_io {
     m_radiationDamping.insert(std::make_pair(BodyMotion,listData));
   }
 
+  void Body::SetXDerivativeRadiationDamping(Body *BodyMotion, const std::vector<Matrix66> &listData) {
+    assert(listData.size() == m_HDB->GetFrequencyDiscretization().size());
+    m_radiationDamping_x_damping.insert(std::make_pair(BodyMotion,listData));
+  }
+
   void Body::AddAddedMass(Body *BodyMotion, const Matrix66 &Data) {
     if (m_addedMass.count(BodyMotion) == 0) {
       std::vector<Matrix66> tempMat;
       tempMat.reserve(m_HDB->GetFrequencyDiscretization().size());
       m_addedMass.insert(std::make_pair(BodyMotion, tempMat));
-      //m_addedMass.at(BodyMotion).reserve(m_HDB->GetFrequencyDiscretization().size());
     }
     m_addedMass.at(BodyMotion).push_back(Data);
+  }
+
+  void Body::AddXDerivativeAddedMass(Body *BodyMotion, const Matrix66 &Data) {
+    if (m_addedMass_x_derivative.count(BodyMotion) == 0) {
+      std::vector<Matrix66> tempMat;
+      tempMat.reserve(m_HDB->GetFrequencyDiscretization().size());
+      m_addedMass_x_derivative.insert(std::make_pair(BodyMotion, tempMat));
+    }
+    m_addedMass_x_derivative.at(BodyMotion).push_back(Data);
   }
 
   void Body::AddRadiationDamping(Body *BodyMotion, const Matrix66 &Data) {
@@ -151,9 +233,17 @@ namespace hdb5_io {
       std::vector<Matrix66> tempMat;
       tempMat.reserve(m_HDB->GetFrequencyDiscretization().size());
       m_radiationDamping.insert(std::make_pair(BodyMotion, tempMat));
-      //m_radiationDamping.at(BodyMotion).reserve(m_HDB->GetFrequencyDiscretization().size());
     }
     m_radiationDamping.at(BodyMotion).push_back(Data);
+  }
+
+  void Body::AddXDerivativeRadiationDamping(Body *BodyMotion, const Matrix66 &Data) {
+    if (m_radiationDamping_x_damping.count(BodyMotion) == 0) {
+      std::vector<Matrix66> tempMat;
+      tempMat.reserve(m_HDB->GetFrequencyDiscretization().size());
+      m_radiationDamping_x_damping.insert(std::make_pair(BodyMotion, tempMat));
+    }
+    m_radiationDamping_x_damping.at(BodyMotion).push_back(Data);
   }
 
   void Body::SetIRF(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData) {
@@ -371,6 +461,14 @@ namespace hdb5_io {
     return m_diffraction[iangle].row(iforce);
   }
 
+  Eigen::MatrixXcd Body::GetXDerivativeDiffraction(const unsigned int iangle) const {
+    return m_diffraction_x_derivative[iangle];
+  }
+
+  Eigen::VectorXcd Body::GetXDerivativeDiffraction(const unsigned int iangle, const unsigned iforce) const {
+    return m_diffraction_x_derivative[iangle].row(iforce);
+  }
+
   Eigen::MatrixXcd Body::GetFroudeKrylov(const unsigned int iangle) const {
 //    assert(iangle < this->GetNbWaveDirections());
     return m_froudeKrylov[iangle];
@@ -380,6 +478,14 @@ namespace hdb5_io {
 //    assert(iangle < this->GetNbWaveDirections());
 //    assert(iforce < 6);
     return m_froudeKrylov[iangle].row(iforce);
+  }
+
+  Eigen::MatrixXcd Body::GetXDerivativeFroudeKrylov(const unsigned int iangle) const {
+    return m_froudeKrylov_x_derivative[iangle];
+  }
+
+  Eigen::VectorXcd Body::GetXDerivativeFroudeKrylov(const unsigned int iangle, const unsigned iforce) const {
+    return m_froudeKrylov_x_derivative[iangle].row(iforce);
   }
 
   Eigen::MatrixXcd Body::GetExcitation(const unsigned int iangle) const {
@@ -393,12 +499,28 @@ namespace hdb5_io {
     return m_excitation[iangle].row(iforce);
   }
 
+  Eigen::MatrixXcd Body::GetXDerivativeExcitation(const unsigned int iangle) const {
+    return m_excitation_x_derivative[iangle];
+  }
+
+  Eigen::VectorXcd Body::GetXDerivativeExcitation(const unsigned int iangle, const unsigned iforce) const {
+    return m_excitation_x_derivative[iangle].row(iforce);
+  }
+
   Matrix66 Body::GetInfiniteAddedMass(Body *BodyMotion) const {
     return m_infiniteAddedMass.at(BodyMotion);
   }
 
+  Matrix66 Body::GetXDerivativeInfiniteAddedMass(Body *BodyMotion) const {
+    return m_infiniteAddedMass_x_derivative.at(BodyMotion);
+  }
+
   Matrix66 Body::GetZeroFreqAddedMass(hdb5_io::Body *BodyMotion) const {
     return m_zeroFreqAddedMass.at(BodyMotion);
+  }
+
+  Matrix66 Body::GetXDerivativeZeroFreqAddedMass(hdb5_io::Body *BodyMotion) const {
+    return m_zeroFreqAddedMass_x_derivative.at(BodyMotion);
   }
 
   Matrix66b Body::GetRadiationMask(Body *BodyMotion) const {
@@ -407,6 +529,10 @@ namespace hdb5_io {
 
   Matrix66 Body::GetSelfInfiniteAddedMass() {
     return m_infiniteAddedMass[this];
+  }
+
+  Matrix66 Body::GetSelfXDerivativeInfiniteAddedMass() {
+    return m_infiniteAddedMass_x_derivative[this];
   }
 
   Eigen::MatrixXcd Body::GetRAO(const unsigned int iangle) const {
@@ -496,6 +622,17 @@ namespace hdb5_io {
     return AM;
   }
 
+  Eigen::MatrixXd Body::GetXDerivativeAddedMass(Body *BodyMotion, unsigned int imotion) const {
+    Eigen::MatrixXd AM = Eigen::MatrixXd::Zero(6, m_HDB->GetFrequencyDiscretization().size());
+
+    for (int iforce = 0; iforce < 6; ++iforce) {
+      for (int iw = 0; iw < m_HDB->GetFrequencyDiscretization().size(); ++iw) {
+        AM(iforce, iw) = m_addedMass_x_derivative.at(BodyMotion)[iw](iforce, imotion);
+      }
+    }
+    return AM;
+  }
+
   Eigen::MatrixXd Body::GetRadiationDamping(Body *BodyMotion, unsigned int imotion) const {
     Eigen::MatrixXd RD = Eigen::MatrixXd::Zero(6, m_HDB->GetFrequencyDiscretization().size());
 
@@ -507,12 +644,31 @@ namespace hdb5_io {
     return RD;
   }
 
+  Eigen::MatrixXd Body::GetXDerivativeRadiationDamping(Body *BodyMotion, unsigned int imotion) const {
+    Eigen::MatrixXd RD = Eigen::MatrixXd::Zero(6, m_HDB->GetFrequencyDiscretization().size());
+
+    for (int iforce = 0; iforce < 6; ++iforce) {
+      for (int iw = 0; iw < m_HDB->GetFrequencyDiscretization().size(); ++iw) {
+        RD(iforce, iw) = m_radiationDamping_x_damping.at(BodyMotion)[iw](iforce, imotion);
+      }
+    }
+    return RD;
+  }
+
   Matrix66 Body::GetAddedMassPerFrequency(Body *BodyMotion, unsigned int iomega) const {
     return m_addedMass.at(BodyMotion)[iomega];
   }
 
+  Matrix66 Body::GetXDerivativeAddedMassPerFrequency(Body *BodyMotion, unsigned int iomega) const {
+    return m_addedMass_x_derivative.at(BodyMotion)[iomega];
+  }
+
   Matrix66 Body::GetRadiationDampingPerFrequency(Body *BodyMotion, unsigned int iomega) const {
     return m_radiationDamping.at(BodyMotion)[iomega];
+  }
+
+  Matrix66 Body::GetXDerivativeRadiationDampingPerFrequency(Body *BodyMotion, unsigned int iomega) const {
+    return m_radiationDamping_x_damping.at(BodyMotion)[iomega];
   }
 
 #ifdef USE_VTK
