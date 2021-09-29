@@ -489,6 +489,36 @@ namespace hdb5_io {
           auto DOF = KUGroup.getDataSet("DOF_" + std::to_string(imotion));
           DOF.createAttribute("Description", "Impulse response functions KU");
         }
+
+        // Writing the impulse response function KUXDerivative for the body.
+        if (m_hdb->GetIsXDerivative()) {
+          auto KUXDerivativeGroup = bodyMotionGroup.createGroup("ImpulseResponseFunctionKUXDerivative");
+          KUXDerivativeGroup.createAttribute("Description", "Impulse response functions KUXDerivative due to the velocity of body " +
+                                                 std::to_string(bodyMotion->GetID()) +
+                                                 " that radiates waves and generates forces on body " +
+                                                 std::to_string(body->GetID()) + ".");
+          for (unsigned int imotion = 0; imotion < 6; imotion++) {
+            H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKUXDerivative/DOF_" + std::to_string(imotion),
+                         body->GetIRFInterpolatedData(bodyMotion, "KUXDerivative", imotion, time));
+            auto DOF = KUXDerivativeGroup.getDataSet("DOF_" + std::to_string(imotion));
+            DOF.createAttribute("Description", "Impulse response functions KU");
+          }
+        }
+
+        // Writing the impulse response function KU2 for the body.
+        if (m_hdb->GetIsXDerivative()) {
+          auto KU2 = bodyMotionGroup.createGroup("ImpulseResponseFunctionKU2");
+          KU2.createAttribute("Description", "Impulse response functions KU2 due to the velocity of body " +
+                                                            std::to_string(bodyMotion->GetID()) +
+                                                            " that radiates waves and generates forces on body " +
+                                                            std::to_string(body->GetID()) + ".");
+          for (unsigned int imotion = 0; imotion < 6; imotion++) {
+            H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU2/DOF_" + std::to_string(imotion),
+                         body->GetIRFInterpolatedData(bodyMotion, "KU2", imotion, time));
+            auto DOF = KU2.getDataSet("DOF_" + std::to_string(imotion));
+            DOF.createAttribute("Description", "Impulse response functions KU");
+          }
+        }
       }
 
       // Writing the modal coefficients

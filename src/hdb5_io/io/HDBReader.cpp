@@ -265,15 +265,27 @@ namespace hdb5_io {
 
       // Reading the impulse response functions.
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionK")) {
-        auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK",
-                                                        mask);
+        auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK", mask);
         body->SetIRF(bodyMotion, "K", impulseResponseFunctionsK);
       }
 
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionKU")) {
-        auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU",
-                                                        mask);
+        auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU", mask);
         body->SetIRF(bodyMotion, "KU", impulseResponseFunctionsK);
+      }
+
+      if (m_hdb->GetIsXDerivative()) {
+        if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionKUXDerivative")) {
+          auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKUXDerivative", mask);
+          body->SetIRF(bodyMotion, "KUXDerivative", impulseResponseFunctionsK);
+        }
+      }
+
+      if (m_hdb->GetIsXDerivative()) {
+        if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionKU2")) {
+          auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU2", mask);
+          body->SetIRF(bodyMotion, "KU2", impulseResponseFunctionsK);
+        }
       }
 
       // Reading the added mass and radiation damping coefficients

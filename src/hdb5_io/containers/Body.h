@@ -595,7 +595,8 @@ namespace hdb5_io {
 
     std::unordered_map<Body *, std::vector<std::vector<PoleResidue>>> m_modalCoefficients;  ///< modal coefficients
 
-    std::unordered_map<std::string, std::shared_ptr<HDBinterpolator>> m_interpIRF; /// Impulse response function interpolators (K, KU, KUXderivative, KU2).
+    /// Impulse response function interpolators (K, KU, KUXderivative, KU2).
+    std::unordered_map<std::string, std::shared_ptr<HDBinterpolator>> m_interpIRF;
     bool m_isIRF = false;
 
     /// Allocate the body containers
