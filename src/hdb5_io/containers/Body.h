@@ -175,17 +175,11 @@ namespace hdb5_io {
     /// \param RAO Complex vector of the response amplitude operator
     void SetRAO(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &RAO);
 
-    /// Set the impulse response function, as interpolator from a list of data
+    /// Set an impulse response function, as interpolator from a list of data
     /// \param BodyMotion body at the origin of the motion impulse
     /// \param listData data with format iforce x (imotion, iomega) : std::vector is for the iforce dimension, while
     ///         MatrixXds are of dimensions imotion (from the bodyMotion body) x iomega
-    void SetIRF(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData);
-    
-    /// Set the impulse response function for the forward speed correction, as interpolator from a list of data
-    /// \param BodyMotion body at the origin of the motion impulse
-    /// \param listData data with format iforce x (imotion, iomega). std::vector is for the iforce dimension, while
-    ///         MatrixXds are of dimensions imotion (from the bodyMotion body) x iomega
-    void SetIRF_Ku(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData);
+    void SetIRF(Body *BodyMotion, const std::string &IRF_type, const std::vector<Eigen::MatrixXd> &listData);
 
     /// Set the added mass for current body iforce dof, from BodyMotion imotion dof, for a set of frequencies
     /// \param BodyMotion body at the origin of the motion
@@ -501,30 +495,17 @@ namespace hdb5_io {
     /// \return matrix containing the radiation damping with dimensions : (iforce, imotion)
     Matrix66 GetXDerivativeRadiationDampingPerFrequency(Body* BodyMotion, unsigned int iomega) const;
 
-    /// Get the impulse response function interpolator
+    /// Get an impulse response function interpolator
     /// \return interpolatorimpulse response function interpolator
-    HDBinterpolator *GetIRFInterpolator() const;
-    
-    /// Get the impulse response function, for forward speed correction, interpolator
-    /// \return interpolatorimpulse response function, for forward speed correction, interpolator
-    HDBinterpolator *GetIRF_KuInterpolator() const;
+    HDBinterpolator *GetIRFInterpolator(const std::string& IRF_type) const;
 
-    /// Get the impulse response function interpolated data for the following parameters
+    /// Get an impulse response function interpolated data for the following parameters
     /// \param BodyMotion body at the origin of the perturbation
     /// \param idof index of the degree of freedom considered
     /// \param frequencies set of frequencies for which the data are interpolated
     /// \return interpolated data in matrix form (6 x nfreq)
     Eigen::MatrixXd
-    GetIRFInterpolatedData(Body *BodyMotion, unsigned int idof,
-                           mathutils::VectorN<double> frequencies);
-    
-    /// Get the impulse response function, for the forward speed correction, interpolated data for the following parameters
-    /// \param BodyMotion body at the origin of the perturbation
-    /// \param idof index of the degree of freedom considered
-    /// \param frequencies set of frequencies for which the data are interpolated
-    /// \return interpolated data in matrix form (6 x nfreq)
-    Eigen::MatrixXd
-    GetIRF_KuInterpolatedData(Body *BodyMotion, unsigned int idof,
+    GetIRFInterpolatedData(Body *BodyMotion, const std::string& IRF_type, unsigned int idof,
                            mathutils::VectorN<double> frequencies);
 
     /// Get the modal coefficients (poles and residues) for the 6DOFs
@@ -614,8 +595,7 @@ namespace hdb5_io {
 
     std::unordered_map<Body *, std::vector<std::vector<PoleResidue>>> m_modalCoefficients;  ///< modal coefficients
 
-    std::shared_ptr<HDBinterpolator> m_interpK;    ///< Impulse response function interpolator
-    std::shared_ptr<HDBinterpolator> m_interpKu;   ///< Impulse response function speed dependent interpolator
+    std::unordered_map<std::string, std::shared_ptr<HDBinterpolator>> m_interpIRF; /// Impulse response function interpolators (K, KU, KUXderivative, KU2).
     bool m_isIRF = false;
 
     /// Allocate the body containers

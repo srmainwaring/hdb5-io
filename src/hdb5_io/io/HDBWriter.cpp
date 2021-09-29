@@ -472,7 +472,7 @@ namespace hdb5_io {
                                               std::to_string(body->GetID()) + ".");
         for (unsigned int imotion = 0; imotion < 6; imotion++) {
           H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK/DOF_" + std::to_string(imotion),
-                       body->GetIRFInterpolatedData(bodyMotion, imotion, time));
+                       body->GetIRFInterpolatedData(bodyMotion, "K", imotion, time));
           auto DOF = KGroup.getDataSet("DOF_" + std::to_string(imotion));
           DOF.createAttribute("Description", "Impulse response functions K");
         }
@@ -485,7 +485,7 @@ namespace hdb5_io {
                                                std::to_string(body->GetID()) + ".");
         for (unsigned int imotion = 0; imotion < 6; imotion++) {
           H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU/DOF_" + std::to_string(imotion),
-                       body->GetIRF_KuInterpolatedData(bodyMotion, imotion, time));
+                       body->GetIRFInterpolatedData(bodyMotion, "KU", imotion, time));
           auto DOF = KUGroup.getDataSet("DOF_" + std::to_string(imotion));
           DOF.createAttribute("Description", "Impulse response functions KU");
         }

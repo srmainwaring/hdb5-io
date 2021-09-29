@@ -267,13 +267,13 @@ namespace hdb5_io {
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionK")) {
         auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK",
                                                         mask);
-        body->SetIRF(bodyMotion, impulseResponseFunctionsK);
+        body->SetIRF(bodyMotion, "K", impulseResponseFunctionsK);
       }
 
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionKU")) {
         auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU",
                                                         mask);
-        body->SetIRF_Ku(bodyMotion, impulseResponseFunctionsK);
+        body->SetIRF(bodyMotion, "KU", impulseResponseFunctionsK);
       }
 
       // Reading the added mass and radiation damping coefficients
