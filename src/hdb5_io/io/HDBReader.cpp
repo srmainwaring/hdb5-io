@@ -752,6 +752,13 @@ namespace hdb5_io {
         body->SetZeroFreqAddedMass(bodyMotion, zeroFreqAddedMass);
       }
 
+      if (m_hdb->GetIsXDerivative()) {
+        if (file.exist(bodyMotionPath + "/ZeroFreqAddedMassXDerivative")) {
+          auto zeroFreqAddedMassXDerivative = H5Easy::load<Eigen::MatrixXd>(file, bodyMotionPath + "/ZeroFreqAddedMassXDerivative");
+          body->SetXDerivativeZeroFreqAddedMass(bodyMotion, zeroFreqAddedMassXDerivative);
+        }
+      }
+
       if (file.exist(bodyMotionPath + "/Modal")) {
 
         for (unsigned int idof = 0; idof < 6; idof++) {
