@@ -261,7 +261,7 @@ namespace hdb5_io {
       for (auto &data: listData) {
         assert(data.rows() == 6);
 
-        auto table = std::make_shared<mathutils::LookupTable1D<double, mathutils::Vector6d<double>>>();
+        auto table = std::make_shared<mathutils::LookupTable1D<double, mathutils::Vector6d<double>>>(mathutils::LINEAR);
 
         auto EigenTime = m_HDB->GetTimeDiscretization();
         assert(data.cols() == EigenTime.size());
