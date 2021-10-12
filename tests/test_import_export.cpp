@@ -104,7 +104,7 @@ TEST(hdb5_io, import_export) {
   HDB->SetSurfaceIntegrationOrder(4);
   HDB->SetGreenFunction("newman");
   HDB->SetCrmax(10);
-  HDB->SetWaveReferencePoint(3, 4);
+//  HDB->SetWaveReferencePoint(3, 4);
 
   // Horizontal position.
   HDB->GetBody(0)->SetHorizontalPositionInWorld(Eigen::Vector3d(4, 5, 90));
