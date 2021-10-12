@@ -801,11 +801,11 @@ namespace hdb5_io {
 
     H5Easy::dump(file, "ExpertParameters/Crmax", static_cast<int> (m_hdb->GetCrmax()));
 
-    auto WaveReferencePoint = file.createGroup("ExpertParameters/WaveReferencePoint");
-    double x, y;
-    m_hdb->GetWaveReferencePoint(x, y);
-    H5Easy::dump(file, "ExpertParameters/WaveReferencePoint/x", static_cast<double> (x));
-    H5Easy::dump(file, "ExpertParameters/WaveReferencePoint/y", static_cast<double> (y));
+//    auto WaveReferencePoint = file.createGroup("ExpertParameters/WaveReferencePoint");
+//    double x, y;
+//    m_hdb->GetWaveReferencePoint(x, y);
+//    H5Easy::dump(file, "ExpertParameters/WaveReferencePoint/x", static_cast<double> (x));
+//    H5Easy::dump(file, "ExpertParameters/WaveReferencePoint/y", static_cast<double> (y));
 
   }
 
