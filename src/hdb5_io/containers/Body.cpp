@@ -32,12 +32,16 @@ namespace hdb5_io {
   // Setters
   //
 
-  void Body::SetHorizontalPositionInWorld(const mathutils::Vector3d<double> &horizontal_position) {
-    m_horizontal_position = horizontal_position;
+  void Body::SetHorizontalPositionInWorld(const mathutils::Vector3d<double> &horizontal_position_in_world_frame) {
+    m_horizontal_position_in_world_frame = horizontal_position_in_world_frame;
   }
 
-  void Body::SetComputationPointInBodyFrame(const mathutils::Vector3d<double> &computation_point) {
-    m_computation_point = computation_point;
+  void Body::SetComputationPointInBodyFrame(const mathutils::Vector3d<double> &computation_point_in_body_frame) {
+    m_computation_point_in_body_frame = computation_point_in_body_frame;
+  }
+
+  void Body::SetWaveReferencePointInBodyFrame(const mathutils::Vector2d<double> &wave_reference_point_in_body_frame) {
+    m_wave_reference_point_in_body_frame = wave_reference_point_in_body_frame;
   }
 
   void Body::SetForceMask(const mathutils::Vector6d<bool> &mask) {
@@ -383,11 +387,15 @@ namespace hdb5_io {
   }
 
   mathutils::Vector3d<double> Body::GetHorizontalPositionInWorld() const {
-    return m_horizontal_position;
+    return m_horizontal_position_in_world_frame;
   }
 
   mathutils::Vector3d<double> Body::GetComputationPointInBodyFrame() const {
-    return m_computation_point;
+    return m_computation_point_in_body_frame;
+  }
+
+  mathutils::Vector2d<double> Body::GetWaveReferencePointInBodyFrame() const {
+    return m_wave_reference_point_in_body_frame;
   }
 
   Mask Body::GetForceMask() const {

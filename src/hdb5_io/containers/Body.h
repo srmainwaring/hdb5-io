@@ -14,6 +14,7 @@
 #include "Mask.h"
 #include "Mesh.h"
 #include "PoleResidue.h"
+#include "MathUtils/Vector2d.h"
 
 namespace hdb5_io {
 
@@ -57,11 +58,15 @@ namespace hdb5_io {
 
     /// Define the horizontal position of body in world.
     /// \param position Position of the body
-    void SetHorizontalPositionInWorld(const mathutils::Vector3d<double> &horizontal_position);
+    void SetHorizontalPositionInWorld(const mathutils::Vector3d<double> &horizontal_position_in_world_frame);
 
     /// Define the computation point in the body frame.
     /// \param position Position of the body
-    void SetComputationPointInBodyFrame(const mathutils::Vector3d<double> &computation_point);
+    void SetComputationPointInBodyFrame(const mathutils::Vector3d<double> &computation_point_in_body_frame);
+
+    /// Define the wave reference point in the body frame.
+    /// \param position Position of the body
+    void SetWaveReferencePointInBodyFrame(const mathutils::Vector2d<double> &wave_reference_point_in_body_frame);
 
     /// Define the mask on the force components
     /// \param mask Mask on the force components
@@ -305,6 +310,10 @@ namespace hdb5_io {
     /// \return position of the body
     mathutils::Vector3d<double> GetComputationPointInBodyFrame() const;
 
+    /// Return the wave reference point of the body in the body frame.
+    /// \return position of the body
+    mathutils::Vector2d<double> GetWaveReferencePointInBodyFrame() const;
+
     /// Return the mask value applied on a specific motion mode
     /// \param iforce Index of force
     /// \return Mask on the force mode
@@ -526,8 +535,9 @@ namespace hdb5_io {
     HydrodynamicDataBase *m_HDB;                   ///< HDB containing this data container
     unsigned int m_id;                             ///< ID of the BEM Body
     std::string m_name;                            ///< Name of the body
-    mathutils::Vector3d<double> m_horizontal_position;   ///< Horizontal position of the body (x, y, psi).
-    mathutils::Vector3d<double> m_computation_point;   ///< Computation point in body frame.
+    mathutils::Vector3d<double> m_horizontal_position_in_world_frame;   ///< Horizontal position of the body in the world frame (x, y, psi).
+    mathutils::Vector3d<double> m_computation_point_in_body_frame;   ///< Computation point in body frame (m).
+    mathutils::Vector2d<double> m_wave_reference_point_in_body_frame; ///< Wave reference point in the body frame (m).
 
     Mask m_forceMask;                              ///< Mask applied on the force
 

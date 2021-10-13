@@ -104,13 +104,15 @@ TEST(hdb5_io, import_export) {
   HDB->SetSurfaceIntegrationOrder(4);
   HDB->SetGreenFunction("newman");
   HDB->SetCrmax(10);
-//  HDB->SetWaveReferencePoint(3, 4);
 
   // Horizontal position.
   HDB->GetBody(0)->SetHorizontalPositionInWorld(Eigen::Vector3d(4, 5, 90));
 
   // Computation point.
   HDB->GetBody(0)->SetComputationPointInBodyFrame(Eigen::Vector3d(1, 2, 3));
+
+  // Wave reference point.
+  HDB->GetBody(0)->SetWaveReferencePointInBodyFrame(Eigen::Vector2d(4, 5));
 
   export_HDB("out.hdb5", HDB.get());
 

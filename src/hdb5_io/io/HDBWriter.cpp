@@ -195,14 +195,17 @@ namespace hdb5_io {
     dataSet.write(body->GetName());
     dataSet.createAttribute<std::string>("Description", "Body name");
 
-    // Position.
+    // Horizontal in the world frame.
     auto BodyPosition = body->GetHorizontalPositionInWorld();
     H5Easy::dump(file, path + "/HorizontalPosition/x", static_cast<double> (BodyPosition(0)));
     H5Easy::dump(file, path + "/HorizontalPosition/y", static_cast<double> (BodyPosition(1)));
     H5Easy::dump(file, path + "/HorizontalPosition/psi", static_cast<double> (BodyPosition(2))); // Degrees.
 
-    // Computation point.
+    // Computation point in the body frame.
     H5Easy::dump(file, path + "/ComputationPoint", static_cast<Eigen::Vector3d> (body->GetComputationPointInBodyFrame()));
+
+    // Wave reference point in the body frame.
+    H5Easy::dump(file, path + "/WaveReferencePoint", static_cast<Eigen::Vector2d> (body->GetWaveReferencePointInBodyFrame()));
 
     // Mask.
     auto ExcitationGroup = bodyGroup.createGroup("Excitation");
@@ -830,12 +833,6 @@ namespace hdb5_io {
     dataSet.createAttribute<std::string>("Description", "Green function.");
 
     H5Easy::dump(file, "ExpertParameters/Crmax", static_cast<int> (m_hdb->GetCrmax()));
-
-//    auto WaveReferencePoint = file.createGroup("ExpertParameters/WaveReferencePoint");
-//    double x, y;
-//    m_hdb->GetWaveReferencePoint(x, y);
-//    H5Easy::dump(file, "ExpertParameters/WaveReferencePoint/x", static_cast<double> (x));
-//    H5Easy::dump(file, "ExpertParameters/WaveReferencePoint/y", static_cast<double> (y));
 
   }
 

@@ -158,6 +158,12 @@ namespace hdb5_io {
       body->SetComputationPointInBodyFrame(Eigen::Vector3d::Zero());
     }
 
+    if (file.exist(path + "/WaveReferencePoint")) {
+      body->SetWaveReferencePointInBodyFrame(H5Easy::load<Eigen::Vector2d>(file, path + "/WaveReferencePoint"));
+    } else {
+      body->SetWaveReferencePointInBodyFrame(mathutils::Vector2d<double>::Zero());
+    }
+
     // Hydrostatic matrix.
     if (file.exist(path + "/Hydrostatic")) {
       mathutils::Matrix66<double> stiffnessMatrix;
@@ -485,9 +491,6 @@ namespace hdb5_io {
     m_hdb->SetSurfaceIntegrationOrder(H5Easy::load<int>(file, "ExpertParameters/SurfaceIntegrationOrder"));
     m_hdb->SetGreenFunction(H5Easy::load<std::string>(file, "ExpertParameters/GreenFunction"));
     m_hdb->SetCrmax(H5Easy::load<int>(file, "ExpertParameters/Crmax"));
-//    auto x = H5Easy::load<double>(file, "ExpertParameters/WaveReferencePoint/x");
-//    auto y = H5Easy::load<double>(file, "ExpertParameters/WaveReferencePoint/y");
-//    m_hdb->SetWaveReferencePoint(x, y);
 
   }
 
