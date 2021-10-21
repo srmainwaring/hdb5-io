@@ -507,6 +507,14 @@ namespace hdb5_io {
     return m_infiniteAddedMass_x_derivative[this];
   }
 
+  Matrix66 Body::GetSelfZeroAddedMass() {
+    return m_zeroFreqAddedMass[this];
+  }
+
+  Matrix66 Body::GetSelfXDerivativeZeroAddedMass() {
+    return m_zeroFreqAddedMass_x_derivative[this];
+  }
+
   Eigen::MatrixXcd Body::GetRAO(const unsigned int iangle) const {
 //    assert(iangle < this->GetNbWaveDirections());
     return m_RAO[iangle];

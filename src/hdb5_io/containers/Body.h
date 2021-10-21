@@ -456,6 +456,14 @@ namespace hdb5_io {
     /// \return 6x6 matrix added mass
     Matrix66 GetSelfXDerivativeInfiniteAddedMass();
 
+    /// Get the zero frequency added mass, resulting from a motion of this body
+    /// \return 6x6 matrix added mass
+    Matrix66 GetSelfZeroAddedMass();
+
+    /// Get the x-derivative zero frequency added mass, resulting from a motion of this body
+    /// \return 6x6 matrix added mass
+    Matrix66 GetSelfXDerivativeZeroAddedMass();
+
     /// Get the added mass generated coefficients from the BodyMotion, for this body iforce dof 
     /// \param BodyMotion body at the origin of the motion
     /// \param iforce this body dof
