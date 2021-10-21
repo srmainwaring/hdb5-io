@@ -17,8 +17,14 @@ namespace hdb5_io {
 
   Body::Body(unsigned int id, const std::string &name, HydrodynamicDataBase *hdb) : m_id(id), m_name(name), m_HDB(hdb) {
     m_mesh = std::make_shared<Mesh>();
-    m_interpK = std::make_shared<HDBinterpolator>();
-    m_interpKu = std::make_shared<HDBinterpolator>();
+    auto interpK = std::make_shared<HDBinterpolator>();
+    m_interpIRF.insert(std::make_pair("K",interpK));
+    auto interpKU = std::make_shared<HDBinterpolator>();
+    m_interpIRF.insert(std::make_pair("KU",interpKU));
+    auto interpKUXDerivative = std::make_shared<HDBinterpolator>();
+    m_interpIRF.insert(std::make_pair("KUXDerivative",interpKUXDerivative));
+    auto interpKU2 = std::make_shared<HDBinterpolator>();
+    m_interpIRF.insert(std::make_pair("KU2",interpKU2));
     AllocateAll();
   }
 
@@ -26,12 +32,16 @@ namespace hdb5_io {
   // Setters
   //
 
-  void Body::SetHorizontalPositionInWorld(const mathutils::Vector3d<double> &horizontal_position) {
-    m_horizontal_position = horizontal_position;
+  void Body::SetHorizontalPositionInWorld(const mathutils::Vector3d<double> &horizontal_position_in_world_frame) {
+    m_horizontal_position_in_world_frame = horizontal_position_in_world_frame;
   }
 
-  void Body::SetComputationPointInBodyFrame(const mathutils::Vector3d<double> &computation_point) {
-    m_computation_point = computation_point;
+  void Body::SetComputationPointInBodyFrame(const mathutils::Vector3d<double> &computation_point_in_body_frame) {
+    m_computation_point_in_body_frame = computation_point_in_body_frame;
+  }
+
+  void Body::SetWaveReferencePointInBodyFrame(const mathutils::Vector2d<double> &wave_reference_point_in_body_frame) {
+    m_wave_reference_point_in_body_frame = wave_reference_point_in_body_frame;
   }
 
   void Body::SetForceMask(const mathutils::Vector6d<bool> &mask) {
@@ -246,11 +256,11 @@ namespace hdb5_io {
     m_radiationDamping_x_damping.at(BodyMotion).push_back(Data);
   }
 
-  void Body::SetIRF(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData) {
+  void Body::SetIRF(Body *BodyMotion, const std::string &IRF_type, const std::vector<Eigen::MatrixXd> &listData) {
 
     unsigned int idof = 0;
 
-    if (m_interpK->count(idof) == 0) {
+    if (m_interpIRF.at(IRF_type)->count(idof) == 0) {
 
       for (auto &data: listData) {
         assert(data.rows() == 6);
@@ -268,7 +278,7 @@ namespace hdb5_io {
         }
         table->AddY(BodyMotion->GetName(), vdata);
 
-        m_interpK->insert(std::make_pair(idof, table));
+        m_interpIRF.at(IRF_type)->insert(std::make_pair(idof, table));
 
         idof++;
       }
@@ -279,49 +289,7 @@ namespace hdb5_io {
         for (unsigned int j = 0; j < data.cols(); ++j) {
           vdata.emplace_back(data.col(j));
         }
-        m_interpK->at(idof)->AddY(BodyMotion->GetName(), vdata);
-        idof++;
-      }
-    }
-
-    m_isIRF = true;
-
-  }
-
-  void Body::SetIRF_Ku(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData) {
-
-    unsigned int idof = 0;
-
-    if (m_interpKu->count(idof) == 0) {
-
-      for (auto &data: listData) {
-        assert(data.rows() == 6);
-
-        auto table = std::make_shared<mathutils::LookupTable1D<double, mathutils::Vector6d<double>>>(mathutils::LINEAR);
-
-        auto EigenTime = m_HDB->GetTimeDiscretization();
-        assert(data.cols() == EigenTime.size());
-        std::vector<double> time(&EigenTime(0, 0), EigenTime.data() + EigenTime.size());
-        table->SetX(time);
-
-        std::vector<mathutils::Vector6d<double>> vdata;
-        for (unsigned int j = 0; j < data.cols(); ++j) {
-          vdata.emplace_back(data.col(j));
-        }
-        table->AddY(BodyMotion->GetName(), vdata);
-
-        m_interpKu->insert(std::make_pair(idof, table));
-
-        idof++;
-      }
-    } else {
-      for (auto &data: listData) {
-        assert(data.rows() == 6);
-        std::vector<mathutils::Vector6d<double>> vdata;
-        for (unsigned int j = 0; j < data.cols(); ++j) {
-          vdata.emplace_back(data.col(j));
-        }
-        m_interpKu->at(idof)->AddY(BodyMotion->GetName(), vdata);
+        m_interpIRF.at(IRF_type)->at(idof)->AddY(BodyMotion->GetName(), vdata);
         idof++;
       }
     }
@@ -419,11 +387,15 @@ namespace hdb5_io {
   }
 
   mathutils::Vector3d<double> Body::GetHorizontalPositionInWorld() const {
-    return m_horizontal_position;
+    return m_horizontal_position_in_world_frame;
   }
 
   mathutils::Vector3d<double> Body::GetComputationPointInBodyFrame() const {
-    return m_computation_point;
+    return m_computation_point_in_body_frame;
+  }
+
+  mathutils::Vector2d<double> Body::GetWaveReferencePointInBodyFrame() const {
+    return m_wave_reference_point_in_body_frame;
   }
 
   Mask Body::GetForceMask() const {
@@ -547,24 +519,12 @@ namespace hdb5_io {
   }
 
   Eigen::MatrixXd
-  Body::GetIRFInterpolatedData(Body *BodyMotion, unsigned int idof,
+  Body::GetIRFInterpolatedData(Body *BodyMotion, const std::string& IRF_type, unsigned int idof,
                                mathutils::VectorN<double> frequencies) {
 
     Eigen::MatrixXd data(6, frequencies.size());
     for (unsigned int i = 0; i < frequencies.size(); i++) {
-      data.col(i) = m_interpK->at(idof)->Eval(BodyMotion->GetName(), frequencies(i));
-    }
-    return data;
-
-  }
-
-  Eigen::MatrixXd
-  Body::GetIRF_KuInterpolatedData(Body *BodyMotion, unsigned int idof,
-                               mathutils::VectorN<double> frequencies) {
-
-    Eigen::MatrixXd data(6, frequencies.size());
-    for (unsigned int i = 0; i < frequencies.size(); i++) {
-      data.col(i) = m_interpKu->at(idof)->Eval(BodyMotion->GetName(), frequencies(i));
+      data.col(i) = m_interpIRF.at(IRF_type)->at(idof)->Eval(BodyMotion->GetName(), frequencies(i));
     }
     return data;
 
@@ -609,12 +569,8 @@ namespace hdb5_io {
 
   }
 
-  Body::HDBinterpolator *Body::GetIRFInterpolator() const {
-    return m_interpK.get();
-  }
-
-  Body::HDBinterpolator *Body::GetIRF_KuInterpolator() const {
-    return m_interpKu.get();
+  Body::HDBinterpolator *Body::GetIRFInterpolator(const std::string& IRF_type) const {
+    return m_interpIRF.at(IRF_type).get();
   }
 
   Eigen::MatrixXd Body::GetAddedMass(Body *BodyMotion, unsigned int imotion) const {

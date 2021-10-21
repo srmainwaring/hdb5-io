@@ -195,14 +195,17 @@ namespace hdb5_io {
     dataSet.write(body->GetName());
     dataSet.createAttribute<std::string>("Description", "Body name");
 
-    // Position.
+    // Horizontal in the world frame.
     auto BodyPosition = body->GetHorizontalPositionInWorld();
     H5Easy::dump(file, path + "/HorizontalPosition/x", static_cast<double> (BodyPosition(0)));
     H5Easy::dump(file, path + "/HorizontalPosition/y", static_cast<double> (BodyPosition(1)));
     H5Easy::dump(file, path + "/HorizontalPosition/psi", static_cast<double> (BodyPosition(2))); // Degrees.
 
-    // Computation point.
+    // Computation point in the body frame.
     H5Easy::dump(file, path + "/ComputationPoint", static_cast<Eigen::Vector3d> (body->GetComputationPointInBodyFrame()));
+
+    // Wave reference point in the body frame.
+    H5Easy::dump(file, path + "/WaveReferencePoint", static_cast<Eigen::Vector2d> (body->GetWaveReferencePointInBodyFrame()));
 
     // Mask.
     auto ExcitationGroup = bodyGroup.createGroup("Excitation");
@@ -472,7 +475,7 @@ namespace hdb5_io {
                                               std::to_string(body->GetID()) + ".");
         for (unsigned int imotion = 0; imotion < 6; imotion++) {
           H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK/DOF_" + std::to_string(imotion),
-                       body->GetIRFInterpolatedData(bodyMotion, imotion, time));
+                       body->GetIRFInterpolatedData(bodyMotion, "K", imotion, time));
           auto DOF = KGroup.getDataSet("DOF_" + std::to_string(imotion));
           DOF.createAttribute("Description", "Impulse response functions K");
         }
@@ -485,9 +488,39 @@ namespace hdb5_io {
                                                std::to_string(body->GetID()) + ".");
         for (unsigned int imotion = 0; imotion < 6; imotion++) {
           H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU/DOF_" + std::to_string(imotion),
-                       body->GetIRF_KuInterpolatedData(bodyMotion, imotion, time));
+                       body->GetIRFInterpolatedData(bodyMotion, "KU", imotion, time));
           auto DOF = KUGroup.getDataSet("DOF_" + std::to_string(imotion));
           DOF.createAttribute("Description", "Impulse response functions KU");
+        }
+
+        // Writing the impulse response function KUXDerivative for the body.
+        if (m_hdb->GetIsXDerivative()) {
+          auto KUXDerivativeGroup = bodyMotionGroup.createGroup("ImpulseResponseFunctionKUXDerivative");
+          KUXDerivativeGroup.createAttribute("Description", "Impulse response functions KUXDerivative due to the velocity of body " +
+                                                 std::to_string(bodyMotion->GetID()) +
+                                                 " that radiates waves and generates forces on body " +
+                                                 std::to_string(body->GetID()) + ".");
+          for (unsigned int imotion = 0; imotion < 6; imotion++) {
+            H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKUXDerivative/DOF_" + std::to_string(imotion),
+                         body->GetIRFInterpolatedData(bodyMotion, "KUXDerivative", imotion, time));
+            auto DOF = KUXDerivativeGroup.getDataSet("DOF_" + std::to_string(imotion));
+            DOF.createAttribute("Description", "Impulse response functions KU");
+          }
+        }
+
+        // Writing the impulse response function KU2 for the body.
+        if (m_hdb->GetIsXDerivative()) {
+          auto KU2 = bodyMotionGroup.createGroup("ImpulseResponseFunctionKU2");
+          KU2.createAttribute("Description", "Impulse response functions KU2 due to the velocity of body " +
+                                                            std::to_string(bodyMotion->GetID()) +
+                                                            " that radiates waves and generates forces on body " +
+                                                            std::to_string(body->GetID()) + ".");
+          for (unsigned int imotion = 0; imotion < 6; imotion++) {
+            H5Easy::dump(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU2/DOF_" + std::to_string(imotion),
+                         body->GetIRFInterpolatedData(bodyMotion, "KU2", imotion, time));
+            auto DOF = KU2.getDataSet("DOF_" + std::to_string(imotion));
+            DOF.createAttribute("Description", "Impulse response functions KU");
+          }
         }
       }
 
@@ -800,12 +833,6 @@ namespace hdb5_io {
     dataSet.createAttribute<std::string>("Description", "Green function.");
 
     H5Easy::dump(file, "ExpertParameters/Crmax", static_cast<int> (m_hdb->GetCrmax()));
-
-//    auto WaveReferencePoint = file.createGroup("ExpertParameters/WaveReferencePoint");
-//    double x, y;
-//    m_hdb->GetWaveReferencePoint(x, y);
-//    H5Easy::dump(file, "ExpertParameters/WaveReferencePoint/x", static_cast<double> (x));
-//    H5Easy::dump(file, "ExpertParameters/WaveReferencePoint/y", static_cast<double> (y));
 
   }
 

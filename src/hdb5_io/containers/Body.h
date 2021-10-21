@@ -14,6 +14,7 @@
 #include "Mask.h"
 #include "Mesh.h"
 #include "PoleResidue.h"
+#include "MathUtils/Vector2d.h"
 
 namespace hdb5_io {
 
@@ -57,11 +58,15 @@ namespace hdb5_io {
 
     /// Define the horizontal position of body in world.
     /// \param position Position of the body
-    void SetHorizontalPositionInWorld(const mathutils::Vector3d<double> &horizontal_position);
+    void SetHorizontalPositionInWorld(const mathutils::Vector3d<double> &horizontal_position_in_world_frame);
 
     /// Define the computation point in the body frame.
     /// \param position Position of the body
-    void SetComputationPointInBodyFrame(const mathutils::Vector3d<double> &computation_point);
+    void SetComputationPointInBodyFrame(const mathutils::Vector3d<double> &computation_point_in_body_frame);
+
+    /// Define the wave reference point in the body frame.
+    /// \param position Position of the body
+    void SetWaveReferencePointInBodyFrame(const mathutils::Vector2d<double> &wave_reference_point_in_body_frame);
 
     /// Define the mask on the force components
     /// \param mask Mask on the force components
@@ -175,17 +180,11 @@ namespace hdb5_io {
     /// \param RAO Complex vector of the response amplitude operator
     void SetRAO(unsigned int iangle, unsigned int iw, const Eigen::VectorXcd &RAO);
 
-    /// Set the impulse response function, as interpolator from a list of data
+    /// Set an impulse response function, as interpolator from a list of data
     /// \param BodyMotion body at the origin of the motion impulse
     /// \param listData data with format iforce x (imotion, iomega) : std::vector is for the iforce dimension, while
     ///         MatrixXds are of dimensions imotion (from the bodyMotion body) x iomega
-    void SetIRF(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData);
-    
-    /// Set the impulse response function for the forward speed correction, as interpolator from a list of data
-    /// \param BodyMotion body at the origin of the motion impulse
-    /// \param listData data with format iforce x (imotion, iomega). std::vector is for the iforce dimension, while
-    ///         MatrixXds are of dimensions imotion (from the bodyMotion body) x iomega
-    void SetIRF_Ku(Body *BodyMotion, const std::vector<Eigen::MatrixXd> &listData);
+    void SetIRF(Body *BodyMotion, const std::string &IRF_type, const std::vector<Eigen::MatrixXd> &listData);
 
     /// Set the added mass for current body iforce dof, from BodyMotion imotion dof, for a set of frequencies
     /// \param BodyMotion body at the origin of the motion
@@ -310,6 +309,10 @@ namespace hdb5_io {
     /// Return the computation point position of the body in the body frame.
     /// \return position of the body
     mathutils::Vector3d<double> GetComputationPointInBodyFrame() const;
+
+    /// Return the wave reference point of the body in the body frame.
+    /// \return position of the body
+    mathutils::Vector2d<double> GetWaveReferencePointInBodyFrame() const;
 
     /// Return the mask value applied on a specific motion mode
     /// \param iforce Index of force
@@ -501,30 +504,17 @@ namespace hdb5_io {
     /// \return matrix containing the radiation damping with dimensions : (iforce, imotion)
     Matrix66 GetXDerivativeRadiationDampingPerFrequency(Body* BodyMotion, unsigned int iomega) const;
 
-    /// Get the impulse response function interpolator
+    /// Get an impulse response function interpolator
     /// \return interpolatorimpulse response function interpolator
-    HDBinterpolator *GetIRFInterpolator() const;
-    
-    /// Get the impulse response function, for forward speed correction, interpolator
-    /// \return interpolatorimpulse response function, for forward speed correction, interpolator
-    HDBinterpolator *GetIRF_KuInterpolator() const;
+    HDBinterpolator *GetIRFInterpolator(const std::string& IRF_type) const;
 
-    /// Get the impulse response function interpolated data for the following parameters
+    /// Get an impulse response function interpolated data for the following parameters
     /// \param BodyMotion body at the origin of the perturbation
     /// \param idof index of the degree of freedom considered
     /// \param frequencies set of frequencies for which the data are interpolated
     /// \return interpolated data in matrix form (6 x nfreq)
     Eigen::MatrixXd
-    GetIRFInterpolatedData(Body *BodyMotion, unsigned int idof,
-                           mathutils::VectorN<double> frequencies);
-    
-    /// Get the impulse response function, for the forward speed correction, interpolated data for the following parameters
-    /// \param BodyMotion body at the origin of the perturbation
-    /// \param idof index of the degree of freedom considered
-    /// \param frequencies set of frequencies for which the data are interpolated
-    /// \return interpolated data in matrix form (6 x nfreq)
-    Eigen::MatrixXd
-    GetIRF_KuInterpolatedData(Body *BodyMotion, unsigned int idof,
+    GetIRFInterpolatedData(Body *BodyMotion, const std::string& IRF_type, unsigned int idof,
                            mathutils::VectorN<double> frequencies);
 
     /// Get the modal coefficients (poles and residues) for the 6DOFs
@@ -545,8 +535,9 @@ namespace hdb5_io {
     HydrodynamicDataBase *m_HDB;                   ///< HDB containing this data container
     unsigned int m_id;                             ///< ID of the BEM Body
     std::string m_name;                            ///< Name of the body
-    mathutils::Vector3d<double> m_horizontal_position;   ///< Horizontal position of the body (x, y, psi).
-    mathutils::Vector3d<double> m_computation_point;   ///< Computation point in body frame.
+    mathutils::Vector3d<double> m_horizontal_position_in_world_frame;   ///< Horizontal position of the body in the world frame (x, y, psi).
+    mathutils::Vector3d<double> m_computation_point_in_body_frame;   ///< Computation point in body frame (m).
+    mathutils::Vector2d<double> m_wave_reference_point_in_body_frame; ///< Wave reference point in the body frame (m).
 
     Mask m_forceMask;                              ///< Mask applied on the force
 
@@ -614,8 +605,8 @@ namespace hdb5_io {
 
     std::unordered_map<Body *, std::vector<std::vector<PoleResidue>>> m_modalCoefficients;  ///< modal coefficients
 
-    std::shared_ptr<HDBinterpolator> m_interpK;    ///< Impulse response function interpolator
-    std::shared_ptr<HDBinterpolator> m_interpKu;   ///< Impulse response function speed dependent interpolator
+    /// Impulse response function interpolators (K, KU, KUXderivative, KU2).
+    std::unordered_map<std::string, std::shared_ptr<HDBinterpolator>> m_interpIRF;
     bool m_isIRF = false;
 
     /// Allocate the body containers

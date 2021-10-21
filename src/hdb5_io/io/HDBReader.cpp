@@ -158,6 +158,12 @@ namespace hdb5_io {
       body->SetComputationPointInBodyFrame(Eigen::Vector3d::Zero());
     }
 
+    if (file.exist(path + "/WaveReferencePoint")) {
+      body->SetWaveReferencePointInBodyFrame(H5Easy::load<Eigen::Vector2d>(file, path + "/WaveReferencePoint"));
+    } else {
+      body->SetWaveReferencePointInBodyFrame(mathutils::Vector2d<double>::Zero());
+    }
+
     // Hydrostatic matrix.
     if (file.exist(path + "/Hydrostatic")) {
       mathutils::Matrix66<double> stiffnessMatrix;
@@ -265,15 +271,27 @@ namespace hdb5_io {
 
       // Reading the impulse response functions.
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionK")) {
-        auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK",
-                                                        mask);
-        body->SetIRF(bodyMotion, impulseResponseFunctionsK);
+        auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionK", mask);
+        body->SetIRF(bodyMotion, "K", impulseResponseFunctionsK);
       }
 
       if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionKU")) {
-        auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU",
-                                                        mask);
-        body->SetIRF_Ku(bodyMotion, impulseResponseFunctionsK);
+        auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU", mask);
+        body->SetIRF(bodyMotion, "KU", impulseResponseFunctionsK);
+      }
+
+      if (m_hdb->GetIsXDerivative()) {
+        if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionKUXDerivative")) {
+          auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKUXDerivative", mask);
+          body->SetIRF(bodyMotion, "KUXDerivative", impulseResponseFunctionsK);
+        }
+      }
+
+      if (m_hdb->GetIsXDerivative()) {
+        if (HDF5_file.exist(bodyMotionPath + "/ImpulseResponseFunctionKU2")) {
+          auto impulseResponseFunctionsK = ReadComponents(HDF5_file, bodyMotionPath + "/ImpulseResponseFunctionKU2", mask);
+          body->SetIRF(bodyMotion, "KU2", impulseResponseFunctionsK);
+        }
       }
 
       // Reading the added mass and radiation damping coefficients
@@ -473,9 +491,6 @@ namespace hdb5_io {
     m_hdb->SetSurfaceIntegrationOrder(H5Easy::load<int>(file, "ExpertParameters/SurfaceIntegrationOrder"));
     m_hdb->SetGreenFunction(H5Easy::load<std::string>(file, "ExpertParameters/GreenFunction"));
     m_hdb->SetCrmax(H5Easy::load<int>(file, "ExpertParameters/Crmax"));
-//    auto x = H5Easy::load<double>(file, "ExpertParameters/WaveReferencePoint/x");
-//    auto y = H5Easy::load<double>(file, "ExpertParameters/WaveReferencePoint/y");
-//    m_hdb->SetWaveReferencePoint(x, y);
 
   }
 
@@ -750,6 +765,13 @@ namespace hdb5_io {
       if (file.exist(bodyMotionPath + "/ZeroFreqAddedMass")) {
         auto zeroFreqAddedMass = H5Easy::load<Eigen::MatrixXd>(file, bodyMotionPath + "/ZeroFreqAddedMass");
         body->SetZeroFreqAddedMass(bodyMotion, zeroFreqAddedMass);
+      }
+
+      if (m_hdb->GetIsXDerivative()) {
+        if (file.exist(bodyMotionPath + "/ZeroFreqAddedMassXDerivative")) {
+          auto zeroFreqAddedMassXDerivative = H5Easy::load<Eigen::MatrixXd>(file, bodyMotionPath + "/ZeroFreqAddedMassXDerivative");
+          body->SetXDerivativeZeroFreqAddedMass(bodyMotion, zeroFreqAddedMassXDerivative);
+        }
       }
 
       if (file.exist(bodyMotionPath + "/Modal")) {

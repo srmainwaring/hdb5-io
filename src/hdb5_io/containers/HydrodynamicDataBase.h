@@ -193,8 +193,8 @@ namespace hdb5_io {
     int m_surface_integration_order; /// Surface integration order.
     std::string m_Green_function; /// Method for evaluating the Green's function.
     double m_Crmax; /// Distance criteria threshold for applying the far-field approximation for computing the influence coefficients.
-//    double m_wave_reference_point_x; // x-coordinate of the wave reference point (m).
-//    double m_wave_reference_point_y; // y-coordinate of the wave reference point (m).
+    double m_wave_reference_point_x; // x-coordinate of the wave reference point (m).
+    double m_wave_reference_point_y; // y-coordinate of the wave reference point (m).
 
     int m_nbody;                      ///< Number of bodies in interaction considered in the HDB
     // FIXME :: change the vector to unordered_map with index as key, to be sure which body to get with the GetBody method
