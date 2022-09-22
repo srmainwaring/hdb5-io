@@ -120,4 +120,6 @@ TEST(hdb5_io, import_export) {
 
   export_HDB("out_2.hdb5", HDB_2.get());
 
+  std::cout << "Import-export test: ok!" << std::endl;
+
 }

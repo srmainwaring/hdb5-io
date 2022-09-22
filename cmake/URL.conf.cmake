@@ -4,7 +4,7 @@
 
 # MathUtils
 set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-set(mathutils_TAG v1.8.3 CACHE STRING "MathUtils version")
+set(mathutils_TAG v1.14.1 CACHE STRING "MathUtils version")
 set(MATHUTILS_BUILD_TESTS OFF CACHE BOOL "")
 set(MATHUTILS_BUILD_BOOST_TESTS OFF CACHE BOOL "")
 
