@@ -16,7 +16,7 @@ set(hdf5_TAG 1.13.1)
 
 # HighFive
 set(highfive_URL https://github.com/BlueBrain/HighFive.git)
-set(highfive_TAG v2.2.2)
+set(highfive_TAG v2.4.1)
 set(highfive_PATCH highfive.patch CACHE STRING "highfive version")
 
 
