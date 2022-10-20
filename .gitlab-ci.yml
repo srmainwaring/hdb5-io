@@ -16,5 +16,5 @@ build:
     - rm -rf build
     - mkdir build
     - cd build
-    - cmake .. -DUSE_VTK=ON
+    - cmake .. -DHDB5IO_USE_VTK=OFF
     - make all test -j4
