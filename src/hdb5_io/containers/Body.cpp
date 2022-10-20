@@ -16,7 +16,9 @@
 namespace hdb5_io {
 
   Body::Body(unsigned int id, const std::string &name, HydrodynamicDataBase *hdb) : m_id(id), m_name(name), m_HDB(hdb) {
+    #ifdef MESH_SUPPORT
     m_mesh = std::make_shared<Mesh>();
+    #endif
     auto interpK = std::make_shared<HDBinterpolator>();
     m_interpIRF.insert(std::make_pair("K",interpK));
     auto interpKU = std::make_shared<HDBinterpolator>();
@@ -323,10 +325,12 @@ namespace hdb5_io {
     m_isDamping = true;
   }
 
+#ifdef MESH_SUPPORT
   void
   Body::LoadMesh(const std::vector<mathutils::Vector3d<double>> &vertices, const std::vector<Eigen::VectorXi> &faces) {
     m_mesh->Load(vertices, faces);
   }
+#endif
 
   void Body::AddModalCoefficients(Body *BodyMotion, const std::vector<PoleResidue> &modalCoefficients) {
     if (m_modalCoefficients.count(BodyMotion)>0) {
@@ -402,9 +406,11 @@ namespace hdb5_io {
     return m_forceMask;
   }
 
+#ifdef MESH_SUPPORT
   Mesh *Body::GetMesh() const {
     return m_mesh.get();
   }
+#endif
 
   Matrix33 Body::GetHydrostaticStiffnessMatrix() const {
     return m_hydrostaticStiffnessMatrix;

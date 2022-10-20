@@ -21,10 +21,9 @@ endif (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 cmake_policy(SET CMP0077 NEW)
 
 option(BUILD_SHARED_LIBS "Shared lib version" OFF)
-message(STATUS "BUILD_SHARED_LIBS set to ${BUILD_SHARED_LIBS} in hdb5_io")
-option(USE_VTK "Enable VTK Support" OFF)
+option(HDB5IO_USE_VTK "Enable VTK Support" OFF)
+option(HDB5IO_MESH_SUPPORT "Build with mesh support from meshoui" ON)
 option(HDB5IO_BUILD_TESTS "Activate build tests" ON)
-
 
 message(STATUS "SHARED_LIB set to ${BUILD_SHARED_LIBS} in hdb5_io")
 
@@ -49,14 +48,18 @@ endif ()
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/URL.conf.cmake)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-if (USE_VTK)
+if (HDB5IO_USE_VTK)
     include(Add_VTK)
 endif ()
 
+include(Add_Eigen3)
 include(Add_mathutils)
-include(Add_HDF5)
+include(Add_zlib)
+include(Add_hdf5)
 include(Add_HighFive)
-include(Add_meshoui)
+if (HDB5IO_MESH_SUPPORT)
+    include(Add_meshoui)
+endif()
 
 #=============================================================================
 # Adding the HDB5_IO project sources

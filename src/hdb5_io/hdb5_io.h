@@ -8,7 +8,9 @@
 #include "hdb5_io/containers/HydrodynamicDataBase.h"
 #include "hdb5_io/containers/Body.h"
 #include "hdb5_io/containers/Mask.h"
+#ifdef MESH_SUPPORT
 #include "hdb5_io/containers/Mesh.h"
+#endif
 #include "hdb5_io/containers/WaveDrift.h"
 #include "hdb5_io/containers/PoleResidue.h"
 #include "hdb5_io/containers/Kochin.h"

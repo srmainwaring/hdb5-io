@@ -57,11 +57,13 @@ namespace hdb5_io {
     /// \param path path to the body data in the hdb5
     virtual void WriteBodyBasics(HighFive::File &file, const std::string &path, Body *body) const;
 
+#ifdef MESH_SUPPORT
     /// Write the mesh contained in the hydrodynamic database
     /// \param file file to export the hydrodynamic database
     /// \param path path to the mesh in the file
     /// \param body body containing the mesh
     virtual void WriteMesh(HighFive::File &file, const std::string &path, Body *body) const;
+#endif
 
     /// Write the excitation components
     /// \param type excitation type (Diffraction or Froude_Krylov

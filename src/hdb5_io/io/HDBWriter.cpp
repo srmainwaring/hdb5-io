@@ -45,8 +45,10 @@ namespace hdb5_io {
       // Body basic data (index, name, position, mass, etc.).
       WriteBodyBasics(file, "Bodies/Body_" + std::to_string(i), body);
 
+      #ifdef MESH_SUPPORT
       // Body mesh.
       WriteMesh(file, bodyPath, body);
+      #endif
 
       // Diffraction loads.
       WriteExcitation(excitationType::Diffraction, file, bodyPath + "/Excitation/Diffraction", body);
@@ -252,6 +254,7 @@ namespace hdb5_io {
 
   }
 
+#ifdef MESH_SUPPORT
   void HDBWriter::WriteMesh(HighFive::File &file, const std::string &path, Body *body) const {
 
     auto bodyGroup = file.getGroup(path);
@@ -263,6 +266,7 @@ namespace hdb5_io {
     H5Easy::dump(file, path + "/Mesh/Vertices", body->GetMesh()->GetVertices());
 
   }
+#endif
 
   void HDBWriter::WriteExcitation(HDBWriter::excitationType type, HighFive::File &HDF5_file, const std::string &path,
                                   Body *body) const {

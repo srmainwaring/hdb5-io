@@ -455,7 +455,9 @@ namespace hdb5_io {
       faces.emplace_back(face);
     }
 
+    #ifdef MESH_SUPPORT
     body->LoadMesh(vertices, faces);
+    #endif
 
   }
 
