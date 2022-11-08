@@ -17,6 +17,8 @@
 
 namespace hdb5_io {
 
+  HDBWriter::~HDBWriter() {
+  }
 
   void HDBWriter::Write(const std::string &filename) const {
 

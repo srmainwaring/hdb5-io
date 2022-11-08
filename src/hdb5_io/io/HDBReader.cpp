@@ -16,6 +16,9 @@
 
 namespace hdb5_io {
 
+  HDBReader::~HDBReader() {
+  }
+
   void HDBReader::Read(const std::string &filename) {
 
     // HDB file.
@@ -522,6 +525,9 @@ namespace hdb5_io {
     return hdb;
   }
 
+  HDBReader_v2::~HDBReader_v2() {
+  }
+
   void HDBReader_v2::ReadDiscretizations(const HighFive::File &file) {
 
     double min, max;
@@ -600,6 +606,9 @@ namespace hdb5_io {
 
     m_hdb->SetWaveDrift(waveDrift);
 
+  }
+
+  HDBReader_v3::~HDBReader_v3() {
   }
 
   Eigen::VectorXd

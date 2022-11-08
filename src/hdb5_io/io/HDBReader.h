@@ -24,6 +24,7 @@ namespace hdb5_io {
   class HDBReader {
 
    public:
+    virtual ~HDBReader();
 
     /// Constructor of the HDBReader
     /// \param hdb hydrodynamic database in which store the data
@@ -133,6 +134,7 @@ namespace hdb5_io {
   class HDBReader_v2 : public HDBReader {
 
    public:
+    virtual ~HDBReader_v2();
 
     explicit HDBReader_v2(HydrodynamicDataBase *hdb) : HDBReader(hdb) {}
 
@@ -162,6 +164,7 @@ namespace hdb5_io {
   class HDBReader_v3 : public HDBReader {
 
    public:
+    virtual ~HDBReader_v3();
 
     explicit HDBReader_v3(HydrodynamicDataBase *hdb) : HDBReader(hdb) {}
 
@@ -179,7 +182,7 @@ namespace hdb5_io {
 
     /// Read the wave drift data
     /// \param file file containing the hydrodynamic database
-    virtual void ReadWaveDrift(HighFive::File &file);
+    virtual void ReadWaveDrift(HighFive::File &file) override;
 
     /// Read the radiation components
     /// \param file file containing the hydrodynamic database
