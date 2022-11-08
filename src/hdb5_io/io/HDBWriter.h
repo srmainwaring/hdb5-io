@@ -23,6 +23,7 @@ namespace hdb5_io {
   class HDBWriter {
 
    public:
+    virtual ~HDBWriter();
 
     /// Constructor of the HDBWriter
     /// \param hdb hydrodynamic database to write the data
