@@ -3,8 +3,10 @@
 
 
 # MathUtils
-set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-set(mathutils_TAG v1.14.1 CACHE STRING "MathUtils version")
+# set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
+# set(mathutils_TAG v1.14.1 CACHE STRING "MathUtils version")
+set(mathutils_URL https://github.com/srmainwaring/mathutils.git)
+set(mathutils_TAG 4661e678c5905c6ce58d99886c2fbb6b7dd27882 CACHE STRING "MathUtils version")
 set(MATHUTILS_BUILD_TESTS OFF CACHE BOOL "")
 set(MATHUTILS_BUILD_BOOST_TESTS OFF CACHE BOOL "")
 
@@ -24,8 +26,10 @@ set(googletest_TAG release-1.10.0 CACHE STRING "googletest version")
 
 
 # meshoui
-set(meshoui_URL git@frydom-ce.org:ce/meshoui.git)
-set(meshoui_TAG v1.3.1 CACHE STRING "meshoui version")
+# set(meshoui_URL git@frydom-ce.org:ce/meshoui.git)
+# set(meshoui_TAG v1.3.1 CACHE STRING "meshoui version")
+set(meshoui_URL https://github.com/srmainwaring/meshoui.git)
+set(meshoui_TAG c5e9d36656dbb98c949be45acd852b1dd0ef6ec8 CACHE STRING "meshoui version")
 
 # zlib
 set(zlib_URL https://github.com/madler/zlib/archive/refs/tags/v1.2.12.tar.gz)
