@@ -4,9 +4,9 @@
 
 # MathUtils
 # set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-# set(mathutils_TAG v1.14.1 CACHE STRING "MathUtils version")
+# set(mathutils_TAG v1.8.3 CACHE STRING "MathUtils version")
 set(mathutils_URL https://github.com/srmainwaring/mathutils.git)
-set(mathutils_TAG ca9efea4fbb21898851dfdceb99936310834c475 CACHE STRING "MathUtils version")
+set(mathutils_TAG c1b5cfb4a992b82c2721d9dc7f5d8a6e2817d14e CACHE STRING "MathUtils version")
 set(MATHUTILS_BUILD_TESTS OFF CACHE BOOL "")
 set(MATHUTILS_BUILD_BOOST_TESTS OFF CACHE BOOL "")
 
@@ -26,7 +26,7 @@ set(googletest_TAG release-1.10.0 CACHE STRING "googletest version")
 # set(meshoui_URL git@frydom-ce.org:ce/meshoui.git)
 # set(meshoui_TAG v1.3.1 CACHE STRING "meshoui version")
 set(meshoui_URL https://github.com/srmainwaring/meshoui.git)
-set(meshoui_TAG 67d62ef950a17b0574c85afb04e5e3c4f98730e3 CACHE STRING "meshoui version")
+set(meshoui_TAG b93a58f0320bfce6ef6f6a8125cb0b906335ee08 CACHE STRING "meshoui version")
 
 
 # HDF5
